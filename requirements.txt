@@ -1,0 +1,5 @@
+Flask
+gunicorn
+sendgrid
+flask-cors
+groq
