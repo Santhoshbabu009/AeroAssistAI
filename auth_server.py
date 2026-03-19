@@ -66,7 +66,7 @@ def send_otp(email, otp):
     except Exception as e:
         print("SendGrid Error:", e)
 
-# ---------------- HOME ----------------
+# ---------------- HEALTH ----------------
 
 @app.route("/")
 def home():
@@ -80,134 +80,151 @@ def health():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    data = request.json
+    try:
+        data = request.get_json()
+        print("SIGNUP DATA:", data)
 
-    first = data.get("first_name")
-    last = data.get("last_name")
-    email = data.get("email")
-    phone = data.get("phone")
-    password = data.get("password")
+        if not data:
+            return jsonify({"status":"error","message":"No data received"})
 
-    otp = str(random.randint(100000, 999999))
+        first = data.get("first_name")
+        last = data.get("last_name")
+        email = data.get("email")
+        phone = data.get("phone")
+        password = data.get("password")
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
+        if not email or not password:
+            return jsonify({"status":"error","message":"Missing fields"})
 
-    c.execute("SELECT email FROM users WHERE email=?", (email,))
-    if c.fetchone():
+        otp = str(random.randint(100000, 999999))
+
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+
+        c.execute("SELECT email FROM users WHERE email=?", (email,))
+        if c.fetchone():
+            conn.close()
+            return jsonify({"status":"error","message":"Account already exists"})
+
+        c.execute("INSERT INTO users VALUES(?,?,?,?,?,?,?)",
+                  (email, first, last, phone, password, 0, otp))
+
+        conn.commit()
         conn.close()
-        return jsonify({"status":"error","message":"Account already exists"})
 
-    c.execute("INSERT INTO users VALUES(?,?,?,?,?,?,?)",
-              (email, first, last, phone, password, 0, otp))
+        send_otp(email, otp)
 
-    conn.commit()
-    conn.close()
+        return jsonify({"status":"success","message":"OTP sent"})
 
-    send_otp(email, otp)
-
-    return jsonify({"status":"success","message":"OTP sent"})
-
-# ---------------- GOOGLE SIGNUP ----------------
-
-@app.route('/signup_google', methods=['POST'])
-def signup_google():
-    data = request.json
-    email = data.get("email")
-
-    otp = str(random.randint(100000,999999))
-
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-
-    c.execute("SELECT email FROM users WHERE email=?", (email,))
-    if c.fetchone():
-        conn.close()
-        return jsonify({"status":"error","message":"Account exists"})
-
-    c.execute("INSERT INTO users VALUES(?,?,?,?,?,?,?)",
-              (email, "Google", "User", "", "google_login", 0, otp))
-
-    conn.commit()
-    conn.close()
-
-    send_otp(email, otp)
-
-    return jsonify({"status":"success","message":"OTP sent"})
+    except Exception as e:
+        print("SIGNUP ERROR:", e)
+        return jsonify({"status":"error","message":"Server error"})
 
 # ---------------- VERIFY OTP ----------------
 
 @app.route('/verify', methods=['POST'])
 def verify():
-    data = request.json
-    email = data.get("email")
-    otp = data.get("otp")
+    try:
+        data = request.get_json()
+        print("VERIFY DATA:", data)
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
+        email = data.get("email")
+        otp = data.get("otp")
 
-    c.execute("SELECT otp FROM users WHERE email=?", (email,))
-    row = c.fetchone()
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
 
-    if row and row[0] == otp:
-        c.execute("UPDATE users SET verified=1 WHERE email=?", (email,))
-        conn.commit()
+        c.execute("SELECT otp FROM users WHERE email=?", (email,))
+        row = c.fetchone()
+
+        if row and row[0] == otp:
+            c.execute("UPDATE users SET verified=1 WHERE email=?", (email,))
+            conn.commit()
+            conn.close()
+            return jsonify({"status":"success","message":"verified"})
+
         conn.close()
-        return jsonify({"status":"success","message":"verified"})
+        return jsonify({"status":"error","message":"Invalid OTP"})
 
-    conn.close()
-    return jsonify({"status":"error","message":"Invalid OTP"})
+    except Exception as e:
+        print("VERIFY ERROR:", e)
+        return jsonify({"status":"error","message":"Server error"})
 
 # ---------------- LOGIN ----------------
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
+    try:
+        data = request.get_json()
+        print("LOGIN DATA:", data)
 
-    email = data.get("email")
-    password = data.get("password")
+        if not data:
+            return jsonify({"status": "error", "message": "No data received"})
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
+        email = data.get("email")
+        password = data.get("password")
 
-    c.execute("SELECT password, verified FROM users WHERE email=?", (email,))
-    user = c.fetchone()
-    conn.close()
+        if not email or not password:
+            return jsonify({"status":"error","message":"Missing fields"})
 
-    if user is None:
-        return jsonify({"status":"error","message":"Account not found"})
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
 
-    stored_password, verified = user
+        c.execute("SELECT password, verified FROM users WHERE email=?", (email,))
+        user = c.fetchone()
+        conn.close()
 
-    if verified == 0:
-        return jsonify({"status":"error","message":"Email not verified"})
+        if user is None:
+            return jsonify({"status":"error","message":"Account not found"})
 
-    if password != stored_password:
-        return jsonify({"status":"error","message":"Invalid password"})
+        stored_password, verified = user
 
-    return jsonify({"status":"success","message":"Login successful"})
+        if verified == 0:
+            return jsonify({"status":"error","message":"Email not verified"})
+
+        if password != stored_password:
+            return jsonify({"status":"error","message":"Invalid password"})
+
+        print("LOGIN SUCCESS")
+
+        return jsonify({
+            "status":"success",
+            "message":"Login successful",
+            "email": email
+        })
+
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return jsonify({"status":"error","message":"Server error"})
 
 # ---------------- GOOGLE LOGIN ----------------
 
 @app.route('/google_login', methods=['POST'])
 def google_login():
-    data = request.json
-    email = data.get("email")
+    try:
+        data = request.get_json()
+        print("GOOGLE LOGIN:", data)
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
+        email = data.get("email")
 
-    c.execute("SELECT verified FROM users WHERE email=?", (email,))
-    user = c.fetchone()
-    conn.close()
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
 
-    if user is None:
-        return jsonify({"status":"error","message":"Signup first"})
+        c.execute("SELECT verified FROM users WHERE email=?", (email,))
+        user = c.fetchone()
+        conn.close()
 
-    if user[0] == 0:
-        return jsonify({"status":"error","message":"Email not verified"})
+        if user is None:
+            return jsonify({"status":"error","message":"Signup first"})
 
-    return jsonify({"status":"success","message":"Google login successful"})
+        if user[0] == 0:
+            return jsonify({"status":"error","message":"Email not verified"})
+
+        return jsonify({"status":"success","message":"Google login successful"})
+
+    except Exception as e:
+        print("GOOGLE LOGIN ERROR:", e)
+        return jsonify({"status":"error","message":"Server error"})
 
 # ---------------- AI CHAT ----------------
 
@@ -218,7 +235,7 @@ conversation_history = [
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        data = request.json
+        data = request.get_json()
         message = data.get("message","")
 
         conversation_history.append({
@@ -240,11 +257,11 @@ def chat():
             "content":reply
         })
 
-        return jsonify({"reply":reply})
+        return jsonify({"status":"success","reply":reply})
 
     except Exception as e:
         print("AI ERROR:", e)
-        return jsonify({"reply":"AI server error"})
+        return jsonify({"status":"error","reply":"AI server error"})
 
 # ---------------- RUN ----------------
 
