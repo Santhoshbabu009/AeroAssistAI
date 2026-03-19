@@ -1,5 +1,5 @@
-Flask
-gunicorn
-sendgrid
+flask
 flask-cors
+sendgrid
 groq
+gunicorn
