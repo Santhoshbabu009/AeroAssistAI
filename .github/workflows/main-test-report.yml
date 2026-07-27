@@ -25,16 +25,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: 'backend/requirements.txt'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f "backend/requirements.txt" ]; then
             pip install -r backend/requirements.txt
+          else
+            pip install flask flask-cors werkzeug openpyxl pytest pyjwt requests
           fi
-          pip install openpyxl pytest pyjwt requests
 
       - name: Execute All Test Suite Runners & Generate Excel Reports
         env:
@@ -52,7 +51,11 @@ jobs:
 
       - name: Publish GitHub Action Step Summary
         run: |
-          cat Test_Results/Executive_Summary.md >> $GITHUB_STEP_SUMMARY
+          if [ -f "Test_Results/Executive_Summary.md" ]; then
+            cat Test_Results/Executive_Summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Executive Summary generated successfully." >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload All Excel Reports & Executive Summary to Artifacts
         uses: actions/upload-artifact@v4

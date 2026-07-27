@@ -33,16 +33,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: 'backend/requirements.txt'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f "backend/requirements.txt" ]; then
             pip install -r backend/requirements.txt
+          else
+            pip install flask flask-cors werkzeug pytest openpyxl pyjwt requests pytest-cov
           fi
-          pip install pytest openpyxl pyjwt requests pytest-cov
 
       - name: Run Backend Unit & Integration Test Suites
         env:
