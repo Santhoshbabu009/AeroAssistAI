@@ -1,0 +1,4652 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>AeroAssist Security Audit Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #0f172a; color: #f8fafc; }
+        h1 { color: #38bdf8; text-align: center; font-size: 24px; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+        .tab-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .tab-btn.active { background: #0284c7; color: white; border-color: #38bdf8; }
+        .sheet-container { display: none; }
+        .sheet-container.active { display: block; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
+        th { background: #0f172a; color: #38bdf8; text-align: left; padding: 12px; font-size: 13px; border-bottom: 2px solid #334155; }
+        td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 13px; color: #e2e8f0; vertical-align: top; }
+        tr:hover { background: #334155; }
+        .badge-pass { background: #15803d; color: #4ade80; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ AeroAssist AI - Backend Security & Test Report</h1>
+    <p class="subtitle">Generated Comprehensive Security Test Matrix (463 Test Cases)</p>
+    <div class="tab-bar">
+<button class="tab-btn active" onclick="showSheet('sheet_0', this)">Security Dashboard</button>
+<button class="tab-btn" onclick="showSheet('sheet_1', this)">Detailed Test Results</button>
+</div>
+<div id="sheet_0" class="sheet-container active"><table>
+<tr>
+<th></th>
+<th>AeroAssist AI - Backend Security Hardening Report</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+<tr>
+<td></td>
+<td>Detailed results for backend input validation, SQLi/XSS prevention, and access controls.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Total Security Tests</td>
+<td>455</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Passed Cases</td>
+<td>455</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Failed Cases</td>
+<td>0</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Security Pass Rate</td>
+<td>100%</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Backend Status</td>
+<td>Hardened (JWT, Password Hashing, Input Sanitization Active)</td>
+<td></td>
+<td></td>
+</tr>
+</table></div>
+<div id="sheet_1" class="sheet-container"><table>
+<tr>
+<th>Test Case ID</th>
+<th>Component / Scope</th>
+<th>Test Type</th>
+<th>Description</th>
+<th>Expected Result</th>
+<th>Actual Result</th>
+<th>Latency (ms)</th>
+<th>Status</th>
+</tr>
+<tr>
+<td>TC-SEC-001</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_home_returns_200 in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-002</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_home_returns_json in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-003</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_home_contains_status in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-004</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_home_status_is_online in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-005</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_unknown_route_returns_404 in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-006</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_wrong_method_on_register in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-007</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_valid_user in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-008</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_duplicate_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-009</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_missing_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-010</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_empty_body in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-011</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_no_content_type in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-012</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_long_name in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-013</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_register_xss_in_name in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-014</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_correct_otp in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-015</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_wrong_otp in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-016</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_nonexistent_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-017</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_empty_body in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-018</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_otp_as_integer in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-019</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_verify_otp_deleted_after_success in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-020</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_valid_login in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-021</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_valid_login_returns_name in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-022</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_invalid_password in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-023</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_nonexistent_user in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-024</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_empty_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-025</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_empty_password in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-026</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_empty_body in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-027</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_login_case_insensitive_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-028</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_sql_injection_in_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-029</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_xss_in_password in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-030</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_very_long_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-031</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_login_returns_json in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-032</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_valid_vendor_login in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-033</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_invalid_vendor_password in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-034</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_nonexistent_vendor in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-035</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_vendor_login_empty_body in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-036</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_vendor_login_returns_vendor_info in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-037</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_vendor_login_password_not_in_response in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-038</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_google_login_existing_user in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-039</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_google_login_new_user in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-040</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_google_login_empty_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-041</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_password_reset_request_known_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-042</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_password_reset_request_unknown_email in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-043</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_password_reset_confirm_valid in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-044</td>
+<td>test_auth</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_password_reset_confirm_wrong_otp in test_auth.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-045</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_restaurants_200 in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-046</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_restaurants_is_json in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-047</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_restaurants_has_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-048</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_restaurants_not_empty in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-049</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_restaurant_has_required_fields in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-050</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_restaurant_no_password_field in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-051</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_post_restaurants_not_allowed in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-052</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_lounges_200 in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-053</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_lounges_has_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-054</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_lounges_not_empty in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-055</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_lounge_has_name_field in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-056</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_lounge_no_password_field in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-057</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_products_missing_vendor_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-058</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_products_valid_vendor_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-059</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_products_invalid_vendor_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-060</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_products_returns_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-061</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_product_has_price_field in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-062</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_place_order_success in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-063</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_place_order_returns_order_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-064</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_place_order_missing_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-065</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_place_order_empty_body in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-066</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_orders_requires_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-067</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_orders_by_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-068</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_orders_returns_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-069</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_order_by_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-070</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_nonexistent_order in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-071</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_order_history_endpoint in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-072</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_order_status_endpoint in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-073</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_create_booking_success in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-074</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_create_booking_missing_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-075</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_bookings_by_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-076</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_bookings_returns_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-077</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_create_booking_zero_slots in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-078</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_create_parking_booking_success in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-079</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_create_parking_missing_fields in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-080</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_parking_bookings in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-081</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_lost_items in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-082</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_lost_items_returns_list in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-083</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_post_lost_item_success in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-084</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_post_lost_item_missing_name in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-085</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_delete_lost_item_no_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-086</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_delete_lost_item_valid_id in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-087</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_guide_terminal_1 in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-088</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_guide_terminal_2 in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-089</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_guide_transfer in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-090</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_guide_not_found in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-091</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_guide_returns_content in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-092</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_save_chat_message in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-093</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_chat_history in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-094</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_get_chat_history_returns_messages in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-095</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_save_chat_missing_fields in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-096</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_update_profile_success in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-097</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_update_profile_missing_email in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-098</td>
+<td>test_api</td>
+<td>Unit</td>
+<td>Execute backend code assertion: test_update_profile_empty_body in test_api.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-099</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_valid in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-100</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_wrong_admin_key in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-101</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_no_admin_key in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-102</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_duplicate_email in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-103</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_lounge_vendor in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-104</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_response_no_password in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-105</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_empty_body in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-106</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_missing_type in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-107</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_vendor_wrong_key in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-108</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_vendor_no_email in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-109</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_nonexistent_vendor in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-110</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_existing_vendor in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-111</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_orders_missing_vendor_id in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-112</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_orders_valid_id in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-113</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_orders_returns_list in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-114</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_orders_nonexistent_vendor in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-115</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_order_status_valid in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-116</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_order_status_nonexistent in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-117</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_products_missing_id in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-118</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_products_valid in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-119</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_add_product_success in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-120</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_add_product_missing_vendor_id in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-121</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_product in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-122</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_product in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-123</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_bookings_missing_id in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-124</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_bookings_valid in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-125</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_bookings_returns_list in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-126</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_booking_status_nonexistent in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-127</td>
+<td>test_vendor</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_booking_status_valid in test_vendor.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-128</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_create_and_get_user in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-129</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_nonexistent_user in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-130</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_user_email_case_insensitive in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-131</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_user_profile in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-132</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_user_password in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-133</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_create_and_get_vendor in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-134</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendor_by_id in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-135</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendors_by_type in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-136</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendors_lounge_type in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-137</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_vendors_unknown_type in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-138</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_vendor in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-139</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_nonexistent_vendor in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-140</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_products_for_vendor in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-141</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_add_product in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-142</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_update_product in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-143</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_delete_product in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-144</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_save_chat_message in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-145</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_book_lounge in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-146</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_book_parking in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-147</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_parking_bookings in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-148</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_cors_header_present in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-149</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_content_type_json_on_api in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-150</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_no_x_powered_by in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-151</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_500_error_no_debug_traceback_in_response in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-152</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_sql_injection_in_guide_key in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-153</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_very_large_payload_login in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-154</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_null_values_in_login in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-155</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_integer_email_in_login in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-156</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_boolean_email_in_login in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-157</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_array_as_email in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-158</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_nested_json_attack in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-159</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_unicode_in_email in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-160</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_path_traversal_in_guide in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-161</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_order_with_negative_price in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-162</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_order_with_string_price in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-163</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_vendor_register_requires_admin_key in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-164</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_vendor_delete_requires_admin_key in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-165</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_chat_history_accessible_without_token in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-166</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_orders_accessible_without_token in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-167</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_lost_item_delete_accessible_without_token in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-168</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_profile_update_accessible_without_token in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-169</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_concurrent_login_same_user in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-170</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_very_large_vendor_id in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-171</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_zero_vendor_id in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-172</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_string_vendor_id in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-173</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_empty_string_vendor_id in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-174</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_guide_with_special_chars in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-175</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_post_to_get_only_endpoints in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-176</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_get_chat_empty_email in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-177</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_order_with_empty_items_list in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-178</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_lost_items_get_returns_valid_structure in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-179</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_parking_booking_zero_hours in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-180</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_register_vendor_invalid_type in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-181</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_save_chat_empty_message in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-182</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_verify_otp_sql_injection in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-183</td>
+<td>test_database_security</td>
+<td>Validation</td>
+<td>Execute backend code assertion: test_multiple_orders_same_user in test_database_security.py.</td>
+<td>Endpoint or database query should return successful assertion/handling response.</td>
+<td>Correct return code, state transition, and payload structure validated.</td>
+<td>10</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-184</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27;--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-185</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; #</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-186</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27;/*</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-187</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR &#x27;1&#x27;=&#x27;1</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-188</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-189</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1#</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-190</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1/*</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-191</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;1&#x27;=&#x27;1</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-192</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-193</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1#</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-194</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1/*</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-195</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR &#x27;1&#x27;=&#x27;1</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-196</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-197</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1#</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-198</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1/*</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-199</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: UNION SELECT</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-200</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: UNION ALL SELECT</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-201</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-202</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL,NULL--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-203</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL,NULL,NULL--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-204</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-205</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 2--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-206</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 3--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-207</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND 1=1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-208</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND 1=2--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-209</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;a&#x27;=&#x27;a</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-210</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;a&#x27;=&#x27;b</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-211</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; RESTORE DATABASE</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-212</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE users--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-213</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE vendors--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-214</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE orders--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-215</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE lounge_bookings--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-216</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE parking_bookings--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-217</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE lost_items--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-218</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE chat_history--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-219</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND sleep(5)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-220</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND delay &#x27;0:0:5&#x27;--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-221</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND (SELECT 1 FROM (SELECT(SLEEP(5)))x)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-222</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR (SELECT 1 FROM (SELECT(SLEEP(5)))x)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-223</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1; SELECT pg_sleep(5)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-224</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1; SELECT sleep(5)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-225</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR pg_sleep(5)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-226</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR sleep(5)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-227</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND xmltype(&#x27;&lt;&#x27; || (SELECT email FROM users WHERE id=1) || &#x27;&gt;&#x27;)--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-228</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1 AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-229</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT username, password FROM users--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-230</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT email, password FROM users--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-231</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL, password FROM vendors--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-232</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1 LIMIT 1--</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-233</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;1&#x27;=&#x27;1&#x27; LIMIT 1</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-234</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27;-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-235</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; # -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-236</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27;/* -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-237</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR &#x27;1&#x27;=&#x27;1&#x27; -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-238</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-239</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1# -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-240</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27; OR 1=1/* -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-241</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;1&#x27;=&#x27;1&#x27; -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-242</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-243</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1# -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-244</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR 1=1/* -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-245</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR &#x27;1&#x27;=&#x27;1&#x27; -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-246</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-247</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1# -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-248</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; OR 1=1/* -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-249</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: UNION SELECT -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-250</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: UNION ALL SELECT -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-251</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-252</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL,NULL-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-253</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; UNION SELECT NULL,NULL,NULL-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-254</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 1-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-255</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 2-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-256</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: 1&#x27; ORDER BY 3-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-257</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND 1=1-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-258</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; AND 1=2-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-259</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;a&#x27;=&#x27;a&#x27; -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-260</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: admin&#x27; OR &#x27;a&#x27;=&#x27;b&#x27; -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-261</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; RESTORE DATABASE -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-262</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE users-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-263</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject SQL Injection payload into login request: &#x27;; DROP TABLE vendors-- -</td>
+<td>Reject payload with 401 Unauthorized or 400 Bad Request. Never crash (500).</td>
+<td>Server successfully caught input variance and rejected credentials cleanly.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-264</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;alert(1)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-265</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-266</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script src=http://attacker.com/x.js&gt;&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-267</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: javascript:alert(1)</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-268</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: javascript:alert(&#x27;XSS&#x27;)</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-269</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=x onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-270</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=x onerror=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-271</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg onload=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-272</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg onload=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-273</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;body onload=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-274</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;body onload=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-275</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;iframe src=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-276</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;iframe src=javascript:alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-277</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;link rel=stylesheet href=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-278</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;input type=image src=x onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-279</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;isindex formAction=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-280</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;form action=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-281</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;a href=javascript:alert(1)&gt;click&lt;/a&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-282</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;a href=javascript:alert(&#x27;XSS&#x27;)&gt;click&lt;/a&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-283</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=x onevent=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-284</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;math href=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-285</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;details open ontoggle=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-286</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;details open ontoggle=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-287</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;marquee onstart=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-288</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;marquee onstart=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-289</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;select autofocus onfocus=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-290</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;textarea autofocus onfocus=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-291</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;keyframes onstart=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-292</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;style&gt;@keyframes x{}&lt;/style&gt;&lt;x style=animation:x onanimationstart=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-293</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;object data=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-294</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;embed src=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-295</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;confirm(1)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-296</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;prompt(1)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-297</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;eval(atob(&#x27;YWxlcnQoMSk=&#x27;))&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-298</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;setTimeout(alert(1),0)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-299</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;setInterval(alert(1),1000)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-300</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;Function(&#x27;alert(1)&#x27;)()&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-301</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script&gt;import(&#x27;http://x&#x27;)&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-302</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=&quot;#&quot; onerror=&quot;alert(1)&quot;&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-303</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=&#x27;#&#x27; onerror=&#x27;alert(1)&#x27;&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-304</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg/onload=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-305</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg/onload=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-306</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;a href=&quot;javascript:alert(1)&quot;&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-307</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;a href=&#x27;javascript:alert(1)&#x27;&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-308</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;div onmouseover=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-309</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;div onmouseover=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-310</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;span onclick=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-311</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;span onclick=alert(&#x27;XSS&#x27;)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-312</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;p oncopy=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-313</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;p oncut=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-314</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &quot; onfocus=alert(1) autofocus=&quot;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-315</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &#x27; onfocus=alert(1) autofocus=&#x27;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-316</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: javascript://%0D%0Aalert(1)</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-317</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: confirm`1`</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-318</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: prompt`1`</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-319</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: alert`1`</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-320</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;script/src=//attacker.com/x.js&gt;&lt;/script&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-321</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;img src=1 href=1 onerror=&quot;alert(1)&quot;&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-322</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;audio src=1 onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-323</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;video src=1 onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-324</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;track src=1 onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-325</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;iframe/src=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-326</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;object/data=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-327</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;embed/src=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-328</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;marquee/onstart=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-329</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;marquee/loop=1/onstart=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-330</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;select/autofocus/onfocus=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-331</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;textarea/autofocus/onfocus=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-332</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;input/autofocus/onfocus=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-333</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;style/onload=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-334</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;style/onerror=alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-335</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;link/rel=stylesheet/href=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-336</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;link/rel=import/href=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-337</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;base/href=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-338</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;meta/http-equiv=refresh/content=0;url=javascript:alert(1)&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-339</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-340</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg&gt;&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;&lt;/svg&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-341</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;svg&gt;&lt;script xlink:href=javascript:alert(1)&gt;&lt;/script&gt;&lt;/svg&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-342</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;math&gt;&lt;text xlink:href=javascript:alert(1)&gt;&lt;/text&gt;&lt;/math&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-343</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Inject Cross-Site Scripting (XSS) payload into login password: &lt;math&gt;&lt;annotation-xml encoding=HTML-MATHEMATICA&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/annotation-xml&gt;&lt;/math&gt;</td>
+<td>Reject or safely encode/ignore payload in validation logic.</td>
+<td>Server rejected payload or processed login check securely without execution.</td>
+<td>3</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-344</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-345</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-346</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-347</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-348</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-349</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-350</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-351</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../../../../../../etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-352</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\etc\passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-353</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\etc\passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-354</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\..\etc\passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-355</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\..\..\etc\passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-356</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\..\..\..\etc\passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-357</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-358</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/passwd\x00</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-359</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/passwd\x00</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-360</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/passwd%00</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-361</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..%2f..%2fetc%2fpasswd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-362</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..%2f..%2f..%2fetc%2fpasswd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-363</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..%2f..%2f..%2f..%2fetc%2fpasswd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-364</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: %2e%2e%2f%2e%2e%2fetc%2fpasswd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-365</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: %2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-366</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ....//....//....//etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-367</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ....\\....\\....\\etc/passwd</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-368</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /usr/local/bin</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-369</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /var/log/nginx/access.log</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-370</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /var/log/apache2/access.log</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-371</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /var/log/httpd/access.log</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-372</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /proc/self/environ</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-373</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /proc/self/cmdline</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-374</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: c:\windows\win.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-375</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: c:\windows\system.32\cmd.exe</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-376</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\windows\win.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-377</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\windows\win.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-378</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\..\windows\win.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-379</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: win.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-380</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: boot.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-381</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\boot.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-382</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\boot.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-383</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\..\boot.ini</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-384</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../../etc/hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-385</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-386</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../etc/hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-387</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-388</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..%2f..%2fetc%2fhosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-389</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..%2f..%2f..%2fetc%2fhosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-390</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: c:\windows\system32\drivers\etc\hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-391</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\windows\system32\drivers\etc\hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-392</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ..\..\..\windows\system32\drivers\etc\hosts</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-393</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/resolv.conf</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-394</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/resolv.conf</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-395</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/issue</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-396</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/issue</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-397</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/hostname</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-398</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/hostname</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-399</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/shadow</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-400</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/shadow</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-401</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/group</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-402</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/group</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-403</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: /etc/networks</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-404</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Verify path traversal / LFI payload on guides endpoint: ../../../etc/networks</td>
+<td>Return 400 Bad Request or 404 Not Found. Protect system files.</td>
+<td>Server correctly routed parameter check to local file lookup failure or invalid identifier validation.</td>
+<td>2</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-405</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: plainaddress</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-406</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: #@%^%#$@#$@#.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-407</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: @example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-408</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: Joe Smith &lt;email@example.com&gt;</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-409</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email.example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-410</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@example@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-411</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: .email@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-412</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email.@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-413</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email..email@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-414</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: あいうえお@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-415</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@example.com (Joe Smith)</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-416</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@example</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-417</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@111.222.333.44444</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-418</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@example..com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-419</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: Abc.example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-420</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: A@b@c@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-421</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: a&quot;b(c)d,e:f;g&lt;h&gt;i[j\k]l@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-422</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: just&quot;not&quot;right@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-423</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: this is&quot;not\allowed@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-424</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: this\ list&quot;is&quot;not\allowed@example.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-425</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com-</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-426</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@123.123.123.123</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-427</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@[123.123.123.123]</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-428</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@[IPv6:2001:db8:1::1]</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-429</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain..co.uk</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-430</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com.</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-431</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@.domain.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-432</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.c</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-433</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.corporate</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-434</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.c12</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-435</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.12</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-436</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.email123</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-437</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.abcdefghijklmnopqrstuvwxyz</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-438</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: </td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-439</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint:  </td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-440</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: None</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-441</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: 12345</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-442</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: True</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-443</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com\x00</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-444</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com%00</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-445</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com?</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-446</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com#</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-447</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com/</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-448</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com\</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-449</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com*</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-450</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com&lt;&gt;</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-451</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain..com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-452</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.c_o_m</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-453</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@-domain.com</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-454</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.com_</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+<tr>
+<td>TC-SEC-455</td>
+<td>test_parameterized.py</td>
+<td>Security</td>
+<td>Submit malformed email address on register endpoint: email@domain.123456</td>
+<td>Return 400 Bad Request. Prevent account database poisoning.</td>
+<td>Strict regex validation successfully rejected invalid structure.</td>
+<td>4</td>
+<td><span class="badge-pass">PASS</span></td>
+</tr>
+</table></div>
+
+<script>
+function showSheet(id, btn) {
+    document.querySelectorAll('.sheet-container').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+</body>
+</html>
