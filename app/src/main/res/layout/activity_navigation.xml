@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f8f9fa">
+
+    <!-- Map Full Screen -->
+    <com.ola.mapsdk.view.OlaMapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top Input Bar (Floating) -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <ImageView 
+                    android:layout_width="24dp" 
+                    android:layout_height="24dp" 
+                    android:src="@drawable/ic_home"
+                    app:tint="#4285F4"/>
+                <TextView
+                    android:id="@+id/tvOrigin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:text="Your location"
+                    android:textSize="17sp"
+                    android:textColor="#3c4043"/>
+                <ImageView 
+                    android:layout_width="20dp" 
+                    android:layout_height="20dp" 
+                    android:src="@android:drawable/ic_menu_more"
+                    app:tint="#5f6368"/>
+            </LinearLayout>
+
+            <View 
+                android:layout_width="match_parent" 
+                android:layout_height="1dp" 
+                android:background="#f1f3f4"
+                android:layout_marginVertical="10dp"
+                android:layout_marginStart="38dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <ImageView 
+                    android:layout_width="24dp" 
+                    android:layout_height="24dp" 
+                    android:src="@drawable/ic_plane"
+                    app:tint="#ea4335"/>
+                <TextView
+                    android:id="@+id/tvDestination"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:text="Choose destination"
+                    android:textSize="17sp"
+                    android:textColor="#70757a"/>
+                <ImageView 
+                    android:layout_width="20dp" 
+                    android:layout_height="20dp" 
+                    android:src="@android:drawable/stat_notify_sync"
+                    android:layout_marginEnd="2dp"
+                    app:tint="#5f6368"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Persistent Bottom Sheet -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:behavior_peekHeight="140dp"
+        app:behavior_hideable="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Drag Handle -->
+            <View
+                android:layout_width="45dp"
+                android:layout_height="5dp"
+                android:layout_gravity="center_horizontal"
+                android:background="#e0e0e0"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- State 1: Choose Destination -->
+            <LinearLayout
+                android:id="@+id/layoutChooseDestination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                android:orientation="vertical">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose destination"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#202124"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+                    
+                    <EditText
+                        android:id="@+id/etSearchPlace"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="56dp"
+                        android:hint="Search any place..."
+                        android:background="@drawable/bg_search_box"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:textColorHint="#999999"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSearchPlace"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@android:drawable/ic_menu_search"
+                        android:backgroundTint="#6200EE"
+                        app:tint="#FFFFFF"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Or select an Airport Terminal:"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="12dp"/>
+
+                <Button
+                    android:id="@+id/findAirportBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Find Nearest Airport"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:backgroundTint="#6200EE"
+                    android:textColor="#FFFFFF"
+                    app:cornerRadius="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:drawableStart="@android:drawable/ic_menu_search"
+                    android:paddingStart="16dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvDestinations"
+                    android:layout_width="match_parent"
+                    android:layout_height="350dp"
+                    android:scrollbars="vertical"/>
+            </LinearLayout>
+
+            <!-- State 2: Drive / Route Details -->
+            <LinearLayout
+                android:id="@+id/layoutRouteDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Drive"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="#202124"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- POI Filter Row -->
+                <HorizontalScrollView
+                    android:id="@+id/indoorFiltersRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="16dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <Button
+                            android:id="@+id/btnFilterGates"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gates"
+                            android:textAllCaps="false"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                        <Button
+                            android:id="@+id/btnFilterRestrooms"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Restrooms"
+                            android:textAllCaps="false"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                        <Button
+                            android:id="@+id/btnFilterFood"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Food"
+                            android:textAllCaps="false"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                        <Button
+                            android:id="@+id/btnFilterSecurity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Security"
+                            android:textAllCaps="false"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                        <Button
+                            android:id="@+id/btnFilterLounges"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lounges"
+                            android:textAllCaps="false"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:id="@+id/tvDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-- min"
+                        android:textSize="28sp"
+                        android:textColor="#188038"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/tvDistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="(-- km)"
+                        android:textSize="20sp"
+                        android:textColor="#5f6368"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fastest route now, avoids road closures"
+                    android:textSize="15sp"
+                    android:textColor="#5f6368"
+                    android:layout_marginBottom="32dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnStartNav"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:text="Start"
+                        android:textSize="16sp"
+                        android:textAllCaps="false"
+                        android:backgroundTint="#00796B"
+                        android:textColor="#FFFFFF"
+                        app:cornerRadius="28dp"
+                        android:layout_marginEnd="12dp"
+                        android:drawableStart="@android:drawable/ic_menu_directions"
+                        android:paddingStart="24dp"/>
+
+                    <Button
+                        android:id="@+id/btnCancelNav"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:text="X"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:textColor="#EA4335"
+                        app:strokeColor="#EA4335"
+                        app:cornerRadius="28dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDirectionsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Step-by-step instructions"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#202124"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRouteSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="300dp"
+                    android:scrollbars="vertical"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

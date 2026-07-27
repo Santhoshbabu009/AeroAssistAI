@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- The "A" shape -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M50,10 L20,90 L35,90 L50,50 L65,90 L80,90 Z" />
+    <!-- The horizontal bar of the A, shaped like a plane trail -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M38,65 L62,65 L65,72 L35,72 Z" />
+    <!-- The Plane flying through -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M60,40 L85,40 L80,30 L95,42 L80,54 L85,44 L60,44 Z" />
+</vector>

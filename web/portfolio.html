@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santhosh B - AI & DS Engineer Portfolio</title>
+  <link rel="stylesheet" href="portfolio.css">
+  <!-- Google Fonts for Futuristic Look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Dynamic Canvas Background for AI Neural Network Particles -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Global HUD Interface Scanlines & Grids -->
+  <div class="hud-grid"></div>
+  <div class="hud-scanlines"></div>
+  
+  <!-- Iron Man HUD Frames -->
+  <div class="hud-frame top-left"></div>
+  <div class="hud-frame top-right"></div>
+  <div class="hud-frame bottom-left"></div>
+  <div class="hud-frame bottom-right"></div>
+
+  <!-- Real-time HUD Status Information -->
+  <div class="hud-status-panel left">
+    <div class="hud-stat-item"><span class="label">CORE:</span> <span class="val pulse">ACTIVE</span></div>
+    <div class="hud-stat-item"><span class="label">SYS_CLK:</span> <span class="val" id="hud-clock">09:47:04</span></div>
+    <div class="hud-stat-item"><span class="label">FPS:</span> <span class="val">60.00</span></div>
+    <div class="hud-stat-item"><span class="label">MEM_USE:</span> <span class="val">24.8MB</span></div>
+  </div>
+
+  <div class="hud-status-panel right">
+    <div class="hud-stat-item"><span class="label">AUDIO:</span> <span class="val" id="hud-audio-status">MUTED</span></div>
+    <div class="hud-stat-item"><span class="label">NET_LINK:</span> <span class="val status-glow">SECURE</span></div>
+    <div class="hud-stat-item"><span class="label">GEO_LOC:</span> <span class="val">IN_MAA</span></div>
+    <div class="hud-stat-item"><span class="label">MODEL:</span> <span class="val">G3.5_FLASH</span></div>
+  </div>
+
+  <!-- Audio Waveform Visualizer Visual Overlay -->
+  <div class="hud-audio-visualizer" id="audio-visualizer">
+    <!-- Visualizer bars will be dynamically inserted here -->
+  </div>
+
+  <!-- Experience Timeline & Progress HUD (Bottom) -->
+  <div class="hud-timeline-container">
+    <div class="hud-timeline-status">
+      <span id="timeline-activity">SYSTEM INITIALIZING...</span>
+      <span id="timeline-percentage">0%</span>
+    </div>
+    <div class="hud-timeline-bar-bg">
+      <div class="hud-timeline-bar-fill" id="timeline-fill"></div>
+    </div>
+    <div class="hud-timeline-markers">
+      <span class="marker active" data-time="0">INTRO</span>
+      <span class="marker" data-time="10">SKILLS</span>
+      <span class="marker" data-time="20">INTERNSHIPS</span>
+      <span class="marker" data-time="30">HONOURS</span>
+      <span class="marker" data-time="40">PROJECTS</span>
+      <span class="marker" data-time="50">COMPILATION</span>
+    </div>
+  </div>
+
+  <!-- Start Overlay Screen -->
+  <div id="start-overlay" class="start-overlay">
+    <div class="glass-container welcome-card">
+      <div class="hud-scanner-glow"></div>
+      <div class="decor-circle outer"></div>
+      <div class="decor-circle inner"></div>
+      <h1 class="welcome-title"><span class="gradient-text">SANTHOSH B</span></h1>
+      <p class="welcome-subtitle">ARTIFICIAL INTELLIGENCE & DATA SCIENCE PORTFOLIO</p>
+      
+      <div class="hud-box">
+        <div class="hud-box-header">INITIALIZING SYSTEMS</div>
+        <div class="hud-box-content">
+          <p>> LOADING NEURAL NETWORK SCHEMATICS... [OK]</p>
+          <p>> COMPILING DYNAMIC AGENTIC AI HUD... [OK]</p>
+          <p>> COUPLING PROCEDURAL SYNTH SOUNDTRACK... [READY]</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 16px; width: 100%; margin-top: 10px;">
+        <button class="launch-btn" id="launch-auto-btn" style="flex: 1;">
+          <span class="btn-glow"></span>
+          <span class="btn-text">AUTO PLAYBACK</span>
+        </button>
+        <button class="launch-btn" id="launch-scroll-btn" style="flex: 1; border-color: var(--neon-purple);">
+          <span class="btn-glow" style="background: linear-gradient(90deg, transparent, rgba(189, 0, 255, 0.2), transparent);"></span>
+          <span class="btn-text">DECRYPT SCROLL</span>
+        </button>
+      </div>
+      <div class="audio-notice">Includes custom real-time Web Audio synthesis. Turn on sound.</div>
+    </div>
+  </div>
+
+  <!-- Floating Dashboard Controller -->
+  <div id="floating-hud-controls" class="floating-hud-controls hidden">
+    <button id="hud-toggle-mode" class="hud-mini-btn">SWITCH STATE</button>
+    <button id="hud-system-reboot" class="hud-mini-btn">REBOOT</button>
+  </div>
+
+  <!-- Presentation Slides Container -->
+  <div class="presentation-container hidden" id="presentation">
+
+    <!-- Slide 1: Welcome & Portrait Scanner (0s - 10s) -->
+    <div class="slide active" id="slide-1">
+      <div class="profile-container">
+        <!-- Profile Portrait with Face Scanner Overlay -->
+        <div class="portrait-wrapper">
+          <img src="santhosh.jpg" alt="Santhosh B" class="portrait-img">
+          <div class="portrait-scanner"></div>
+          <div class="portrait-crosshair"></div>
+          
+          <!-- Portrait HUD stats -->
+          <div class="portrait-hud-data top-left-stat">> CLASSIFICATION: AI_ENGINEER</div>
+          <div class="portrait-hud-data top-right-stat">> TARGET_ID: SANTHOSH_B</div>
+          <div class="portrait-hud-data bottom-left-stat">> DEV_STATE: ACTIVE</div>
+          <div class="portrait-hud-data bottom-right-stat">> LOC: CHENNAI_IN</div>
+        </div>
+
+        <!-- Name and Role Details -->
+        <div class="profile-details">
+          <div class="cyber-badge">SYSTEMS LEVEL 01</div>
+          <h2 class="name-title"><span class="gradient-text">Santhosh B</span></h2>
+          <h3 class="role-subtitle">B.Tech Artificial Intelligence & Data Science Student</h3>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">CUMULATIVE GPA</span>
+              <span class="stat-val gradient-text">9.17 / 10</span>
+              <div class="stat-bar"><div class="fill" style="width: 91.7%;"></div></div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">CORE ARCHITECTURE</span>
+              <span class="stat-val">AGENTIC AI</span>
+              <div class="stat-bar"><div class="fill" style="width: 95%;"></div></div>
+            </div>
+          </div>
+          
+          <div class="hud-log">
+            <span class="log-line">> Scanning profile matrix...</span>
+            <span class="log-line">> Academic verification: SUCCESS</span>
+            <span class="log-line">> Loading development vectors...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Academic & Skills Grid (10s - 20s) -->
+    <div class="slide" id="slide-2">
+      <div class="slide-title-wrapper">
+        <div class="slide-num">02 / 05</div>
+        <h2 class="slide-main-title">CORE SKILLS & TECH STACK</h2>
+      </div>
+
+      <div class="skills-layout">
+        <!-- Giant CGPA Badge -->
+        <div class="cgpa-hologram">
+          <div class="hologram-ring outer"></div>
+          <div class="hologram-ring inner"></div>
+          <div class="hologram-content">
+            <span class="hologram-label">CGPA</span>
+            <span class="hologram-number">9.17</span>
+            <span class="hologram-sub">TOP TIER STATUS</span>
+          </div>
+          <div class="hologram-ray"></div>
+        </div>
+
+        <!-- Tech stack cards -->
+        <div class="tech-stack-grid">
+          <div class="tech-category-card">
+            <h3>DEVELOPMENT LANGUAGES</h3>
+            <div class="tech-tags">
+              <span class="tech-badge python">Python</span>
+              <span class="tech-badge java">Java</span>
+              <span class="tech-badge cpp">C++</span>
+            </div>
+          </div>
+
+          <div class="tech-category-card">
+            <h3>ARTIFICIAL INTELLIGENCE</h3>
+            <div class="tech-tags">
+              <span class="tech-badge agentic-ai">Agentic AI</span>
+              <span class="tech-badge langchain">LangChain</span>
+            </div>
+          </div>
+
+          <div class="tech-category-card">
+            <h3>DATABASES & ANALYTICS</h3>
+            <div class="tech-tags">
+              <span class="tech-badge mongodb">MongoDB</span>
+              <span class="tech-badge powerbi">Power BI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Internship Work Experience (20s - 30s) -->
+    <div class="slide" id="slide-3">
+      <div class="slide-title-wrapper">
+        <div class="slide-num">03 / 05</div>
+        <h2 class="slide-main-title">TACTICAL INTERNSHIP RECORDS</h2>
+      </div>
+
+      <div class="internship-timeline">
+        <!-- Kempegowda Airport -->
+        <div class="internship-card left">
+          <div class="hud-corner-bg"></div>
+          <div class="intern-header">
+            <div class="intern-icon">✈</div>
+            <div>
+              <h3>GenAI Intern</h3>
+              <h4>Kempegowda International Airport</h4>
+            </div>
+          </div>
+          <p class="intern-desc">Engineered Generative AI solutions for airport operations, flight status assistants, and terminal management services.</p>
+          <div class="intern-tech">
+            <span>LLMs</span>
+            <span>RAG</span>
+            <span>API Gateway</span>
+          </div>
+        </div>
+
+        <!-- Lansub Technologies -->
+        <div class="internship-card right">
+          <div class="hud-corner-bg"></div>
+          <div class="intern-header">
+            <div class="intern-icon">☁</div>
+            <div>
+              <h3>Azure DevOps & Agentic AI Intern</h3>
+              <h4>Lansub Technologies</h4>
+            </div>
+          </div>
+          <p class="intern-desc">Designed automated deployment pipelines using Azure DevOps and orchestrated Agentic AI multi-agent workflows.</p>
+          <div class="intern-tech">
+            <span>CI/CD</span>
+            <span>Azure Pipelines</span>
+            <span>AI Agents</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Honours & Certifications (30s - 40s) -->
+    <div class="slide" id="slide-4">
+      <div class="slide-title-wrapper">
+        <div class="slide-num">04 / 06</div>
+        <h2 class="slide-main-title">HONOURS & CERTIFICATIONS</h2>
+      </div>
+
+      <div class="honours-certs-layout">
+        <!-- Honours Panel -->
+        <div class="honours-panel">
+          <h3 class="panel-section-title">ACADEMIC HONOURS</h3>
+          <div class="awards-grid">
+            <div class="award-card">
+              <div class="award-corner-bg"></div>
+              <div class="award-icon">🏆</div>
+              <div class="award-details">
+                <h4>Agnito Award</h4>
+                <p>Saveetha University (2023-2024)</p>
+              </div>
+            </div>
+            <div class="award-card">
+              <div class="award-corner-bg"></div>
+              <div class="award-icon">🥇</div>
+              <div class="award-details">
+                <h4>Subject Topper Award</h4>
+                <p>Saveetha University (2023-2024)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certifications Panel -->
+        <div class="certs-panel">
+          <h3 class="panel-section-title">CREDENTIAL REGISTRY</h3>
+          <div class="certs-list">
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Database Management System</span> – <span class="cert-issuer">Oracle Academy</span></div>
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Introduction to Firewall</span> – <span class="cert-issuer">Cisco Networking Academy</span></div>
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Python for Data Science</span> – <span class="cert-issuer">Great Learning Academy</span></div>
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Introduction to Artificial Intelligence</span> – <span class="cert-issuer">Great Learning Academy</span></div>
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Power BI Data Analytics</span> – <span class="cert-issuer">Microsoft & Great Learning</span></div>
+            <div class="cert-item"><span class="cert-bullet"></span> <span class="cert-title">Fast Track Software Testing</span> – <span class="cert-issuer">Viskamnix Academy</span></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hud-log" style="max-width: 100%; margin-top: 15px;">
+        <span class="log-line">> Authenticating academic credentials... SUCCESS</span>
+        <span class="log-line">> Mapping credential registry to database cores... OK</span>
+      </div>
+    </div>
+
+    <!-- Slide 5: Key Projects Showcase (40s - 50s) -->
+    <div class="slide" id="slide-5">
+      <div class="slide-title-wrapper">
+        <div class="slide-num">05 / 06</div>
+        <h2 class="slide-main-title">ENGINEERING DEPLOYMENTS</h2>
+      </div>
+
+      <div class="projects-grid">
+        <!-- Project 1 -->
+        <div class="project-hud-card">
+          <div class="project-glow"></div>
+          <div class="project-tag">CYBERSECURITY</div>
+          <h3>Phishing Detection ML</h3>
+          <p>Classifies phishing URLs using Random Forest & XGBoost with feature engineering.</p>
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="m-label">ACCURACY</span>
+              <span class="m-val green">95%</span>
+            </div>
+            <div class="metric">
+              <span class="m-label">TOOLS</span>
+              <span class="m-val">Python / Scikit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-hud-card">
+          <div class="project-glow"></div>
+          <div class="project-tag">ORCHESTRATION</div>
+          <h3>Agentic AI Platform</h3>
+          <p>Orchestrates visual workflow pipelines automating intelligent tasks using AI Agents.</p>
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="m-label">ENGINE</span>
+              <span class="m-val purple">N8N</span>
+            </div>
+            <div class="metric">
+              <span class="m-label">TOOLS</span>
+              <span class="m-val">N8N / Make</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-hud-card">
+          <div class="project-glow"></div>
+          <div class="project-tag">COMMERCIAL SUITE</div>
+          <h3>AeroAssist AI</h3>
+          <p>Airport assistant mobile app with XML UI and integrated AI APIs for smart passenger support.</p>
+          <div class="project-metrics">
+            <div class="metric">
+              <span class="m-label">PLATFORM</span>
+              <span class="m-val cyan">Android/Java</span>
+            </div>
+            <div class="metric">
+              <span class="m-label">TOOLS</span>
+              <span class="m-val">Studio / Java</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hud-log" style="max-width: 100%; margin-top: 15px;">
+        <span class="log-line">> Compiling project architectures... OK</span>
+        <span class="log-line">> All models active and serving on production branches...</span>
+      </div>
+    </div>
+
+    <!-- Slide 6: Cinematic Outro (50s - 60s) -->
+    <div class="slide" id="slide-6">
+      <div class="outro-content">
+        <div class="radar-scan">
+          <div class="radar-beam"></div>
+          <div class="radar-circles"></div>
+          <div class="radar-cross"></div>
+        </div>
+        
+        <h2 class="outro-name">Santhosh B</h2>
+        <div class="outro-divider"></div>
+        <p class="outro-tagline">Building Intelligent Solutions with AI</p>
+        
+        <div class="outro-stats">
+          <div class="o-stat"><span class="o-label">INTERNSHIPS:</span> <span class="o-val">02 COMPLETE</span></div>
+          <div class="o-stat"><span class="o-label">GPA VECTOR:</span> <span class="o-val">9.17 SECURED</span></div>
+          <div class="o-stat"><span class="o-label">DEPLOYMENTS:</span> <span class="o-val">03 PLATFORMS</span></div>
+        </div>
+        
+        <div class="terminal-footer">
+          <div class="t-line">> MAILTO: santhoshbabusbk25@gmail.com</div>
+          <div class="t-line">> TEL_COM: +91 6380006801</div>
+          <div class="t-line">> SYSTEM SHUTDOWN: READY</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="portfolio.js"></script>
+</body>
+</html>

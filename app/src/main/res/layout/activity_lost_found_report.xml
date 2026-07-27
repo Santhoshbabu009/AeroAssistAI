@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/main_bg" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp">
+
+            <ImageView
+                android:id="@+id/backBtn"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_back"
+                app:tint="#FFFFFF"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report Lost Item"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#26FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Report Type"
+                    android:textColor="#88FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp" />
+
+                <RadioGroup
+                    android:id="@+id/radioReportType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radioLost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lost Item"
+                        android:textColor="#FFFFFF"
+                        android:buttonTint="#FFFFFF"
+                        android:checked="true"
+                        android:layout_marginRight="24dp"/>
+
+                    <RadioButton
+                        android:id="@+id/radioFound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Found Item"
+                        android:textColor="#FFFFFF"
+                        android:buttonTint="#FFFFFF"/>
+                </RadioGroup>
+
+                <EditText
+                    android:id="@+id/editItemName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Item Name (e.g. Wallet)"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#55FFFFFF"
+                    android:backgroundTint="#FFFFFF"
+                    android:layout_marginBottom="16dp"/>
+
+                <EditText
+                    android:id="@+id/editItemDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Description &amp; Color"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#55FFFFFF"
+                    android:backgroundTint="#FFFFFF"
+                    android:layout_marginBottom="16dp"/>
+
+                <EditText
+                    android:id="@+id/editItemLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Last Seen Location"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#55FFFFFF"
+                    android:backgroundTint="#FFFFFF"
+                    android:layout_marginBottom="16dp"/>
+
+                <EditText
+                    android:id="@+id/editItemContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Contact Number"
+                    android:inputType="phone"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#55FFFFFF"
+                    android:backgroundTint="#FFFFFF"
+                    android:layout_marginBottom="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardBackgroundColor="#22FFFFFF"
+                        android:layout_marginRight="16dp">
+
+                        <ImageView
+                            android:id="@+id/imgCapturedItem"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_signature"
+                            app:tint="#44FFFFFF"/>
+                    </androidx.cardview.widget.CardView>
+
+                    <Button
+                        android:id="@+id/btnCapturePhoto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📸 Capture Photo"
+                        android:textSize="13sp"
+                        android:backgroundTint="#4F46E5"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnSubmitReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:text="Submit Report"
+                    android:backgroundTint="#BF360C"
+                    app:cornerRadius="15dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</RelativeLayout>

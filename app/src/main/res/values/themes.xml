@@ -1,0 +1,14 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.AeroAssistAI" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Light Theme Color Palette -->
+        <item name="colorPrimary">@color/primary_indigo</item>
+        <item name="colorPrimaryDark">@color/primary_indigo_dark</item>
+        <item name="colorAccent">@color/primary_indigo_light</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.AeroAssistAI" parent="Base.Theme.AeroAssistAI" />
+</resources>

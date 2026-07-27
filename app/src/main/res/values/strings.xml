@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">AeroAssistAI</string>
+    <string name="facebook_app_id">2158975568262464</string>
+    <string name="fb_login_protocol_scheme">fb2158975568262464</string>
+    <string name="facebook_client_token">74d109719fd007989bcf6dd8e71b2db7</string>
+</resources>

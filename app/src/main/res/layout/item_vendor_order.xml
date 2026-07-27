@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Top Header: Order ID & Status Badge -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/orderIdText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Order #123"
+                android:textColor="@color/slate_dark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/statusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/status_badge_bg"
+                android:backgroundTint="#FFE0B2"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="PENDING"
+                android:textColor="#F57C00"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <!-- User details & Location -->
+        <TextView
+            android:id="@+id/userDetailText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Customer: passenger@email.com"
+            android:textColor="#64748B"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/locationText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delivery: Terminal 1 • Gate 12"
+            android:textColor="@color/slate_dark"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E2E8F0"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Ordered Items list -->
+        <TextView
+            android:id="@+id/itemsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Whopper Burger x1\n• Golden Fries x2"
+            android:textColor="@color/slate_dark"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Total Price -->
+        <TextView
+            android:id="@+id/priceText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Amount: ₹557.00"
+            android:textColor="@color/primary_indigo"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Action Buttons Container -->
+        <LinearLayout
+            android:id="@+id/actionButtonsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnReject"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/btn_secondary_rounded"
+                android:backgroundTint="#FFCDD2"
+                android:text="Reject"
+                android:textColor="#C62828"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginEnd="8dp"
+                android:textAllCaps="false"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnAccept"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/btn_teal_rounded"
+                android:backgroundTint="@color/success_green"
+                android:text="Accept"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                android:textAllCaps="false"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg_gradient">
+
+    <LinearLayout 
+        android:layout_width="match_parent" 
+        android:layout_height="match_parent" 
+        android:layout_above="@+id/bottomNavLayout" 
+        android:orientation="vertical">
+        
+        <ScrollView 
+            android:layout_width="match_parent" 
+            android:layout_height="match_parent" 
+            android:scrollbars="none">
+            
+        <LinearLayout 
+            android:orientation="vertical" 
+            android:layout_width="match_parent" 
+            android:layout_height="wrap_content" 
+            android:paddingHorizontal="20dp" 
+            android:paddingTop="24dp" 
+            android:paddingBottom="20dp">
+
+            <!-- COMPACT GREETING HEADER -->
+            <RelativeLayout 
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout 
+                    android:orientation="vertical" 
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content" 
+                    android:layout_centerVertical="true">
+                    
+                    <TextView 
+                        android:id="@+id/greetingText" 
+                        android:text="Good Afternoon, Santhosh" 
+                        android:textColor="#FFFFFF" 
+                        android:textSize="20sp" 
+                        android:textStyle="bold" 
+                        android:letterSpacing="-0.02"
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content"/>
+                        
+                    <LinearLayout 
+                        android:orientation="horizontal" 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical">
+                        <ImageView 
+                            android:layout_width="12dp" 
+                            android:layout_height="12dp" 
+                            android:src="@drawable/ic_destination_pin" 
+                            app:tint="#8E9AA8"/>
+                        <TextView 
+                            android:id="@+id/tvCurrentAirport" 
+                            android:text=" Chennai International Airport (MAA)" 
+                            android:textColor="#8E9AA8" 
+                            android:textSize="12sp" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Professional Circular Avatar -->
+                <ImageView 
+                    android:id="@+id/profileImage" 
+                    android:layout_width="42dp" 
+                    android:layout_height="42dp" 
+                    android:layout_alignParentEnd="true" 
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_launcher_background" 
+                    android:background="@drawable/circle_bg" 
+                    android:scaleType="centerCrop" 
+                    android:clipToOutline="true"/>
+            </RelativeLayout>
+
+
+            <!-- IMAGE SLIDER (CLEAN, PROPORTIONAL) -->
+            <androidx.cardview.widget.CardView 
+                android:layout_width="match_parent" 
+                android:layout_height="150dp" 
+                android:layout_marginBottom="24dp" 
+                app:cardCornerRadius="16dp" 
+                app:cardElevation="0dp" 
+                app:cardBackgroundColor="@android:color/transparent">
+                
+                <ViewFlipper 
+                    android:id="@+id/airportViewFlipper" 
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent" 
+                    android:autoStart="true" 
+                    android:flipInterval="4000" 
+                    android:inAnimation="@android:anim/fade_in" 
+                    android:outAnimation="@android:anim/fade_out">
+                    <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_chennai"/>
+                    <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_bengaluru"/>
+                </ViewFlipper>
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#1A000000"/>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SINGLE PRIMARY FLIGHT STATUS CARD -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/glass_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:text="FLIGHT HUD"
+                            android:textColor="#8E9AA8"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <!-- Muted Minimal Status Badge -->
+                        <TextView
+                            android:text="On Time"
+                            android:textColor="#81C784"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/glass_card_cyan"
+                            android:backgroundTint="#0D81C784"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </RelativeLayout>
+
+                    <!-- Route Display -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:text="MAA"
+                                android:textColor="#FFFFFF"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.02"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                            <TextView
+                                android:text="Chennai Intl"
+                                android:textColor="#8E9AA8"
+                                android:textSize="12sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_plane"
+                            app:tint="#5E9CD4"
+                            android:layout_marginHorizontal="16dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="end">
+                            <TextView
+                                android:text="SIN"
+                                android:textColor="#FFFFFF"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.02"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                            <TextView
+                                android:text="Changi Singapore"
+                                android:textColor="#8E9AA8"
+                                android:textSize="12sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Simple Clean Progress Bar -->
+                    <ProgressBar
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:progress="65"
+                        android:progressTint="#5E9CD4"
+                        android:progressBackgroundTint="#1AFFFFFF"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Muted Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#0DFFFFFF"
+                        android:layout_marginBottom="14dp"/>
+
+                    <!-- Details -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:text="BOARDING GATE"
+                                android:textColor="#8E9AA8"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.05"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                            <TextView
+                                android:text="Gate A24 (T2)"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="2dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_alignParentEnd="true"
+                            android:gravity="end">
+                            <TextView
+                                android:text="SCHEDULED STATUS"
+                                android:textColor="#8E9AA8"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.05"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                            <TextView
+                                android:text="Starts in 14 Mins"
+                                android:textColor="#81C784"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="2dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- DYNAMIC TELEMETRY ROW (WEATHER & LAST FLIGHT) -->
+            <LinearLayout 
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:orientation="horizontal" 
+                android:layout_marginBottom="24dp">
+                
+                <!-- Weather Status Card -->
+                <androidx.cardview.widget.CardView 
+                    android:id="@+id/weatherCard" 
+                    android:layout_width="0dp" 
+                    android:layout_height="72dp" 
+                    android:layout_weight="1" 
+                    android:layout_marginEnd="6dp" 
+                    app:cardCornerRadius="14dp" 
+                    app:cardElevation="0dp" 
+                    app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:background="@drawable/glass_card" 
+                        android:orientation="vertical" 
+                        android:gravity="center_vertical" 
+                        android:paddingHorizontal="14dp">
+                        <TextView 
+                            android:id="@+id/weatherStatus" 
+                            android:text="31 °C" 
+                            android:textColor="#FFFFFF" 
+                            android:textSize="15sp" 
+                            android:textStyle="bold" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                        <TextView 
+                            android:id="@+id/weatherLocation" 
+                            android:text="MAA Weather" 
+                            android:textColor="#8E9AA8" 
+                            android:textSize="10sp" 
+                            android:layout_marginTop="2dp" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Last Flight Card -->
+                <androidx.cardview.widget.CardView 
+                    android:id="@+id/lastFlightCard" 
+                    android:layout_width="0dp" 
+                    android:layout_height="72dp" 
+                    android:layout_weight="1" 
+                    android:layout_marginStart="6dp" 
+                    app:cardCornerRadius="14dp" 
+                    app:cardElevation="0dp" 
+                    app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:background="@drawable/glass_card" 
+                        android:orientation="vertical" 
+                        android:gravity="center_vertical" 
+                        android:paddingHorizontal="14dp">
+                        <TextView 
+                            android:id="@+id/lastFlightCode" 
+                            android:text="MAA - SIN" 
+                            android:textColor="#FFFFFF" 
+                            android:textSize="14sp" 
+                            android:textStyle="bold" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                        <TextView 
+                            android:id="@+id/lastFlightStatus" 
+                            android:text="Checked In" 
+                            android:textColor="#81C784" 
+                            android:textSize="10sp" 
+                            android:layout_marginTop="2dp" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- SMART QUICK ACTIONS ROW -->
+            <TextView 
+                android:text="Flight Essentials" 
+                android:textColor="#FFFFFF" 
+                android:textSize="14sp" 
+                android:textStyle="bold" 
+                android:layout_marginBottom="10dp" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content"/>
+                
+            <HorizontalScrollView 
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:scrollbars="none" 
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout 
+                    android:orientation="horizontal" 
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content">
+
+                    <!-- Pass -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickPass" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_ticket" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Pass" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Nav -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickNavGate" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_destination_pin" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Nav" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Baggage -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickBaggage" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_wallet" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Baggage" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Status -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickTraceFlight" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_radar" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Status" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Dining -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickDining" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_services" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Dining" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Lounges -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickLounges" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_services" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Lounges" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Shopping -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickShopping" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_wallet" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Shopping" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Parking -->
+                    <androidx.cardview.widget.CardView 
+                        android:id="@+id/quickParking" 
+                        android:layout_width="95dp" 
+                        android:layout_height="52dp" 
+                        android:layout_margin="3dp" 
+                        app:cardCornerRadius="12dp" 
+                        app:cardElevation="0dp" 
+                        app:cardBackgroundColor="@android:color/transparent">
+                        <LinearLayout 
+                            android:layout_width="match_parent" 
+                            android:layout_height="match_parent" 
+                            android:background="@drawable/glass_card_cyan" 
+                            android:gravity="center" 
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_destination_pin" app:tint="#5E9CD4"/>
+                            <TextView android:text="  Parking" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- ESSENTIAL AIRPORT SERVICES GRID -->
+            <TextView 
+                android:text="Explore Hub" 
+                android:textColor="#FFFFFF" 
+                android:textSize="14sp" 
+                android:textStyle="bold" 
+                android:layout_marginBottom="10dp" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content"/>
+
+            <GridLayout 
+                android:columnCount="2" 
+                android:alignmentMode="alignMargins" 
+                android:columnOrderPreserved="false" 
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:layout_marginBottom="24dp">
+
+                <!-- Flight Tracker -->
+                <androidx.cardview.widget.CardView android:id="@+id/flightCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_plane" app:tint="#5E9CD4"/>
+                        <TextView android:text="Flight Status" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Live tracking details" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Book Flights -->
+                <androidx.cardview.widget.CardView android:id="@+id/bookCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_ticket" app:tint="#5E9CD4"/>
+                        <TextView android:text="Book Flights" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Search &amp; reserve trips" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Navigation -->
+                <androidx.cardview.widget.CardView android:id="@+id/navCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_destination_pin" app:tint="#5E9CD4"/>
+                        <TextView android:text="Navigation" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Gates and maps" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Dining & Services -->
+                <androidx.cardview.widget.CardView android:id="@+id/servicesCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_services" app:tint="#5E9CD4"/>
+                        <TextView android:text="Dining &amp; Services" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Lounges &amp; food orders" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Travel Wallet -->
+                <androidx.cardview.widget.CardView android:id="@+id/walletCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_wallet" app:tint="#5E9CD4"/>
+                        <TextView android:text="Travel Wallet" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Saved documents &amp; IDs" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Booking History -->
+                <androidx.cardview.widget.CardView android:id="@+id/historyCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_clock" app:tint="#5E9CD4"/>
+                        <TextView android:text="Booking History" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Past trips &amp; orders" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Hidden/Placeholder helper items for implicit logic -->
+                <androidx.cardview.widget.CardView android:id="@+id/communityCard" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
+            </GridLayout>
+
+            <!-- FEATURED RECOMMENDATIONS (LOUNGE & DINING) -->
+            <TextView 
+                android:text="Featured Lounges &amp; Dining" 
+                android:textColor="#FFFFFF" 
+                android:textSize="14sp" 
+                android:textStyle="bold" 
+                android:layout_marginBottom="10dp" 
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout 
+                android:layout_width="match_parent" 
+                android:layout_height="wrap_content" 
+                android:orientation="horizontal" 
+                android:layout_marginBottom="24dp">
+                
+                <!-- Recommended Lounge Card -->
+                <androidx.cardview.widget.CardView 
+                    android:id="@+id/recLoungeCard" 
+                    android:layout_width="0dp" 
+                    android:layout_height="80dp" 
+                    android:layout_weight="1" 
+                    android:layout_marginEnd="6dp" 
+                    app:cardCornerRadius="14dp" 
+                    app:cardElevation="0dp" 
+                    app:cardBackgroundColor="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <LinearLayout 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:background="@drawable/glass_card" 
+                        android:orientation="vertical" 
+                        android:gravity="center_vertical" 
+                        android:paddingHorizontal="14dp">
+                        <TextView 
+                            android:text="Lounge Access" 
+                            android:textColor="#FFFFFF" 
+                            android:textSize="13sp" 
+                            android:textStyle="bold" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                        <TextView 
+                            android:text="Enchanting Suites (T2)" 
+                            android:textColor="#8E9AA8" 
+                            android:textSize="10sp" 
+                            android:layout_marginTop="2dp" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Recommended Dining Card -->
+                <androidx.cardview.widget.CardView 
+                    android:id="@+id/recDiningCard" 
+                    android:layout_width="0dp" 
+                    android:layout_height="80dp" 
+                    android:layout_weight="1" 
+                    android:layout_marginStart="6dp" 
+                    app:cardCornerRadius="14dp" 
+                    app:cardElevation="0dp" 
+                    app:cardBackgroundColor="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <LinearLayout 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:background="@drawable/glass_card" 
+                        android:orientation="vertical" 
+                        android:gravity="center_vertical" 
+                        android:paddingHorizontal="14dp">
+                        <TextView 
+                            android:text="Gourmet Dining" 
+                            android:textColor="#FFFFFF" 
+                            android:textSize="13sp" 
+                            android:textStyle="bold" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                        <TextView 
+                            android:text="Copper Chimney (T1)" 
+                            android:textColor="#8E9AA8" 
+                            android:textSize="10sp" 
+                            android:layout_marginTop="2dp" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- AI ASSISTANT SECTION (HIGH-ACCESSIBILITY WIDGET) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAiQuickAccess"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/glass_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_aero_logo"
+                                app:tint="#5E9CD4" />
+                            <TextView
+                                android:text="  AeroAssist AI"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <!-- Clean Active telebadge -->
+                        <TextView
+                            android:text="Active"
+                            android:textColor="#5E9CD4"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/glass_card_cyan"
+                            android:backgroundTint="#0D5E9CD4"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </RelativeLayout>
+
+                    <!-- Clean Muted voice indicator line -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginBottom="14dp">
+                        <View android:layout_width="2dp" android:layout_height="4dp" android:background="#446688" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="8dp" android:background="#5E9CD4" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="12dp" android:background="#5E9CD4" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="6dp" android:background="#446688" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="3dp" android:background="#446688" android:layout_marginHorizontal="2dp"/>
+                    </LinearLayout>
+
+                    <!-- Suggested queries horizontal track -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:layout_marginBottom="12dp">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            
+                            <TextView
+                                android:id="@+id/btnMainPromptGate"
+                                android:text="Where is Gate A24?"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp"
+                                android:background="@drawable/glass_card_cyan"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="5dp"
+                                android:layout_marginHorizontal="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:focusable="true"/>
+
+                            <TextView
+                                android:id="@+id/btnMainPromptPass"
+                                android:text="Show boarding pass"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp"
+                                android:background="@drawable/glass_card_cyan"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="5dp"
+                                android:layout_marginHorizontal="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:focusable="true"/>
+
+                            <TextView
+                                android:id="@+id/btnMainPromptLounge"
+                                android:text="Nearest lounge?"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp"
+                                android:background="@drawable/glass_card_cyan"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="5dp"
+                                android:layout_marginHorizontal="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:focusable="true"/>
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <!-- Real Search Layout -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:background="@drawable/glass_search_bg"
+                        android:paddingHorizontal="14dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:text="Ask anything about Chennai Airport..."
+                            android:textColor="#8E9AA8"
+                            android:textSize="12sp"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_plane"
+                            app:tint="#5E9CD4"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- AI ASSISTANT FLOATING ACTION BUTTON -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/chatCard"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="80dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@android:color/transparent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/glass_card_cyan"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_aero_logo"
+                app:tint="#5E9CD4"/>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- MINIMAL BOTTOM NAVIGATION -->
+    <LinearLayout android:id="@+id/bottomNavLayout" android:layout_width="match_parent" android:layout_height="64dp" android:layout_alignParentBottom="true" android:orientation="horizontal" android:background="@drawable/glass_nav_bg" android:elevation="8dp" android:paddingTop="4dp" android:paddingBottom="4dp">
+
+        <LinearLayout android:id="@+id/navHomeBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_home" app:tint="#5E9CD4"/>
+            <TextView android:text="Home" android:textColor="#5E9CD4" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <View android:layout_width="16dp" android:layout_height="2dp" android:background="#5E9CD4" android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/navHelpBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_help" app:tint="#8E9AA8"/>
+            <TextView android:text="Help Desk" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/navRewardsBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_trophy" app:tint="#8E9AA8"/>
+            <TextView android:text="Quiz" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/navProfileBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
+            <ImageView android:id="@+id/navProfileImage" android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_launcher_background" android:background="@drawable/circle_bg" android:clipToOutline="true" android:scaleType="centerCrop"/>
+            <TextView android:text="Profile" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

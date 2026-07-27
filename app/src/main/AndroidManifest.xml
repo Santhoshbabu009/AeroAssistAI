@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="AeroAssistAI"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.AeroAssistAI">
+
+        <!-- Launcher Activity -->
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".UserTypeSelectionActivity" android:exported="true"/>
+        <activity android:name=".AuthActivity" android:exported="true"/>
+
+        <!-- Authentication -->
+        <activity android:name=".OtpActivity" android:exported="false"/>
+        <activity android:name=".SignUpActivity" android:exported="false"/>
+
+        <!-- App Screens -->
+        <activity android:name=".MainActivity" android:exported="false"/>
+        <activity android:name=".FlightStatusActivity" android:exported="false"/>
+        <activity android:name=".ChatbotActivity" android:exported="false" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity android:name=".NavigationActivity" android:exported="false"/>
+        <activity android:name=".PasswordResetOtpActivity" />
+        <activity android:name=".NewPasswordActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".BookingSearchActivity" android:exported="false"/>
+        <activity android:name=".BookingHistoryActivity" android:exported="false"/>
+        <activity android:name=".HelpDeskActivity" android:exported="false"/>
+        <activity android:name=".FlightSearchHistoryActivity" android:exported="false"/>
+        <activity android:name=".ServicesActivity" android:exported="false"/>
+        <activity android:name=".DiningListActivity" android:exported="false"/>
+        <activity android:name=".StoreListActivity" android:exported="false"/>
+        <activity android:name=".StoreMenuActivity" android:exported="false"/>
+        <activity android:name=".CurrencyConverterActivity" android:exported="false"/>
+        <activity android:name=".TimeZoneActivity" android:exported="false"/>
+        <activity android:name=".UnitConverterActivity" android:exported="false"/>
+        <activity android:name=".AirportGuideActivity" android:exported="false"/>
+        <activity android:name=".SecurityGuideActivity" android:exported="false"/>
+        <activity android:name=".CustomsGuideActivity" android:exported="false"/>
+        <activity android:name=".VisaInfoActivity" android:exported="false"/>
+        <activity android:name=".BaggageHubActivity" android:exported="false"/>
+        <activity android:name=".LostFoundListActivity" android:exported="false"/>
+        <activity android:name=".LostFoundReportActivity" android:exported="false"/>
+        <activity android:name=".TerminalHubActivity" android:exported="false"/>
+        <activity android:name=".Terminal1DetailActivity" android:exported="false"/>
+        <activity android:name=".Terminal2DetailActivity" android:exported="false"/>
+        <activity android:name=".TransferGuideActivity" android:exported="false"/>
+        <activity android:name=".GateInfoActivity" android:exported="false"/>
+        <activity android:name=".WalletActivity" android:exported="false"/>
+        <activity android:name=".BoardingPassActivity" android:exported="false"/>
+        <activity android:name=".IDCardActivity" android:exported="false"/>
+        <activity android:name=".AddDocumentActivity" android:exported="false"/>
+        <activity android:name=".AccountSettingsActivity" android:exported="false"/>
+        <activity android:name=".ProfileEditActivity" android:exported="false"/>
+        <activity android:name=".NotificationSettingsActivity" android:exported="false"/>
+        <activity android:name=".LanguageSettingsActivity" android:exported="false"/>
+        <activity android:name=".SecuritySettingsActivity" android:exported="false"/>
+        <activity android:name=".ActiveSessionsActivity" android:exported="false"/>
+        <activity android:name=".PrivacyPolicyActivity" android:exported="false"/>
+        <activity android:name=".CommunityHubActivity" android:exported="false"/>
+        <activity android:name=".ReviewsActivity" android:exported="false"/>
+        <activity android:name=".TravelTipsActivity" android:exported="false"/>
+        <activity android:name=".AchievementsActivity" android:exported="false"/>
+        <activity android:name=".ChatListActivity" android:exported="false"/>
+        <activity android:name=".PostReviewActivity" android:exported="false"/>
+        <activity android:name=".LeaderboardActivity" android:exported="false"/>
+
+
+
+        <!-- Facebook SDK -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token"/>
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:exported="true"/>
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="@string/fb_login_protocol_scheme"/>
+            </intent-filter>
+        </activity>
+
+
+        <activity android:name=".ChatHistoryActivity" />
+        <activity android:name=".RewardsActivity" />
+        <activity android:name=".QuizActivity" />
+        <activity android:name=".CertificateActivity" />
+        <activity android:name=".PassportActivity" />
+
+        <!-- New Vendor, Food, and Lounge Activities -->
+        <activity android:name=".VendorLoginActivity" android:exported="false" />
+        <activity android:name=".VendorDashboardActivity" android:exported="false" />
+        <activity android:name=".VendorMenuActivity" android:exported="false" />
+        <activity android:name=".RestaurantListActivity" android:exported="false" />
+        <activity android:name=".RestaurantMenuActivity" android:exported="false" />
+        <activity android:name=".CartActivity" android:exported="false" />
+        <activity android:name=".OrderHistoryActivity" android:exported="false" />
+        <activity android:name=".OrderTrackingActivity" android:exported="false" />
+        <activity android:name=".LoungeListActivity" android:exported="false" />
+        <activity android:name=".LoungeDetailsActivity" android:exported="false" />
+        <activity android:name=".LoungeBookingHistoryActivity" android:exported="false" />
+        <activity android:name=".VendorRegistrationActivity" android:exported="false" />
+        <activity android:name=".ParkingActivity" android:exported="false" />
+    </application>
+
+</manifest>

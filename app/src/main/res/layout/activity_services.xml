@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- HD Background -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/main_bg" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Toolbar area -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp">
+
+            <ImageView
+                android:id="@+id/backBtn"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_back"
+                app:tint="#FFFFFF"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Airport Services"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Explore Amenities"
+                    android:textColor="#BBBBBB"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:alignmentMode="alignMargins"
+                    android:columnOrderPreserved="false">
+
+                    <!-- Dining -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardDining"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🍔" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Dining" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Fast food, Cafes" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Shopping -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardShopping"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🛍️" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Shopping" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Duty Free, Retail" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Lounges -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardLounges"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🛋️" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Lounges" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Relax &amp; Unwind" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Parking -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardParking"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🅿️" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Parking" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Rates &amp; Booking" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Baggage -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardBaggage"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🧳" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Baggage" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Lost &amp; Found" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Currency -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardCurrency"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="💱" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Currency" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Exchange Rates" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Airport Guides -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardGuides"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="📘" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Airport Guides" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Security &amp; Customs" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Terminal Info -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardTerminalInfo"
+                        android:layout_width="0dp"
+                        android:layout_height="180dp"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="8dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#1AFFFFFF">
+                        <LinearLayout
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView android:text="🏢" android:textSize="40sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Terminal Info" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="18sp" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="Maps &amp; Gates" android:textColor="#88FFFFFF" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </GridLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</RelativeLayout>

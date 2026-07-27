@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Brand Colors -->
+    <color name="primary_indigo">#1A237E</color>
+    <color name="primary_indigo_light">#534BAE</color>
+    <color name="primary_indigo_dark">#000051</color>
+    
+    <!-- Secondary &amp; Accent -->
+    <color name="accent_aero">#00E5FF</color>
+    <color name="accent_gold">#FFD600</color>
+    <color name="slate_dark">#0F172A</color>
+    <color name="slate_medium">#1E293B</color>
+    
+    <!-- Glassmorphism Shaders -->
+    <color name="glass_white_10">#1AFFFFFF</color>
+    <color name="glass_white_20">#33FFFFFF</color>
+    <color name="glass_white_40">#66FFFFFF</color>
+    
+    <!-- Functional Colors -->
+    <color name="error_red">#FF5252</color>
+    <color name="success_green">#00E676</color>
+    
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

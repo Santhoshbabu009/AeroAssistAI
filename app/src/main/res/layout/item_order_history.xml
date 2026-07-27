@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header: Restaurant Name & Status -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/restaurantNameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="La Pino'z Pizza"
+                android:textColor="@color/slate_dark"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/statusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/status_badge_bg"
+                android:backgroundTint="#FFE0B2"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="PENDING"
+                android:textColor="#F57C00"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <!-- Order details -->
+        <TextView
+            android:id="@+id/orderDateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date: 2026-05-22 10:15 AM"
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/itemsSummaryText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Burger x1, Fries x2"
+            android:textColor="@color/slate_dark"
+            android:textSize="13sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E2E8F0"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Total Price & Optional Track Button -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/totalPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Paid: ₹557.00"
+                android:textColor="@color/primary_indigo"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/trackTextIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="Track Order ➔"
+                android:textColor="@color/primary_indigo_light"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

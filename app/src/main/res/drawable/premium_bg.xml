@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Deep Slate -->
+    <item>
+        <shape>
+            <solid android:color="@color/slate_dark" />
+        </shape>
+    </item>
+
+    <!-- Top-Left Indigo Glow -->
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="600dp"
+                android:centerX="0.2"
+                android:centerY="0.2"
+                android:startColor="#331A237E"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Bottom-Right Aero Glow -->
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="800dp"
+                android:centerX="0.9"
+                android:centerY="0.9"
+                android:startColor="#2200E5FF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

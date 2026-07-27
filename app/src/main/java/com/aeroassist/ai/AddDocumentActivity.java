@@ -1,0 +1,14 @@
+package com.aeroassist.ai;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class AddDocumentActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_document);
+        
+        findViewById(R.id.backBtn).setOnClickListener(v -> finish());
+    }
+}

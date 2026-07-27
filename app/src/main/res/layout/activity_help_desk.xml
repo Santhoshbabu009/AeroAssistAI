@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A0F1E">
+
+    <!-- Background Image with Overlay -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.15"
+        android:src="@drawable/login_bg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/backBtn"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_back"
+                android:padding="4dp"
+                app:tint="@color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Help Desk"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Frequently Asked Questions"
+                    android:textColor="#4A9EFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- FAQ 1 -->
+                <LinearLayout
+                    android:id="@+id/faqLayout1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/otp_box_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@+id/arrow1"
+                            android:text="How do I track my flight?"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/arrow1"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_down_arrow"
+                            app:tint="#4A9EFF" />
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/answer1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Enter your flight number in the 'Flight Status' section for real-time tracking of delays, gate changes, and more."
+                        android:textColor="#B0C4DE"
+                        android:textSize="14sp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- FAQ 2 -->
+                <LinearLayout
+                    android:id="@+id/faqLayout2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/otp_box_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@+id/arrow2"
+                            android:text="Is there free Wi-Fi at the airport?"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/arrow2"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_down_arrow"
+                            app:tint="#4A9EFF" />
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/answer2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Yes! Most international airports provide 2-4 hours of free Wi-Fi. Look for the 'Airport_Free_WiFi' network."
+                        android:textColor="#B0C4DE"
+                        android:textSize="14sp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- FAQ 3 -->
+                <LinearLayout
+                    android:id="@+id/faqLayout3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/otp_box_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@+id/arrow3"
+                            android:text="What's the baggage allowance?"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/arrow3"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_down_arrow"
+                            app:tint="#4A9EFF" />
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/answer3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Standard allowance is usually 20-30kg for check-in and 7kg for carry-on, but please check with your specific airline."
+                        android:textColor="#B0C4DE"
+                        android:textSize="14sp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- FAQ 4 -->
+                <LinearLayout
+                    android:id="@+id/faqLayout4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/otp_box_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@+id/arrow4"
+                            android:text="How do I navigate inside the terminal?"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/arrow4"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_down_arrow"
+                            app:tint="#4A9EFF" />
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/answer4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Use our 'Airport Navigation' feature to find gates, lounges, restrooms, and dining areas using interactive maps."
+                        android:textColor="#B0C4DE"
+                        android:textSize="14sp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- FAQ 5 -->
+                <LinearLayout
+                    android:id="@+id/faqLayout5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/otp_box_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@+id/arrow5"
+                            android:text="Can I book a cab via this app?"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/arrow5"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_down_arrow"
+                            app:tint="#4A9EFF" />
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/answer5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Not directly yet, but our AI assistant can provide local cab service numbers and estimated fare details."
+                        android:textColor="#B0C4DE"
+                        android:textSize="14sp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                 <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/chatWithAgentBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="Chat with Agent"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/login_btn_bg"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="40dp" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- Floating Email Button (bottom-right) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/emailDeveloperBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_mail"
+        android:contentDescription="Email Developer"
+        app:backgroundTint="#4A9EFF"
+        app:tint="@color/white"
+        app:fabSize="mini"
+        app:elevation="6dp" />
+
+</RelativeLayout>

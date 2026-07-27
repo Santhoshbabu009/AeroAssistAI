@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg_gradient"
+    android:fitsSystemWindows="true">
+
+    <!-- Main Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- COMPACT MINIMAL HEADER -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="14dp"
+            android:background="#120C1428">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_centerVertical="true">
+
+                <!-- Active Status Dot -->
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/circle_bg"
+                    android:backgroundTint="#5E9CD4"
+                    android:layout_marginEnd="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="AeroAssist Assistant"
+                        android:textSize="16sp"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.01"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="Secure Cloud Connection"
+                        android:textColor="#8E9AA8"
+                        android:textSize="11sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/historyBtn"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_history"
+                app:tint="#8E9AA8"/>
+        </RelativeLayout>
+
+        <!-- CHAT RECYCLER -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:clipToPadding="false"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"/>
+
+        <!-- SUGGESTIONS PROMPTS -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Prompt 1 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+                    <TextView
+                        android:id="@+id/promptGate"
+                        android:text="Where is Gate A24?"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:background="@drawable/glass_card_cyan"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="7dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Prompt 2 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+                    <TextView
+                        android:id="@+id/promptPass"
+                        android:text="Show boarding pass"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:background="@drawable/glass_card_cyan"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="7dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Prompt 3 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+                    <TextView
+                        android:id="@+id/promptLounge"
+                        android:text="Nearest lounge?"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:background="@drawable/glass_card_cyan"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="7dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- THINKING INDICATOR -->
+        <TextView
+            android:id="@+id/thinkingIndicator"
+            android:text="Assistant is processing..."
+            android:textColor="#8E9AA8"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:paddingStart="20dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- MINIMAL INPUT BAR -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:padding="6dp"
+                android:gravity="center_vertical"
+                android:background="@drawable/glass_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/micBtn"
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:scaleType="fitCenter"
+                    android:padding="6dp"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#8E9AA8"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"/>
+
+                <EditText
+                    android:id="@+id/userInput"
+                    android:hint="@string/str_ask_airport_assistant"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#446688"
+                    android:textSize="14sp"
+                    android:background="@android:color/transparent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:imeOptions="actionSend"
+                    android:inputType="textShortMessage"/>
+
+                <Button
+                    android:id="@+id/sendBtn"
+                    android:text="@string/str_send"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#5E9CD4"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    app:cornerRadius="18dp"
+                    android:layout_width="80dp"
+                    android:layout_height="36dp"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</RelativeLayout>
