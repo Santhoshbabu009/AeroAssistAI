@@ -1151,6 +1151,7 @@ def login():
         
     return jsonify({"status": "error", "message": "Invalid credentials. If you are a new user, please create an account first."}), 401
 @app.route('/chat', methods=['POST'])
+@app.route('/api/chat', methods=['POST'])
 def chat():
     GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
     

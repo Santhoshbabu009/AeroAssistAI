@@ -6,7 +6,9 @@
 
 class AeroAssistApp {
   constructor() {
-    this.API_BASE = "https://web-production-6e916.up.railway.app/api";
+    this.API_BASE = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+      ? "http://127.0.0.1:5000/api"
+      : "/api";
     
     // User Authentication Session State
     this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
@@ -401,7 +403,10 @@ class AeroAssistApp {
     
     // We send request to /chat endpoint in Flask
     try {
-      const response = await fetch("https://web-production-6e916.up.railway.app/chat", {
+      const chatUrl = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+        ? "http://127.0.0.1:5000/chat"
+        : "/api/chat";
+      const response = await fetch(chatUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
