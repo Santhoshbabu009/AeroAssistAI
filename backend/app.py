@@ -14,38 +14,44 @@ import datetime
 import time
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from dotenv import load_dotenv
+try:
+    from flask_limiter import Limiter
+    from flask_limiter.util import get_remote_address
+except ImportError:
+    Limiter = None
+    get_remote_address = None
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 
-# Configure CORS based on environment
-ALLOWED_ORIGINS = [
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-    "http://localhost:3000",
-    "http://localhost:8080"
-]
-env_origins = os.environ.get("ALLOWED_ORIGINS")
-if env_origins:
-    ALLOWED_ORIGINS = [o.strip() for o in env_origins.split(",")]
-
-CORS(app, origins=ALLOWED_ORIGINS)
+# Configure CORS for all origins (production Vercel & local development)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configure rate limiting
 is_testing = os.environ.get("USE_SQLITE_TEST") == "1" or os.environ.get("TESTING") == "true" or os.environ.get("FLASK_ENV") == "testing" or os.environ.get("DISABLE_RATE_LIMIT") == "1"
 if is_testing:
     app.config['RATELIMIT_ENABLED'] = False
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=[] if is_testing else ["200 per day", "50 per hour"],
-    storage_uri="memory://",
-    enabled=not is_testing
-)
-limiter.init_app(app)
+
+if Limiter is not None and get_remote_address is not None:
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=[] if is_testing else ["200 per day", "50 per hour"],
+        storage_uri="memory://",
+        enabled=not is_testing
+    )
+    limiter.init_app(app)
+else:
+    class DummyLimiter:
+        def limit(self, *args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+    limiter = DummyLimiter()
 
 JWT_SECRET = os.environ.get("JWT_SECRET", "super-secret-jwt-key-aeroassist-2026")
 ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "admin_aeroassist_2026")
