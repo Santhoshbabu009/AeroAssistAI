@@ -6,9 +6,7 @@
 
 class AeroAssistApp {
   constructor() {
-    this.API_BASE = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
-      ? "http://127.0.0.1:5000/api"
-      : "/api";
+    this.API_BASE = "/api";
     
     // User Authentication Session State
     this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
@@ -403,10 +401,7 @@ class AeroAssistApp {
     
     // We send request to /chat endpoint in Flask
     try {
-      const chatUrl = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
-        ? "http://127.0.0.1:5000/chat"
-        : "/api/chat";
-      const response = await fetch(chatUrl, {
+      const response = await fetch(`${this.API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
