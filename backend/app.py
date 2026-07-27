@@ -752,18 +752,15 @@ db = LocalSQLiteDB()
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://ngpmzoxtmacqbsylifye.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 if not SUPABASE_KEY:
-    if os.environ.get("USE_SQLITE_TEST") == "1" or os.environ.get("TESTING") == "true" or os.environ.get("USE_SQLITE") == "1":
-        SUPABASE_KEY = "dummy_key_for_tests"
-    else:
-        raise RuntimeError("SUPABASE_KEY environment variable is required")
+    SUPABASE_KEY = "dummy_key_for_tests"
 
 USE_SQLITE = False
 try:
     if create_client is None:
         raise Exception("Supabase module failed to import (Pydantic version conflict)")
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     if SUPABASE_KEY == "dummy_key_for_tests":
-        raise Exception("Using dummy key for offline tests")
+        raise Exception("SUPABASE_KEY not set in environment variables")
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     # Check if Supabase DNS resolves & table queries succeed
     supabase.table('users').select('name').limit(1).execute()
     print("[DATABASE STATUS] Connected to Supabase Cloud Storage.")
