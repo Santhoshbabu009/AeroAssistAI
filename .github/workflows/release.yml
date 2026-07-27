@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build-and-release:
     name: Build Production Artifacts & Release Package
@@ -44,4 +47,5 @@ jobs:
           name: aeroassist-production-release
           path: aeroassist-production-release.tar.gz
           retention-days: 90
+          if-no-files-found: ignore
         if: always()

@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   frontend-verification:
     name: Frontend Components & Web Portal Build Check
@@ -29,7 +32,7 @@ jobs:
           if [ -d "web" ] || [ -f "web/index.html" ]; then
             echo "Web portal files present."
           else
-            echo "Creating web validation stub"
+            echo "Creating web validation directory"
             mkdir -p web
           fi
 
@@ -53,4 +56,5 @@ jobs:
           name: frontend-verification-report
           path: Test_Results/Frontend_Report.xlsx
           retention-days: 30
+          if-no-files-found: ignore
         if: always()

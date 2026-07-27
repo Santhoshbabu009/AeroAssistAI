@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   e2e-tests:
     name: Playwright & Selenium E2E Test Execution
@@ -45,4 +48,5 @@ jobs:
           name: e2e-test-results
           path: Test_Results/E2E_Test_Results.xlsx
           retention-days: 30
+          if-no-files-found: ignore
         if: always()

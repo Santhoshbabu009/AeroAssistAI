@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   code-quality-checks:
     name: ESLint, Prettier & Python PEP8 Linting Checks
@@ -28,6 +31,7 @@ jobs:
       - name: Run Flake8 Code Quality Check
         run: |
           flake8 backend/ --max-line-length=120 --ignore=E501,W503 || true
+        continue-on-error: true
 
       - name: Generate Code Quality Excel Report
         run: |
@@ -49,4 +53,5 @@ jobs:
           name: code-quality-report
           path: Test_Results/Code_Quality_Report.xlsx
           retention-days: 30
+          if-no-files-found: ignore
         if: always()

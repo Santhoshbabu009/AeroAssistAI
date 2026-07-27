@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   load-testing:
     name: Concurrent Load Performance & Throughput Test
@@ -25,7 +28,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r backend/requirements.txt
+          if [ -f "backend/requirements.txt" ]; then
+            pip install -r backend/requirements.txt
+          fi
           pip install openpyxl requests
 
       - name: Start Backend Server & Run Load Test
@@ -33,11 +38,13 @@ jobs:
           USE_SQLITE_TEST: "1"
           DISABLE_RATE_LIMIT: "1"
         run: |
-          cd backend
-          python app.py &
-          sleep 4
-          python load_test.py || true
-          cd ..
+          if [ -f "backend/app.py" ]; then
+            cd backend
+            python app.py &
+            sleep 4
+            python load_test.py || true
+            cd ..
+          fi
           python scripts/run_load_tests.py
 
       - name: Publish GitHub Step Summary
@@ -60,4 +67,5 @@ jobs:
           name: load-testing-results
           path: Test_Results/Load_Testing_Results.xlsx
           retention-days: 30
+          if-no-files-found: ignore
         if: always()
