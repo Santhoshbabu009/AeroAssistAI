@@ -423,7 +423,7 @@ class AeroAssistApp {
       this.renderChatHistory();
     } catch (e) {
       thinkingDiv.remove();
-      this.chatHistory.push({ isUser: false, text: "Server offline. Make sure your Python Flask backend is running on Railway!" });
+      this.chatHistory.push({ isUser: false, text: "Server offline or unavailable. Please check backend API server status." });
       this.renderChatHistory();
     }
   }

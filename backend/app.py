@@ -775,6 +775,54 @@ except Exception as e:
 def home():
     return jsonify({"status": "online", "server": "AeroAssist AI Backend API is Alive and Running!"})
 
+@app.route('/api/chat', methods=['POST'])
+@app.route('/chat', methods=['POST'])
+@limiter.limit("30 per minute")
+def chat():
+    data = request.json or {}
+    message = data.get('message', '').strip()
+    email = data.get('email', 'visitor@aeroassist.com').strip().lower()
+    user_type = data.get('user_type', 'Passenger')
+    session_id = data.get('session_id', 1)
+    lang = data.get('lang', 'en')
+
+    if not message:
+        return jsonify({"status": "error", "message": "Message parameter is required"}), 400
+
+    # Save user message to history
+    try:
+        db.save_chat_message(email, user_type, session_id, message, is_user=True)
+    except Exception as e:
+        print("[CHAT] Save user message error:", str(e))
+
+    # Smart Airport AI Assistant Response Logic
+    msg_lower = message.lower()
+    
+    if "flight" in msg_lower or "status" in msg_lower or "gate" in msg_lower:
+        reply = "✈️ Flight AA-2026 to New York is ON TIME. Departure Gate: **Gate 14** (Terminal 1). Boarding starts at 15:45."
+    elif "baggage" in msg_lower or "luggage" in msg_lower or "weight" in msg_lower:
+        reply = "🧳 Domestic flights allow up to **7 kg hand baggage** and **15 kg checked baggage**. Liquids must be in containers <= 100ml."
+    elif "food" in msg_lower or "restaurant" in msg_lower or "eat" in msg_lower or "burger" in msg_lower:
+        reply = "🍔 Popular dining spots at Terminal 1 include **Burger King (Gate 9)** and **Starbucks (Gate 14)**. You can pre-order directly from the Dining tab!"
+    elif "lounge" in msg_lower or "relax" in msg_lower or "sleep" in msg_lower:
+        reply = "🛋️ Premium Lounges: **Plaza Premium Lounge (Terminal 1, near Gate 12)** offers buffet dining, Wi-Fi & quiet nap pods. Book passes in the Lounges tab!"
+    elif "lost" in msg_lower or "found" in msg_lower or "wallet" in msg_lower or "phone" in msg_lower:
+        reply = "📦 Found an item or lost something? Check our **Lost & Found** section to report or claim items located across Terminals 1 and 2."
+    elif "terminal" in msg_lower or "map" in msg_lower or "transfer" in msg_lower:
+        reply = "🗺️ Free inter-terminal shuttle buses operate every 10 mins between T1 & T2. Follow signs for 'Terminal Shuttle'."
+    elif "hello" in msg_lower or "hi" in msg_lower or "hey" in msg_lower:
+        reply = "Hello! 👋 Welcome to AeroAssist AI Copilot. How can I assist with your flight, baggage, dining, or lounge reservations today?"
+    else:
+        reply = f"I understand you're asking about '{message}'. As your AeroAssist AI Copilot, I can help you check flight status, navigate terminals, order food to your gate, or reserve lounge access. What would you like to do?"
+
+    # Save AI reply to history
+    try:
+        db.save_chat_message(email, user_type, session_id, reply, is_user=False)
+    except Exception as e:
+        print("[CHAT] Save AI message error:", str(e))
+
+    return jsonify({"status": "success", "reply": reply})
+
 # In-memory storage for temporary OTPs before they are officially verified
 otp_store = {}
 
