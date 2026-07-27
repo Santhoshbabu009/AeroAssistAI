@@ -41,7 +41,11 @@ def app():
     yield flask_app_module.app
 
     # Cleanup
-    os.unlink(db_path)
+    try:
+        if os.path.exists(db_path):
+            os.unlink(db_path)
+    except Exception:
+        pass
 
 
 @pytest.fixture(scope="session")

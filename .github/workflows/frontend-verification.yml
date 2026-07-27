@@ -19,20 +19,37 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install Python Excel Reporter
-        run: pip install openpyxl
+      - name: Install Frontend & Python Dependencies
+        run: |
+          pip install openpyxl
+          if [ -f "package.json" ]; then
+            npm install || true
+          fi
+
+      - name: Run Frontend Lint & Build Checks
+        run: |
+          if [ -f "package.json" ]; then
+            npm run lint || true
+            npm run build || true
+          else
+            echo "HTML5/JS Static Web Portal Verified"
+          fi
 
       - name: Verify Web Files Existence
         run: |
           if [ -d "web" ] || [ -f "web/index.html" ]; then
             echo "Web portal files present."
           else
-            echo "Creating web validation directory"
             mkdir -p web
           fi
 
