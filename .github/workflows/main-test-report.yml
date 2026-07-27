@@ -1,0 +1,75 @@
+name: Main Test Report
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  main-test-summary:
+    name: Consolidated Main Test Summary
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'backend/requirements.txt'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install openpyxl pytest pyjwt requests
+
+      - name: Execute All Test Suite Runners & Generate Excel Reports
+        env:
+          USE_SQLITE_TEST: "1"
+          DISABLE_RATE_LIMIT: "1"
+        run: |
+          python scripts/run_backend_tests.py
+          python scripts/run_frontend_tests.py
+          python scripts/run_security.py
+          python scripts/run_load_tests.py
+          python scripts/run_e2e.py
+          python scripts/generate_summary.py
+
+      - name: Publish GitHub Action Step Summary
+        run: |
+          cat Test_Results/Executive_Summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload All Excel Reports & Executive Summary to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-test-results
+          path: Test_Results/
+          retention-days: 30
+        if: always()
+
+      - name: Auto-commit Test Results to Repository
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Test_Results/*.xlsx Test_Results/*.md 2>/dev/null || true
+          if git status --porcelain | grep -q 'Test_Results'; then
+            git commit -m "Auto-update all test reports and executive summary [skip ci]"
+            git push
+          else
+            echo "No test report changes to commit."
+          fi

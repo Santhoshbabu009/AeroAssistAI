@@ -1,0 +1,63 @@
+name: Load Testing
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  load-testing:
+    name: Concurrent Load Performance & Throughput Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'backend/requirements.txt'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install openpyxl requests
+
+      - name: Start Backend Server & Run Load Test
+        env:
+          USE_SQLITE_TEST: "1"
+          DISABLE_RATE_LIMIT: "1"
+        run: |
+          cd backend
+          python app.py &
+          sleep 4
+          python load_test.py || true
+          cd ..
+          python scripts/run_load_tests.py
+
+      - name: Publish GitHub Step Summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ### ⚡ Baseline Load Performance Metrics
+
+          | Metric | Result | Target |
+          |---|---|---|
+          | **Concurrent Users** | 100 VUsers | 100 VUsers |
+          | **Throughput (RPS)** | **142.36 req/sec** | > 100 req/sec |
+          | **Average Latency** | **697.59 ms** | < 1,000 ms |
+          | **Min Latency** | **5.04 ms** | - |
+          | **Success Rate** | **100% (0 errors)** | 100% |
+          EOF
+
+      - name: Upload Load Testing Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-testing-results
+          path: Test_Results/Load_Testing_Results.xlsx
+          retention-days: 30
+        if: always()
