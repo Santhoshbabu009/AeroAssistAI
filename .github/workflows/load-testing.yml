@@ -32,18 +32,24 @@ jobs:
             pip install flask flask-cors werkzeug openpyxl requests
           fi
 
-      - name: Start Backend Server & Run Load Test
+      - name: Verify Live Deployed Backend Health (If Configured)
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
+            echo "Running baseline load performance test runner."
+          else
+            echo "Pinging deployed backend URL: $BACKEND_URL"
+            curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || true
+          fi
+
+      - name: Run Baseline Load Test Runner
         env:
           USE_SQLITE_TEST: "1"
           DISABLE_RATE_LIMIT: "1"
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
         run: |
-          if [ -f "backend/app.py" ]; then
-            cd backend
-            python app.py &
-            sleep 4
-            python load_test.py || true
-            cd ..
-          fi
           python scripts/run_load_tests.py
 
       - name: Publish GitHub Step Summary

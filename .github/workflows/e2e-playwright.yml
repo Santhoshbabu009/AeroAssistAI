@@ -28,7 +28,21 @@ jobs:
         run: |
           pip install openpyxl requests pytest
 
+      - name: Verify Live Deployed Backend Health (If Configured)
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
+            echo "Executing end-to-end scenario verification suite independently."
+          else
+            echo "Pinging deployed backend URL: $BACKEND_URL"
+            curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || true
+          fi
+
       - name: Run E2E Test Suite
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
         run: |
           python scripts/run_e2e.py
 

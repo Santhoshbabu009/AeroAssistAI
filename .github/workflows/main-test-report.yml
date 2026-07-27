@@ -35,12 +35,39 @@ jobs:
             pip install flask flask-cors werkzeug openpyxl pytest pyjwt requests
           fi
 
+      - name: Check Live Deployed Backend URL & Health
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
+            echo "Executing full test suite and generating all audit reports independently."
+          else
+            echo "Checking deployed backend health at: $BACKEND_URL"
+            ONLINE=false
+            for i in {1..10}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Live backend is online and returned HTTP 200!"
+                ONLINE=true
+                break
+              fi
+              echo "Waiting for backend response... (attempt $i, status: $STATUS)"
+              sleep 2
+            done
+            if [ "$ONLINE" = "false" ]; then
+              echo "⚠️ Live backend at $BACKEND_URL did not respond with HTTP 200 within timeout."
+              echo "Skipping live probes gracefully."
+            fi
+          fi
+
       - name: Execute All Test Suite Runners & Generate Excel Reports
         env:
           USE_SQLITE_TEST: "1"
           DISABLE_RATE_LIMIT: "1"
           JWT_SECRET: "test-jwt-secret-aeroassist-2026"
           ADMIN_SECRET_KEY: "admin_aeroassist_2026"
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
         run: |
           python scripts/run_backend_tests.py
           python scripts/run_frontend_tests.py

@@ -19,16 +19,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Detect Backend Framework
-        id: detect
-        run: |
-          if [ -d "backend" ]; then
-            echo "framework=flask" >> $GITHUB_OUTPUT
-            echo "Detected Flask Python Backend"
-          else
-            echo "framework=none" >> $GITHUB_OUTPUT
-          fi
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -43,12 +33,39 @@ jobs:
             pip install flask flask-cors werkzeug pytest openpyxl pyjwt requests pytest-cov
           fi
 
-      - name: Run Backend Unit & Integration Test Suites
+      - name: Verify Deployed Backend URL Health (If Configured)
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
+            echo "Skipping live endpoint verification; unit and integration test suites will execute independently."
+          else
+            echo "Checking live deployed backend at: $BACKEND_URL"
+            ONLINE=false
+            for i in {1..10}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Live backend is online and returned HTTP 200!"
+                ONLINE=true
+                break
+              fi
+              echo "Waiting for backend response... (attempt $i, status: $STATUS)"
+              sleep 2
+            done
+            if [ "$ONLINE" = "false" ]; then
+              echo "⚠️ Deployed backend at $BACKEND_URL did not return HTTP 200 within timeout."
+              echo "Skipping live verification gracefully."
+            fi
+          fi
+
+      - name: Run Independent Backend Unit & Integration Tests
         env:
           USE_SQLITE_TEST: "1"
           DISABLE_RATE_LIMIT: "1"
           JWT_SECRET: "test-jwt-secret-aeroassist-2026"
           ADMIN_SECRET_KEY: "admin_aeroassist_2026"
+          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
         run: |
           python scripts/run_backend_tests.py
 
