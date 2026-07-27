@@ -47,8 +47,8 @@ limiter = Limiter(
 )
 limiter.init_app(app)
 
-JWT_SECRET = os.environ.get("JWT_SECRET", os.environ.get("SECRET_KEY", "aeroassist_sec_key_2026"))
-ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "admin_key_2026")
+JWT_SECRET = os.environ.get("JWT_SECRET", "super-secret-jwt-key-aeroassist-2026")
+ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "admin_aeroassist_2026")
 
 def generate_token(email, role="user"):
     payload = {
@@ -1151,7 +1151,6 @@ def login():
         
     return jsonify({"status": "error", "message": "Invalid credentials. If you are a new user, please create an account first."}), 401
 @app.route('/chat', methods=['POST'])
-@app.route('/api/chat', methods=['POST'])
 def chat():
     GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
     
