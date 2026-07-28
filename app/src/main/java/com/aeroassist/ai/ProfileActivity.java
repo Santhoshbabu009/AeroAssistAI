@@ -302,7 +302,10 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void requestPasswordResetOtp() {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
         String url = Constants.PASSWORD_RESET_REQUEST_ENDPOINT;
         try {
             JSONObject json = new JSONObject();

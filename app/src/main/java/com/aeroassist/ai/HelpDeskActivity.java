@@ -32,20 +32,11 @@ public class HelpDeskActivity extends BaseActivity {
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 float diffX = e2.getX() - e1.getX();
                 float diffY = e2.getY() - e1.getY();
-                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 120 && Math.abs(velocityX) > 150) {
-                    if (diffX < 0) {
-                        // Swipe Left â†’ Profile page
-                        Intent intent = new Intent(HelpDeskActivity.this, ProfileActivity.class);
-                        intent.putExtra("email", email);
-                        startActivity(intent);
-                        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                        return true;
-                    } else {
-                        // Swipe Right â†’ Main page
-                        finish();
-                        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                        return true;
-                    }
+                if (Math.abs(diffX) > Math.abs(diffY) && diffX > 120 && Math.abs(velocityX) > 150) {
+                    // Swipe Right â†’ Go Back (finish activity)
+                    finish();
+                    overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                    return true;
                 }
                 return false;
             }
