@@ -89,7 +89,7 @@ public class StoreMenuActivity extends AppCompatActivity {
     }
 
     private void fetchProducts() {
-        String url = Constants.BACKEND_BASE_URL + "/api/vendors/products?vendor_id=" + vendorId;
+        String url = Constants.BACKEND_BASE_URL + "/api/products?vendor_id=" + vendorId;
         Request request = new Request.Builder().url(url).build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -116,6 +116,19 @@ public class StoreMenuActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private static String getFallbackProductImage(String name, String category) {
+        String query = (name + " " + category).toLowerCase();
+        if (query.contains("burger")) return "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop";
+        if (query.contains("pizza")) return "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop";
+        if (query.contains("coffee") || query.contains("latte") || query.contains("cappuccino") || query.contains("espresso") || query.contains("tea") || query.contains("beverage")) return "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop";
+        if (query.contains("biryani") || query.contains("rice") || query.contains("curry") || query.contains("dosa") || query.contains("thali")) return "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop";
+        if (query.contains("wrap") || query.contains("sandwich") || query.contains("sub") || query.contains("roll")) return "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&auto=format&fit=crop";
+        if (query.contains("juice") || query.contains("smoothie") || query.contains("drink") || query.contains("shake")) return "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500&auto=format&fit=crop";
+        if (query.contains("salad") || query.contains("healthy") || query.contains("bowl")) return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop";
+        if (query.contains("dessert") || query.contains("cake") || query.contains("sweet") || query.contains("ice cream") || query.contains("donut")) return "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&auto=format&fit=crop";
+        return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop";
     }
 
     private void updateCartUi() {
@@ -145,21 +158,21 @@ public class StoreMenuActivity extends AppCompatActivity {
             long id = prod.optLong("id");
             String name = prod.optString("name");
             String desc = prod.optString("description");
+            String cat = prod.optString("category");
             double price = prod.optDouble("price", 0.0);
             String imgUrl = prod.optString("image_url");
+            if (imgUrl == null || imgUrl.trim().isEmpty()) {
+                imgUrl = getFallbackProductImage(name, cat);
+            }
 
             holder.nameText.setText(name);
             holder.descText.setText(desc);
             holder.priceText.setText("₹" + String.format("%.2f", price));
 
-            if (imgUrl != null && !imgUrl.isEmpty()) {
-                Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .placeholder(R.drawable.certificate_bg)
-                        .into(holder.productImage);
-            } else {
-                holder.productImage.setImageResource(R.drawable.certificate_bg);
-            }
+            Glide.with(holder.itemView.getContext())
+                    .load(imgUrl)
+                    .placeholder(R.drawable.certificate_bg)
+                    .into(holder.productImage);
 
             int qty = CartHelper.getProductQuantity(id);
             if (qty > 0) {
