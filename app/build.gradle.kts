@@ -4,13 +4,7 @@ plugins {
 
 android {
     namespace = "com.aeroassist.ai"
-    compileSdk {
-
-        version = release(36) {
-            minorApiLevel = 1
-        }
-
-    }
+    compileSdk = 36
 
 
     defaultConfig {
