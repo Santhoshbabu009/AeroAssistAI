@@ -6,7 +6,7 @@
 
 class AeroAssistApp {
   constructor() {
-    this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "http://127.0.0.1:5000/api" : "/api";
+    this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "https://aeroassistai.onrender.com/api" : "/api";
     this.AVIATION_STACK_KEY = "322876eed5ec416a01fffd3e4429c29e";
     
     // User Authentication Session State

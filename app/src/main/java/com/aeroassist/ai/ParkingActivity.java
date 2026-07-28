@@ -118,10 +118,10 @@ public class ParkingActivity extends BaseActivity {
         double tax = 25.0;
         pendingPrice = baseFee + tax;
 
-        itemTotalText.setText("â‚¹" + String.format("%.2f", baseFee));
-        taxTotalText.setText("â‚¹" + String.format("%.2f", tax));
-        grandTotalText.setText("â‚¹" + String.format("%.2f", pendingPrice));
-        footerTotalText.setText("â‚¹" + String.format("%.2f", pendingPrice));
+        itemTotalText.setText("₹" + String.format("%.2f", baseFee));
+        taxTotalText.setText("₹" + String.format("%.2f", tax));
+        grandTotalText.setText("₹" + String.format("%.2f", pendingPrice));
+        footerTotalText.setText("₹" + String.format("%.2f", pendingPrice));
     }
 
     private void placeBooking() {
@@ -186,7 +186,7 @@ public class ParkingActivity extends BaseActivity {
         rootLayout.addView(titleText);
         
         TextView subText = new TextView(this);
-        subText.setText("AeroAssist Premium Checkout â€¢ â‚¹" + String.format("%.2f", amount));
+        subText.setText("AeroAssist Premium Checkout • ₹" + String.format("%.2f", amount));
         subText.setTextSize(13);
         subText.setTextColor(Color.parseColor("#64748B"));
         subText.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -310,7 +310,7 @@ public class ParkingActivity extends BaseActivity {
         progress.show();
         
         new Handler().postDelayed(() -> {
-            progress.setMessage("Processing payment of â‚¹" + String.format("%.2f", pendingPrice) + "...");
+            progress.setMessage("Processing payment of ₹" + String.format("%.2f", pendingPrice) + "...");
             
             new Handler().postDelayed(() -> {
                 progress.dismiss();
@@ -325,7 +325,7 @@ public class ParkingActivity extends BaseActivity {
                 layout.setGravity(Gravity.CENTER);
                 
                 TextView tick = new TextView(ParkingActivity.this);
-                tick.setText("âœ”");
+                tick.setText("✔");
                 tick.setTextSize(36);
                 tick.setTextColor(Color.parseColor("#10B981"));
                 tick.setGravity(Gravity.CENTER);

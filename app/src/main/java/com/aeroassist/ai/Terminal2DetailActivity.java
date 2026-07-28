@@ -34,9 +34,9 @@ public class Terminal2DetailActivity extends BaseActivity {
         terminalTitle.setText("Terminal 2");
         terminalInfo.setText(
             "Terminal 2 is the main hub for international flights. It features state-of-the-art architecture and premium services.\n\n" +
-            "â€¢ Level 1: Ground Transportation & International Arrivals.\n" +
-            "â€¢ Level 2: Duty-Free Shopping & Boarding Gates.\n" +
-            "â€¢ Level 3: Premium Lounges & Fine Dining.\n\n" +
+            "• Level 1: Ground Transportation & International Arrivals.\n" +
+            "• Level 2: Duty-Free Shopping & Boarding Gates.\n" +
+            "• Level 3: Premium Lounges & Fine Dining.\n\n" +
             "Gates B1 to B50 are located here. Automated People Movers (APM) connect different zones within the terminal."
         );
 

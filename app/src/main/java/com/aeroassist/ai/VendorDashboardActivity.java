@@ -86,7 +86,7 @@ public class VendorDashboardActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         vendorNameText.setText(name);
-        vendorInfoText.setText(terminal + " â€¢ " + gate + " â€¢ (" + type.toUpperCase() + ")");
+        vendorInfoText.setText(terminal + " • " + gate + " • (" + type.toUpperCase() + ")");
 
         logoutBtn.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
@@ -272,8 +272,8 @@ public class VendorDashboardActivity extends BaseActivity {
 
             holder.orderIdText.setText("Order #" + orderId);
             holder.userDetailText.setText("Customer: " + emailStr);
-            holder.locationText.setText("Delivery: " + termStr + " â€¢ " + gateStr);
-            holder.priceText.setText("Total Amount: â‚¹" + String.format("%.2f", total) + " [" + paymentMethod + "]");
+            holder.locationText.setText("Delivery: " + termStr + " • " + gateStr);
+            holder.priceText.setText("Total Amount: ₹" + String.format("%.2f", total) + " [" + paymentMethod + "]");
             holder.statusBadge.setText(status.toUpperCase());
 
             // Color badge accordingly
@@ -336,7 +336,7 @@ public class VendorDashboardActivity extends BaseActivity {
                 for (int i = 0; i < items.length(); i++) {
                     JSONObject item = items.optJSONObject(i);
                     if (item != null) {
-                        itemsSb.append("â€¢ ").append(item.optString("product_name"))
+                        itemsSb.append("• ").append(item.optString("product_name"))
                                 .append(" x").append(item.optInt("quantity"))
                                 .append("\n");
                     }

@@ -247,12 +247,12 @@ public class VendorMenuActivity extends BaseActivity {
 
             holder.nameText.setText(nameStr);
             holder.categoryText.setText(catStr);
-            holder.priceText.setText("â‚¹" + String.format("%.2f", priceVal));
+            holder.priceText.setText("₹" + String.format("%.2f", priceVal));
 
             // Set simple item emoji indicator based on category
             String catLower = catStr.toLowerCase();
             if (catLower.contains("drink") || catLower.contains("coffee") || catLower.contains("tea")) {
-                holder.placeholderText.setText("â˜•");
+                holder.placeholderText.setText("☕");
             } else if (catLower.contains("burger")) {
                 holder.placeholderText.setText("ðŸ”");
             } else if (catLower.contains("fries") || catLower.contains("side")) {

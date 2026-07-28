@@ -180,7 +180,7 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
 
                     if(data.length() == 0){
                         runOnUiThread(() -> resultText.setText(
-                                "âœˆï¸ Flight " + flight + " not found.\n\nâ€¢ Check the IATA code (e.g. AI101, EK202)\nâ€¢ Flight may have landed or not departed yet"));
+                                "âœˆï¸ Flight " + flight + " not found.\n\n• Check the IATA code (e.g. AI101, EK202)\n• Flight may have landed or not departed yet"));
                         return;
                     }
 

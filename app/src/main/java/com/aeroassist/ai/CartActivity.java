@@ -108,10 +108,10 @@ public class CartActivity extends BaseActivity {
         double deliveryAndTax = subtotal > 0 ? 45.0 : 0.0;
         double grand = subtotal + deliveryAndTax;
 
-        itemTotalText.setText("â‚¹" + String.format("%.2f", subtotal));
-        taxTotalText.setText("â‚¹" + String.format("%.2f", deliveryAndTax));
-        grandTotalText.setText("â‚¹" + String.format("%.2f", grand));
-        footerTotalText.setText("â‚¹" + String.format("%.2f", grand));
+        itemTotalText.setText("₹" + String.format("%.2f", subtotal));
+        taxTotalText.setText("₹" + String.format("%.2f", deliveryAndTax));
+        grandTotalText.setText("₹" + String.format("%.2f", grand));
+        footerTotalText.setText("₹" + String.format("%.2f", grand));
 
         if (subtotal <= 0) {
             btnCheckout.setEnabled(false);
@@ -201,7 +201,7 @@ public class CartActivity extends BaseActivity {
         
         // Subtitle Text
         TextView subText = new TextView(this);
-        subText.setText("AeroAssist Premium Checkout â€¢ â‚¹" + String.format("%.2f", amount));
+        subText.setText("AeroAssist Premium Checkout • ₹" + String.format("%.2f", amount));
         subText.setTextSize(13);
         subText.setTextColor(Color.parseColor("#64748B")); // Slate 500
         subText.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -335,7 +335,7 @@ public class CartActivity extends BaseActivity {
         progress.show();
         
         new Handler().postDelayed(() -> {
-            progress.setMessage("Processing payment of â‚¹" + String.format("%.2f", CartHelper.getCartTotal() + (CartHelper.getCartTotal() > 0 ? 45.0 : 0.0)) + "...");
+            progress.setMessage("Processing payment of ₹" + String.format("%.2f", CartHelper.getCartTotal() + (CartHelper.getCartTotal() > 0 ? 45.0 : 0.0)) + "...");
             
             new Handler().postDelayed(() -> {
                 progress.dismiss();
@@ -351,7 +351,7 @@ public class CartActivity extends BaseActivity {
                 layout.setGravity(Gravity.CENTER);
                 
                 TextView tick = new TextView(CartActivity.this);
-                tick.setText("âœ”");
+                tick.setText("✔");
                 tick.setTextSize(36);
                 tick.setTextColor(Color.parseColor("#10B981")); // Tailwind emerald 500
                 tick.setGravity(Gravity.CENTER);
@@ -587,7 +587,7 @@ public class CartActivity extends BaseActivity {
             double price = item.product.optDouble("price", 0.0);
 
             holder.nameText.setText(name);
-            holder.priceText.setText("â‚¹" + String.format("%.2f", price));
+            holder.priceText.setText("₹" + String.format("%.2f", price));
             holder.qtyText.setText(String.valueOf(item.quantity));
 
             holder.btnPlus.setOnClickListener(v -> {

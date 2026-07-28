@@ -34,9 +34,9 @@ public class Terminal1DetailActivity extends BaseActivity {
         terminalTitle.setText("Terminal 1");
         terminalInfo.setText(
             "Terminal 1 primarily handles domestic operations. It consists of three levels:\n\n" +
-            "â€¢ Level 1: Arrivals and Baggage Claim.\n" +
-            "â€¢ Level 2: Departures and Security Check.\n" +
-            "â€¢ Level 3: Lounges and Food Court.\n\n" +
+            "• Level 1: Arrivals and Baggage Claim.\n" +
+            "• Level 2: Departures and Security Check.\n" +
+            "• Level 3: Lounges and Food Court.\n\n" +
             "Gates A1 to A20 are located in this terminal. Walking time from security to the farthest gate is approximately 12 minutes."
         );
 

@@ -32,11 +32,11 @@ public class TransferGuideActivity extends BaseActivity {
         // Optimistic default content
         guideTitle.setText("Inter-Terminal Transfers");
         guideBody.setText(
-            "â€¢ Free Shuttle Bus: Operates every 10 minutes between T1 and T2. Follow signs for 'Terminal Shuttle'.\n\n" +
-            "â€¢ Airside Transfer: If you have a connecting flight, use the airside transfer bus to avoid re-clearing immigration.\n\n" +
-            "â€¢ Walking Path: A covered walkway connects T1 and T2 (approx. 15 mins walk).\n\n" +
-            "â€¢ Buggy Service: Elderly and disabled passengers can request a buggy at the information desks.\n\n" +
-            "â€¢ Luggage: If your bags are not checked through, you must collect them before transferring between terminals."
+            "• Free Shuttle Bus: Operates every 10 minutes between T1 and T2. Follow signs for 'Terminal Shuttle'.\n\n" +
+            "• Airside Transfer: If you have a connecting flight, use the airside transfer bus to avoid re-clearing immigration.\n\n" +
+            "• Walking Path: A covered walkway connects T1 and T2 (approx. 15 mins walk).\n\n" +
+            "• Buggy Service: Elderly and disabled passengers can request a buggy at the information desks.\n\n" +
+            "• Luggage: If your bags are not checked through, you must collect them before transferring between terminals."
         );
 
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());

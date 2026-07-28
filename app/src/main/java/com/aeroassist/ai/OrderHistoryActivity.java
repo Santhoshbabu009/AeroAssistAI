@@ -110,8 +110,8 @@ public class OrderHistoryActivity extends BaseActivity {
 
             String paymentMethod = order.optString("payment_method", "COD");
             holder.restaurantName.setText(vendorName);
-            holder.orderDate.setText("Order #" + id + " â€¢ " + created.replace("T", " ").substring(0, Math.min(created.length(), 16)));
-            holder.priceText.setText("Total Amount: â‚¹" + String.format("%.2f", total) + " [" + paymentMethod + "]");
+            holder.orderDate.setText("Order #" + id + " • " + created.replace("T", " ").substring(0, Math.min(created.length(), 16)));
+            holder.priceText.setText("Total Amount: ₹" + String.format("%.2f", total) + " [" + paymentMethod + "]");
             holder.statusBadge.setText(status.toUpperCase());
 
             // Build items summary

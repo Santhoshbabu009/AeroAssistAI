@@ -1,10 +1,7 @@
 package com.aeroassist.ai;
 
 public class Constants {
-    // Backend API URL Configuration:
-    // 1. For cloud deployment: "https://aeroassistai.onrender.com"
-    // 2. For local Android Emulator: "http://10.0.2.2:5000"
-    // 3. For physical Android phone on Wi-Fi: "http://10.181.143.74:5000"
+    // Backend API
     public static final String BACKEND_BASE_URL = "https://aeroassistai.onrender.com";
     public static final String API_V1_BASE = BACKEND_BASE_URL + "/api";
     

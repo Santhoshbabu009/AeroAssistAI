@@ -114,10 +114,10 @@ public class LoungeBookingHistoryActivity extends BaseActivity {
             double total = slots * slotPrice;
 
             holder.loungeName.setText(loungeName);
-            holder.bookingDetails.setText("Booking ID: #" + id + " â€¢ " + slots + (slots == 1 ? " Guest" : " Guests"));
+            holder.bookingDetails.setText("Booking ID: #" + id + " • " + slots + (slots == 1 ? " Guest" : " Guests"));
             holder.dateText.setText(dateStr);
             holder.timeText.setText(timeStr);
-            holder.priceText.setText("Total Amount: â‚¹" + String.format("%.2f", total));
+            holder.priceText.setText("Total Amount: ₹" + String.format("%.2f", total));
             holder.statusBadge.setText(status.toUpperCase());
 
             // Set badge colors

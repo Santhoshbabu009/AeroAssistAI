@@ -163,7 +163,7 @@ public class OrderTrackingActivity extends BaseActivity {
 
                             runOnUiThread(() -> {
                                 restaurantNameText.setText(vendorName);
-                                orderInfoText.setText("Order #" + orderId + " â€¢ " + term + " " + gate + " â€¢ " + paymentMethod);
+                                orderInfoText.setText("Order #" + orderId + " • " + term + " " + gate + " • " + paymentMethod);
                                 itemsSummaryText.setText(itemsSb.toString());
                                 updateStepperUI(status);
                             });

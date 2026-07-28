@@ -30,6 +30,6 @@ public class ActiveSessionsActivity extends BaseActivity {
         
         String deviceDisplayName = manufacturer + " " + model;
         tvCurrentDeviceName.setText(deviceDisplayName + " (Current)");
-        tvCurrentDeviceDetails.setText("AeroAssist App â€¢ Android " + androidVersion + " â€¢ Active Now");
+        tvCurrentDeviceDetails.setText("AeroAssist App • Android " + androidVersion + " • Active Now");
     }
 }

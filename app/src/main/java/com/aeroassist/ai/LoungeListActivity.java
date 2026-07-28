@@ -117,7 +117,7 @@ public class LoungeListActivity extends BaseActivity {
                                 String loungeName = latestBooking.optString("lounge_name", "Premium Lounge");
                                 int slots = latestBooking.optInt("slots", 1);
                                 String guestsStr = slots + (slots == 1 ? " Guest" : " Guests");
-                                String displayText = loungeName + " â€¢ " + guestsStr 
+                                String displayText = loungeName + " • " + guestsStr 
                                         + "\nStatus: " + status.toUpperCase();
 
                                 runOnUiThread(() -> {
@@ -201,7 +201,7 @@ public class LoungeListActivity extends BaseActivity {
             String imgUrl = lounge.optString("image_url");
 
             holder.nameText.setText(nameStr);
-            holder.detailsText.setText(term + " â€¢ " + gate);
+            holder.detailsText.setText(term + " • " + gate);
             
             // Availability badge styling
             if ("Available".equalsIgnoreCase(availability)) {
@@ -216,7 +216,7 @@ public class LoungeListActivity extends BaseActivity {
 
             // Deterministic slot price
             double slotPrice = 1000.0 + (id % 5) * 200.0;
-            holder.priceText.setText("â‚¹" + String.format("%.0f", slotPrice) + "/slot");
+            holder.priceText.setText("₹" + String.format("%.0f", slotPrice) + "/slot");
 
             if (imgUrl != null && !imgUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())

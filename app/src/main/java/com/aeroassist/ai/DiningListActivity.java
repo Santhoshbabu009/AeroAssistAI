@@ -59,10 +59,10 @@ public class DiningListActivity extends BaseActivity {
             list.add(new ServiceItem("Plaza Premium Lounge", "Terminal 1", "4.8", "ðŸ›‹ï¸"));
             list.add(new ServiceItem("Air India Lounge", "Terminal 2", "4.1", "ðŸ·"));
         } else {
-            list.add(new ServiceItem("Starbucks Coffee", "Cafe â€¢ Gate 14", "4.5", "â˜•"));
-            list.add(new ServiceItem("Burger King", "Fast Food â€¢ Gate 9", "4.2", "ðŸ”"));
-            list.add(new ServiceItem("The Great Kabab Factory", "Fine Dining â€¢ T2", "4.7", "ðŸ±"));
-            list.add(new ServiceItem("Subway", "Quick Service â€¢ Gate 22", "4.0", "ðŸ¥ª"));
+            list.add(new ServiceItem("Starbucks Coffee", "Cafe • Gate 14", "4.5", "☕"));
+            list.add(new ServiceItem("Burger King", "Fast Food • Gate 9", "4.2", "ðŸ”"));
+            list.add(new ServiceItem("The Great Kabab Factory", "Fine Dining • T2", "4.7", "ðŸ±"));
+            list.add(new ServiceItem("Subway", "Quick Service • Gate 22", "4.0", "ðŸ¥ª"));
         }
         return list;
     }

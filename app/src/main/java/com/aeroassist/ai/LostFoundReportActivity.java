@@ -119,7 +119,7 @@ public class LostFoundReportActivity extends BaseActivity {
         try {
             JSONObject json = new JSONObject();
             json.put("name", name);
-            json.put("description", desc + " â€¢ " + location);
+            json.put("description", desc + " • " + location);
             json.put("location", location);
             json.put("contact", contact);
             json.put("type", type);
