@@ -164,10 +164,20 @@ class AeroAssistApp {
   // --- UNIVERSAL API HELPER ---
   async apiCall(endpoint, options = {}) {
     try {
-      const response = await fetch(`${this.API_BASE}${endpoint}`, {
-        headers: { "Content-Type": "application/json" },
-        ...options
-      });
+      // Auto-attach JWT token from the active vendor or user session
+      const token = this.currentVendor?.token || this.currentUser?.token || null;
+      const authHeaders = token ? { "Authorization": `Bearer ${token}` } : {};
+
+      const mergedOptions = {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+          ...(options.headers || {})
+        }
+      };
+
+      const response = await fetch(`${this.API_BASE}${endpoint}`, mergedOptions);
       return await response.json();
     } catch (err) {
       console.error(`[API ERROR] ${endpoint}:`, err);
@@ -271,7 +281,8 @@ class AeroAssistApp {
       this.currentUser = {
         name: res.name || "Santhosh Babu",
         email: email,
-        mobile: res.mobile || "9876543210"
+        mobile: res.mobile || "9876543210",
+        token: res.token || null
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
       this.updateUserSessionUI();
@@ -524,7 +535,8 @@ class AeroAssistApp {
 
   // --- DINING DIRECTORY outlets ---
   async fetchRestaurants() {
-    const data = await this.apiCall("/restaurants");
+    const res = await this.apiCall("/restaurants");
+    const data = (res && res.restaurants) ? res.restaurants : [];
     const container = document.getElementById("restaurants-grid");
     if (!container) return;
 
@@ -553,7 +565,8 @@ class AeroAssistApp {
     const container = document.getElementById("products-grid");
     container.innerHTML = `<p style="grid-column:1/-1; text-align:center;">Loading menu items...</p>`;
     
-    const products = await this.apiCall(`/vendors/products?vendor_id=${restaurantId}`);
+    const menuResult = await this.apiCall(`/products?vendor_id=${restaurantId}`);
+    const products = (menuResult && menuResult.products) ? menuResult.products : [];
     this.tempSelectedRestaurant = { id: restaurantId, name: restaurantName };
 
     if (!products || products.length === 0) {
@@ -702,7 +715,8 @@ class AeroAssistApp {
 
   // --- LOUNGE BOOKINGS SLOTS ---
   async fetchLounges() {
-    const data = await this.apiCall("/lounges");
+    const res = await this.apiCall("/lounges");
+    const data = (res && res.lounges) ? res.lounges : [];
     const container = document.getElementById("lounges-grid");
     if (!container) return;
 
@@ -785,11 +799,13 @@ class AeroAssistApp {
   async fetchPassengerHistory() {
     if (!this.currentUser) return;
     
-    const orders = await this.apiCall(`/orders?email=${this.currentUser.email}`);
-    const bookings = await this.apiCall(`/bookings?email=${this.currentUser.email}`);
+    const ordRes = await this.apiCall(`/orders?email=${this.currentUser.email}`);
+    const bkRes = await this.apiCall(`/bookings?email=${this.currentUser.email}`);
+    const orders = (ordRes && ordRes.orders) ? ordRes.orders : [];
+    const bookings = (bkRes && bkRes.bookings) ? bkRes.bookings : [];
 
     // Update active banner for food orders
-    const activeOrder = (orders || []).find(ord => ["pending", "accepted", "preparing", "ready"].includes(ord.status.toLowerCase()));
+    const activeOrder = orders.find(ord => ["pending", "accepted", "preparing", "ready"].includes((ord.status || '').toLowerCase()));
     const diningBanner = document.getElementById("floating-dining-banner");
     
     if (activeOrder) {
@@ -806,7 +822,7 @@ class AeroAssistApp {
     }
 
     // Update active banner for lounges
-    const activeBooking = (bookings || []).find(b => ["pending", "confirmed"].includes(b.status.toLowerCase()));
+    const activeBooking = bookings.find(b => ["pending", "confirmed"].includes((b.status || '').toLowerCase()));
     const loungeBanner = document.getElementById("floating-lounge-banner");
     
     if (activeBooking) {
@@ -957,7 +973,8 @@ class AeroAssistApp {
     if (!container) return;
 
     if (isRestaurant) {
-      const orders = await this.apiCall(`/orders?vendor_id=${this.currentVendor.id}`);
+      const ordRes = await this.apiCall(`/orders?vendor_id=${this.currentVendor.id}`);
+      const orders = (ordRes && ordRes.orders) ? ordRes.orders : [];
       if (!orders || orders.length === 0) {
         container.innerHTML = `<p style="text-align:center; padding: 40px 0; color:var(--text-secondary);">No orders in queue.</p>`;
         return;
@@ -988,7 +1005,8 @@ class AeroAssistApp {
         </div>
       `).join("");
     } else {
-      const bookings = await this.apiCall(`/bookings?vendor_id=${this.currentVendor.id}`);
+      const bkRes = await this.apiCall(`/bookings?vendor_id=${this.currentVendor.id}`);
+      const bookings = (bkRes && bkRes.bookings) ? bkRes.bookings : [];
       if (!bookings || bookings.length === 0) {
         container.innerHTML = `<p style="text-align:center; padding: 40px 0; color:var(--text-secondary);">No active bookings.</p>`;
         return;
@@ -1031,12 +1049,13 @@ class AeroAssistApp {
   // --- CATALOG MANAGER CATALOG PRODUCT CRUD ---
   async fetchVendorCatalog() {
     if (!this.currentVendor) return;
-    const products = await this.apiCall(`/vendors/products?vendor_id=${this.currentVendor.id}`);
+    const result = await this.apiCall(`/vendors/products?vendor_id=${this.currentVendor.id}`);
+    const products = (result && result.products) ? result.products : [];
     const container = document.getElementById("vendor-catalog-grid");
     if (!container) return;
 
     if (!products || products.length === 0) {
-      container.innerHTML = `<p style="grid-column:1/-1; text-align:center;">No catalog products found.</p>`;
+      container.innerHTML = `<p style="grid-column:1/-1; text-align:center;">No catalog products found. Add your first item above!</p>`;
       return;
     }
 
