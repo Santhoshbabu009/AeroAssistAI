@@ -1070,7 +1070,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
         part = MIMEText(html_content, 'html')
         msg.attach(part)
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(smtp_email, smtp_pass)
         server.sendmail(smtp_email, to_email, msg.as_string())
@@ -1104,7 +1104,7 @@ def google_login():
     if not existing_user:
         # Require OTP verification for brand new Google accounts
         display_name = name if name and name != 'Google User' else email.split('@')[0].capitalize()
-        import secrets, threading
+        import secrets
         otp = str(secrets.randbelow(900000) + 100000)
         otp_store[email] = {
             "otp": otp,
@@ -1113,7 +1113,7 @@ def google_login():
             "mobile": "",
             "attempts": 0
         }
-        threading.Thread(target=send_verification_email, args=(email, otp, display_name), daemon=True).start()
+        send_verification_email(email, otp, display_name)
         print(f"\n[SERVER SECURE LOG] -> Sent OTP '{otp}' for new Google account target: {email}")
         return jsonify({
             "status": "success",
@@ -1237,7 +1237,7 @@ def register():
          return jsonify({"status": "error", "message": "Email already registered"}), 400
 
     # Generate secure 6-digit code
-    import secrets, threading
+    import secrets
     otp = str(secrets.randbelow(900000) + 100000)
     
     # Store registration temporarily pending verification
@@ -1249,8 +1249,8 @@ def register():
         "attempts": 0
     }
     
-    # Dispatch email asynchronously to prevent cloud HTTP connection timeout
-    threading.Thread(target=send_verification_email, args=(email, otp, data.get('name', 'Valued User')), daemon=True).start()
+    # Send email synchronously so WSGI worker guarantees delivery
+    send_verification_email(email, otp, name=data.get('name', 'Valued User'))
 
     print(f"\n[SERVER SECURE LOG] -> Sent OTP '{otp}' to target: {email}")
     return jsonify({"status": "success", "message": "OTP blasted to user email inbox."})
@@ -1513,7 +1513,7 @@ def password_reset_request():
     if not user:
         return jsonify({"status": "error", "message": "Email not recognized"}), 404
         
-    import secrets, threading
+    import secrets
     otp = str(secrets.randbelow(900000) + 100000)
     otp_store[email + "_reset"] = {
         "otp": otp, 
@@ -1524,7 +1524,7 @@ def password_reset_request():
     
     # Custom message as per User Request
     message = "This is your OTP to change password. Please verify this code to securely update your account credentials."
-    threading.Thread(target=send_verification_email, args=(email, otp), kwargs={'name': user.get('name'), 'custom_message': message}, daemon=True).start()
+    send_verification_email(email, otp, name=user.get('name'), custom_message=message)
     return jsonify({"status": "success", "message": "Verification code sent to email"})
 
 @app.route('/api/password-reset-confirm', methods=['POST'])
