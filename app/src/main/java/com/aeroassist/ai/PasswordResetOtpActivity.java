@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 public class PasswordResetOtpActivity extends BaseActivity {
 
-    private EditText otp1, otp2, otp3, otp4;
+    private EditText otp1, otp2, otp3, otp4, otp5, otp6;
     private Button verifyButton;
     private String email;
 
@@ -31,14 +31,17 @@ public class PasswordResetOtpActivity extends BaseActivity {
         otp2 = findViewById(R.id.otp2);
         otp3 = findViewById(R.id.otp3);
         otp4 = findViewById(R.id.otp4);
+        otp5 = findViewById(R.id.otp5);
+        otp6 = findViewById(R.id.otp6);
         verifyButton = findViewById(R.id.verifyButton);
 
         verifyButton.setOnClickListener(v -> {
             String code = otp1.getText().toString() + otp2.getText().toString() +
-                          otp3.getText().toString() + otp4.getText().toString();
+                          otp3.getText().toString() + otp4.getText().toString() +
+                          otp5.getText().toString() + otp6.getText().toString();
             
-            if (code.length() < 4) {
-                Toast.makeText(this, "Enter 4-digit code", Toast.LENGTH_SHORT).show();
+            if (code.length() < 6) {
+                Toast.makeText(this, "Enter 6-digit code", Toast.LENGTH_SHORT).show();
             } else {
                 // Verify OTP is valid (in this simplified flow, we pass it to the next activity
                 // and the final API call verifies it, but let's do a quick validation if needed)
@@ -80,7 +83,23 @@ public class PasswordResetOtpActivity extends BaseActivity {
         otp4.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() == 0) otp3.requestFocus();
+                if (s.length() == 1) otp5.requestFocus();
+                else if (s.length() == 0) otp3.requestFocus();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+        otp5.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 1) otp6.requestFocus();
+                else if (s.length() == 0) otp4.requestFocus();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+        otp6.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0) otp5.requestFocus();
             }
             @Override public void afterTextChanged(Editable s) {}
         });
