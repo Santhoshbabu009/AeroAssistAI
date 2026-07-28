@@ -13,4 +13,4 @@ pip-audit>=2.7.0
 flask-limiter>=3.5.0
 python-dotenv>=1.0.0
 gunicorn>=21.2.0
-
+supabase>=2.0.0

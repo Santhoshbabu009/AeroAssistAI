@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: aeroassist-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: JWT_SECRET
+        sync: true
+      - key: ADMIN_SECRET_KEY
+        sync: true
+      - key: GROQ_API_KEY
+        sync: true
+      - key: SUPABASE_URL
+        sync: true
+      - key: SUPABASE_KEY
+        sync: true
