@@ -1070,11 +1070,18 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
         part = MIMEText(html_content, 'html')
         msg.attach(part)
 
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-        server.starttls()
-        server.login(smtp_email, smtp_pass)
-        server.sendmail(smtp_email, to_email, msg.as_string())
-        server.quit()
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=25)
+            server.starttls()
+            server.login(smtp_email, smtp_pass)
+            server.sendmail(smtp_email, to_email, msg.as_string())
+            server.quit()
+        except Exception as e_tls:
+            print(f"[SMTP TLS 587 FAILED] Attempting SSL port 465 fallback: {e_tls}")
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=25)
+            server.login(smtp_email, smtp_pass)
+            server.sendmail(smtp_email, to_email, msg.as_string())
+            server.quit()
         print(f"[SMTP SUCCESS] Email successfully delivered via SMTP to {to_email}!")
         return True
     except Exception as e_smtp:
