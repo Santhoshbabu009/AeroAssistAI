@@ -1083,7 +1083,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
 
 
 @app.route('/api/google-login', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("30 per minute")
 def google_login():
     """Handles Google Sign-In: direct login for existing users, OTP for new ones."""
     data = request.json or {}
@@ -1104,7 +1104,7 @@ def google_login():
     if not existing_user:
         # Require OTP verification for brand new Google accounts
         display_name = name if name and name != 'Google User' else email.split('@')[0].capitalize()
-        import secrets
+        import secrets, threading
         otp = str(secrets.randbelow(900000) + 100000)
         otp_store[email] = {
             "otp": otp,
@@ -1113,7 +1113,7 @@ def google_login():
             "mobile": "",
             "attempts": 0
         }
-        send_verification_email(email, otp, name=display_name)
+        threading.Thread(target=send_verification_email, args=(email, otp, display_name), daemon=True).start()
         print(f"\n[SERVER SECURE LOG] -> Sent OTP '{otp}' for new Google account target: {email}")
         return jsonify({
             "status": "success",
@@ -1186,7 +1186,7 @@ def google_callback():
     return html_content, 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 @app.route('/api/register', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("30 per minute")
 def register():
     data = request.json or {}
     email = data.get('email')
@@ -1237,7 +1237,7 @@ def register():
          return jsonify({"status": "error", "message": "Email already registered"}), 400
 
     # Generate secure 6-digit code
-    import secrets
+    import secrets, threading
     otp = str(secrets.randbelow(900000) + 100000)
     
     # Store registration temporarily pending verification
@@ -1249,16 +1249,11 @@ def register():
         "attempts": 0
     }
     
-    # Send the real HTML email payload using Resend
-    email_sent = send_verification_email(email, otp, name=data.get('name', 'Valued User'))
+    # Dispatch email asynchronously to prevent cloud HTTP connection timeout
+    threading.Thread(target=send_verification_email, args=(email, otp, data.get('name', 'Valued User')), daemon=True).start()
 
     print(f"\n[SERVER SECURE LOG] -> Sent OTP '{otp}' to target: {email}")
-    
-    if email_sent:
-        return jsonify({"status": "success", "message": "OTP blasted to user email inbox."})
-    else:
-        print(f"\n[SERVER LOG - DELIVERY FAILED] -> Resend dispatch failed for register user {email}. Fallback OTP: {otp}")
-        return jsonify({"status": "error", "message": "Failed to dispatch verification email. Please check server logs or verify your Resend sender domain."}), 500
+    return jsonify({"status": "success", "message": "OTP blasted to user email inbox."})
 
 @app.route('/api/verify', methods=['POST'])
 def verify():
@@ -1488,7 +1483,7 @@ def update_profile():
             supabase.table('users').update({
                 'name': name,
                 'mobile': mobile
-            }).ilike('email', email.lower()).execute()
+                }).ilike('email', email.lower()).execute()
         except Exception as e:
             print("[FALLBACK] Supabase update-profile error:", str(e))
             db.update_profile(email, name, mobile)
@@ -1496,7 +1491,7 @@ def update_profile():
     return jsonify({"status": "success", "message": "Profile updated successfully"})
 
 @app.route('/api/password-reset-request', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("30 per minute")
 def password_reset_request():
     data = request.json or {}
     email = data.get('email')
@@ -1518,7 +1513,7 @@ def password_reset_request():
     if not user:
         return jsonify({"status": "error", "message": "Email not recognized"}), 404
         
-    import secrets
+    import secrets, threading
     otp = str(secrets.randbelow(900000) + 100000)
     otp_store[email + "_reset"] = {
         "otp": otp, 
@@ -1529,12 +1524,8 @@ def password_reset_request():
     
     # Custom message as per User Request
     message = "This is your OTP to change password. Please verify this code to securely update your account credentials."
-    email_sent = send_verification_email(email, otp, name=user.get('name'), custom_message=message)
-    if email_sent:
-        return jsonify({"status": "success", "message": "Verification code sent to email"})
-    else:
-        print(f"\n[SERVER LOG - DELIVERY FAILED] -> Resend dispatch failed for password reset user {email}. Fallback OTP: {otp}")
-        return jsonify({"status": "error", "message": "Failed to send verification code. Please check server logs or verify your Resend sender domain."}), 500
+    threading.Thread(target=send_verification_email, args=(email, otp), kwargs={'name': user.get('name'), 'custom_message': message}, daemon=True).start()
+    return jsonify({"status": "success", "message": "Verification code sent to email"})
 
 @app.route('/api/password-reset-confirm', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -2519,6 +2510,10 @@ def manage_vendor_products():
             db.delete_product(product_id)
             return jsonify({"status": "success", "message": "Product deleted successfully"})
 
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({"status": "error", "message": "Too many requests. Please wait a few seconds before trying again."}), 429
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
