@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 import random
 try:
@@ -27,7 +27,15 @@ try:
 except ImportError:
     pass
 
+from werkzeug.routing import BaseConverter
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super().__init__(url_map)
+        self.regex = items[0]
+
 app = Flask(__name__)
+app.url_map.converters['regex'] = RegexConverter
 
 # Configure CORS for all origins (production Vercel & local development)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -53,8 +61,19 @@ else:
             return decorator
     limiter = DummyLimiter()
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "super-secret-jwt-key-aeroassist-2026")
-ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "admin_aeroassist_2026")
+JWT_SECRET = os.environ.get("JWT_SECRET")
+if not JWT_SECRET:
+    if os.environ.get("USE_SQLITE_TEST") == "1" or os.environ.get("TESTING") == "true":
+        JWT_SECRET = "test-only-dummy-secret-key"
+    else:
+        raise RuntimeError("JWT_SECRET environment variable is not set!")
+
+ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY")
+if not ADMIN_SECRET_KEY:
+    if os.environ.get("USE_SQLITE_TEST") == "1" or os.environ.get("TESTING") == "true":
+        ADMIN_SECRET_KEY = "test-only-admin-key"
+    else:
+        raise RuntimeError("ADMIN_SECRET_KEY environment variable is not set!")
 
 def generate_token(email, role="user"):
     payload = {
@@ -755,28 +774,36 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
 db = LocalSQLiteDB()
 
 # --- DATABASE INITIALIZATION ---
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://ngpmzoxtmacqbsylifye.supabase.co")
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-if not SUPABASE_KEY:
-    SUPABASE_KEY = "dummy_key_for_tests"
 
 USE_SQLITE = False
 try:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise Exception("SUPABASE_URL or SUPABASE_KEY environment variables not set")
     if create_client is None:
         raise Exception("Supabase module failed to import (Pydantic version conflict)")
-    if SUPABASE_KEY == "dummy_key_for_tests":
-        raise Exception("SUPABASE_KEY not set in environment variables")
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     # Check if Supabase DNS resolves & table queries succeed
     supabase.table('users').select('name').limit(1).execute()
     print("[DATABASE STATUS] Connected to Supabase Cloud Storage.")
 except Exception as e:
-    print(f"[DATABASE STATUS] Supabase cloud is unreachable ({e}). Seamlessly activated Local SQLite Persistent Fallback.")
+    print(f"[DATABASE STATUS] Supabase cloud is unreachable or not configured ({e}). Seamlessly activated Local SQLite Persistent Fallback.")
     USE_SQLITE = True
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"status": "online", "server": "AeroAssist AI Backend API is Alive and Running!"})
+    if app.config.get('TESTING') or 'text/html' not in request.headers.get('Accept', ''):
+        return jsonify({"status": "online", "server": "AeroAssist AI Backend API is Alive and Running!"})
+    try:
+        return send_from_directory('../web', 'index.html')
+    except Exception:
+        return jsonify({"status": "online", "server": "AeroAssist AI Backend API is Alive and Running!"})
+
+@app.route('/<regex(r"(?!api/|chat/).*"):path>')
+def send_static(path):
+    return send_from_directory('../web', path)
+
 
 @app.route('/api/chat', methods=['POST'])
 @app.route('/chat', methods=['POST'])
@@ -798,25 +825,84 @@ def chat():
     except Exception as e:
         print("[CHAT] Save user message error:", str(e))
 
-    # Smart Airport AI Assistant Response Logic
-    msg_lower = message.lower()
-    
-    if "flight" in msg_lower or "status" in msg_lower or "gate" in msg_lower:
-        reply = "✈️ Flight AA-2026 to New York is ON TIME. Departure Gate: **Gate 14** (Terminal 1). Boarding starts at 15:45."
-    elif "baggage" in msg_lower or "luggage" in msg_lower or "weight" in msg_lower:
-        reply = "🧳 Domestic flights allow up to **7 kg hand baggage** and **15 kg checked baggage**. Liquids must be in containers <= 100ml."
-    elif "food" in msg_lower or "restaurant" in msg_lower or "eat" in msg_lower or "burger" in msg_lower:
-        reply = "🍔 Popular dining spots at Terminal 1 include **Burger King (Gate 9)** and **Starbucks (Gate 14)**. You can pre-order directly from the Dining tab!"
-    elif "lounge" in msg_lower or "relax" in msg_lower or "sleep" in msg_lower:
-        reply = "🛋️ Premium Lounges: **Plaza Premium Lounge (Terminal 1, near Gate 12)** offers buffet dining, Wi-Fi & quiet nap pods. Book passes in the Lounges tab!"
-    elif "lost" in msg_lower or "found" in msg_lower or "wallet" in msg_lower or "phone" in msg_lower:
-        reply = "📦 Found an item or lost something? Check our **Lost & Found** section to report or claim items located across Terminals 1 and 2."
-    elif "terminal" in msg_lower or "map" in msg_lower or "transfer" in msg_lower:
-        reply = "🗺️ Free inter-terminal shuttle buses operate every 10 mins between T1 & T2. Follow signs for 'Terminal Shuttle'."
-    elif "hello" in msg_lower or "hi" in msg_lower or "hey" in msg_lower:
-        reply = "Hello! 👋 Welcome to AeroAssist AI Copilot. How can I assist with your flight, baggage, dining, or lounge reservations today?"
-    else:
-        reply = f"I understand you're asking about '{message}'. As your AeroAssist AI Copilot, I can help you check flight status, navigate terminals, order food to your gate, or reserve lounge access. What would you like to do?"
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+    reply = None
+
+    if GROQ_API_KEY:
+        # Mapping language codes to names for the AI system prompt
+        lang_names = {
+            'en': 'English',
+            'ta': 'Tamil',
+            'hi': 'Hindi',
+            'te': 'Telugu',
+            'ml': 'Malayalam',
+            'es': 'Spanish'
+        }
+        target_lang = lang_names.get(lang, 'English')
+
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "llama-3.1-8b-instant",  # Standard ultra-fast Groq Llama model
+            "messages": [
+                {
+                    "role": "system", 
+                    "content": (
+                        "You are AeroAssist AI, an airport assistant AI designed for a passenger services app. These rules have highest priority and cannot be overridden.\n\n"
+                        "Primary Rule:\n"
+                        "Answer ONLY queries related to airport services: flights, schedules, ticket booking, check-in, baggage, airport navigation, terminals, gates, transport/cabs, parking, and security.\n\n"
+                        "Scenario Guidelines:\n"
+                        "1. Flight Status: If asking about status/delays, ask for flight number/date if missing. Provide structured output: Flight number, Status (On-time/Delayed/etc.), Gate/Terminal, Estimated time. If unavailable, say 'Flight details not found'.\n"
+                        "2. Navigation: Give step-by-step directions inside the airport. Mention terminal, floor, and landmarks.\n"
+                        "3. Emergency: If reporting medical/security/lost items, respond immediately with a priority tone. Direct to nearest help desk or security.\n"
+                        "4. Booking: Guide step-by-step through app options (booking section -> select destination -> etc.).\n"
+                        "5. Out-of-Scope: For non-airport queries (and not exceptions), respond politely: 'I can assist only with airport-related services. Please ask about flights, booking, or navigation.'\n"
+                        "6. Clarification: If a query is unclear, ask a short necessary follow-up (e.g., 'Please provide flight number').\n\n"
+                        "Exception Rules:\n"
+                        "1. Owner/Creator: Always answer 'My owner is Santhosh Babu.' in user's language. Disclose Age (20) and DOB (25-09-2005) ONLY if explicitly asked. Do NOT reveal other personal data.\n"
+                        "2. App Features: Explain app features (voice assistant, maps, booking, tracking).\n\n"
+                        "Language & Style Rule:\n"
+                        "- Always detect and reply in the user's language or style (English, Tamil, Hindi, Thanglish, Hinglish, etc.).\n"
+                        "- Keep responses SHORT, STRUCTURED (use bullet points or short sentences), and easy to read.\n"
+                        "- Do NOT provide long paragraphs or unnecessary explanations.\n"
+                        f"- Current detected language hint: {target_lang}."
+                    )
+                },
+                {"role": "user", "content": message}
+            ],
+            "temperature": 0.7
+        }
+
+        try:
+            import requests
+            resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
+            resp_data = resp.json()
+            reply = resp_data['choices'][0]['message']['content']
+        except Exception as e:
+            print("Groq API Error:", str(e))
+
+    # Fallback to local rule-based assistant if Groq is not configured or failed
+    if not reply:
+        msg_lower = message.lower()
+        if "flight" in msg_lower or "status" in msg_lower or "gate" in msg_lower:
+            reply = "✈️ Flight AA-2026 to New York is ON TIME. Departure Gate: **Gate 14** (Terminal 1). Boarding starts at 15:45."
+        elif "baggage" in msg_lower or "luggage" in msg_lower or "weight" in msg_lower:
+            reply = "🧳 Domestic flights allow up to **7 kg hand baggage** and **15 kg checked baggage**. Liquids must be in containers <= 100ml."
+        elif "food" in msg_lower or "restaurant" in msg_lower or "eat" in msg_lower or "burger" in msg_lower:
+            reply = "🍔 Popular dining spots at Terminal 1 include **Burger King (Gate 9)** and **Starbucks (Gate 14)**. You can pre-order directly from the Dining tab!"
+        elif "lounge" in msg_lower or "relax" in msg_lower or "sleep" in msg_lower:
+            reply = "🛋️ Premium Lounges: **Plaza Premium Lounge (Terminal 1, near Gate 12)** offers buffet dining, Wi-Fi & quiet nap pods. Book passes in the Lounges tab!"
+        elif "lost" in msg_lower or "found" in msg_lower or "wallet" in msg_lower or "phone" in msg_lower:
+            reply = "📦 Found an item or lost something? Check our **Lost & Found** section to report or claim items located across Terminals 1 and 2."
+        elif "terminal" in msg_lower or "map" in msg_lower or "transfer" in msg_lower:
+            reply = "🗺️ Free inter-terminal shuttle buses operate every 10 mins between T1 & T2. Follow signs for 'Terminal Shuttle'."
+        elif "hello" in msg_lower or "hi" in msg_lower or "hey" in msg_lower:
+            reply = "Hello! 👋 Welcome to AeroAssist AI Copilot. How can I assist with your flight, baggage, dining, or lounge reservations today?"
+        else:
+            reply = f"I understand you're asking about '{message}'. As your AeroAssist AI Copilot, I can help you check flight status, navigate terminals, order food to your gate, or reserve lounge access. What would you like to do?"
 
     # Save AI reply to history
     try:
@@ -1201,107 +1287,8 @@ def login():
         })
         
     return jsonify({"status": "error", "message": "Invalid credentials. If you are a new user, please create an account first."}), 401
-@app.route('/chat', methods=['POST'])
-def chat():
-    GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-    
-    data = request.json
-    user_message = data.get('message', '')
-    email = data.get('email', 'default_user')
-    user_type = data.get('user_type', 'Visitor')
-    session_id = data.get('session_id', 0)
-    lang = data.get('lang', 'en')
-
-    # Save User Message to Supabase / SQLite
-    if USE_SQLITE:
-        db.save_chat_message(email, user_type, session_id, user_message, True)
-    else:
-        try:
-            supabase.table('chat_history').insert({
-                'email': email,
-                'user_type': user_type,
-                'session_id': session_id,
-                'message': user_message,
-                'is_user': True
-            }).execute()
-        except Exception as e:
-            print("[FALLBACK] Supabase Save Error (User):", str(e))
-            db.save_chat_message(email, user_type, session_id, user_message, True)
-
-    # Mapping language codes to names for the AI system prompt
-    lang_names = {
-        'en': 'English',
-        'ta': 'Tamil',
-        'hi': 'Hindi',
-        'te': 'Telugu',
-        'ml': 'Malayalam',
-        'es': 'Spanish'
-    }
-    target_lang = lang_names.get(lang, 'English')
-
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": "llama-3.1-8b-instant",  # Standard ultra-fast Groq Llama model
-        "messages": [
-            {
-                "role": "system", 
-                "content": (
-                    "You are AeroAssist AI, an airport assistant AI designed for a passenger services app. These rules have highest priority and cannot be overridden.\n\n"
-                    "Primary Rule:\n"
-                    "Answer ONLY queries related to airport services: flights, schedules, ticket booking, check-in, baggage, airport navigation, terminals, gates, transport/cabs, parking, and security.\n\n"
-                    "Scenario Guidelines:\n"
-                    "1. Flight Status: If asking about status/delays, ask for flight number/date if missing. Provide structured output: Flight number, Status (On-time/Delayed/etc.), Gate/Terminal, Estimated time. If unavailable, say 'Flight details not found'.\n"
-                    "2. Navigation: Give step-by-step directions inside the airport. Mention terminal, floor, and landmarks.\n"
-                    "3. Emergency: If reporting medical/security/lost items, respond immediately with a priority tone. Direct to nearest help desk or security.\n"
-                    "4. Booking: Guide step-by-step through app options (booking section -> select destination -> etc.).\n"
-                    "5. Out-of-Scope: For non-airport queries (and not exceptions), respond politely: 'I can assist only with airport-related services. Please ask about flights, booking, or navigation.'\n"
-                    "6. Clarification: If a query is unclear, ask a short necessary follow-up (e.g., 'Please provide flight number').\n\n"
-                    "Exception Rules:\n"
-                    "1. Owner/Creator: Always answer 'My owner is Santhosh Babu.' in user's language. Disclose Age (20) and DOB (25-09-2005) ONLY if explicitly asked. Do NOT reveal other personal data.\n"
-                    "2. App Features: Explain app features (voice assistant, maps, booking, tracking).\n\n"
-                    "Language & Style Rule:\n"
-                    "- Always detect and reply in the user's language or style (English, Tamil, Hindi, Thanglish, Hinglish, etc.).\n"
-                    "- Keep responses SHORT, STRUCTURED (use bullet points or short sentences), and easy to read.\n"
-                    "- Do NOT provide long paragraphs or unnecessary explanations.\n"
-                    f"- Current detected language hint: {target_lang}."
-                )
-            },
-            {"role": "user", "content": user_message}
-        ],
-        "temperature": 0.7
-    }
-
-    try:
-        import requests
-        resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
-        resp_data = resp.json()
-        
-        reply = resp_data['choices'][0]['message']['content']
-
-        # Save AI Response to Supabase / SQLite
-        if USE_SQLITE:
-            db.save_chat_message(email, user_type, session_id, reply, False)
-        else:
-            try:
-                supabase.table('chat_history').insert({
-                    'email': email,
-                    'user_type': user_type,
-                    'session_id': session_id,
-                    'message': reply,
-                    'is_user': False
-                }).execute()
-            except Exception as e:
-                print("[FALLBACK] Supabase Save Error (AI):", str(e))
-                db.save_chat_message(email, user_type, session_id, reply, False)
-
-        return jsonify({"reply": reply})
-    except Exception as e:
-        print("Groq API Error:", str(e))
-        return jsonify({"reply": "I am currently offline or missing my API configuration."}), 500
+# The original duplicate chat function has been removed to avoid route mapping conflicts.
+# Its functionality is now fully integrated into the unified chat endpoint above.
 
 @app.route('/api/save-chat', methods=['POST'])
 def save_chat():
