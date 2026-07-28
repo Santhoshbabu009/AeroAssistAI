@@ -906,6 +906,12 @@ class AeroAssistApp {
         } catch (e) {}
       }
 
+      // If no valid Google Cloud Console OAuth Client ID is configured, use built-in interactive Google Account Picker
+      if (!googleClientId || googleClientId.includes("1082531649964") || googleClientId.includes("placeholder")) {
+        this.promptGoogleOAuthEmail();
+        return;
+      }
+
       // 2. Try Google Identity Services (GIS) Official Web SDK if available
       if (window.google && window.google.accounts && window.google.accounts.id && googleClientId) {
         window.google.accounts.id.initialize({
