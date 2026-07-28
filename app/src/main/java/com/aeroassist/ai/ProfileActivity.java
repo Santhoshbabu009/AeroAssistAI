@@ -33,7 +33,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import androidx.appcompat.widget.SwitchCompat;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends BaseActivity {
 
     TextView nameText, emailText, mobileText;
     Button signOutBtn;

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.RadioGroup;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class LanguageSettingsActivity extends AppCompatActivity {
+public class LanguageSettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

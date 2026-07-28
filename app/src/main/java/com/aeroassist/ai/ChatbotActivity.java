@@ -26,7 +26,7 @@ import java.util.Locale;
 
 import okhttp3.*;
 
-public class ChatbotActivity extends AppCompatActivity {
+public class ChatbotActivity extends BaseActivity {
 
     EditText userInput;
     Button sendBtn;

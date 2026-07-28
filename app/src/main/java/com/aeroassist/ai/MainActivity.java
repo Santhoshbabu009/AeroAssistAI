@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     CardView flightCard, chatCard, navCard, bookCard, historyCard, servicesCard, walletCard, communityCard;
     CardView quickTraceFlight, quickNavGate, weatherCard, lastFlightCard;

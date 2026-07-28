@@ -13,7 +13,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.widget.TextView;
 
-public class AccountSettingsActivity extends AppCompatActivity {
+public class AccountSettingsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
