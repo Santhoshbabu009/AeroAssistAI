@@ -23,28 +23,28 @@
 
       <nav class="sidebar-nav">
         <button id="nav-dashboard" class="nav-link-btn active" onclick="app.showPage('dashboard')">
-          <span>🏠</span> Dashboard
+          <span>🏠</span> <span data-i18n="nav_dashboard">Dashboard</span>
         </button>
         <button id="nav-chat" class="nav-link-btn" onclick="app.showPage('chat')">
-          <span>💬</span> AI Assistant
+          <span>💬</span> <span data-i18n="nav_chat">AI Assistant</span>
         </button>
         <button id="nav-dining" class="nav-link-btn" onclick="app.showPage('dining')">
-          <span>🍔</span> Dining & Eats
+          <span>🍔</span> <span data-i18n="nav_dining">Dining & Eats</span>
         </button>
         <button id="nav-lounges" class="nav-link-btn" onclick="app.showPage('lounges')">
-          <span>🛋️</span> Lounges
+          <span>🛋️</span> <span data-i18n="nav_lounges">Lounges</span>
         </button>
         <button id="nav-wallet" class="nav-link-btn" onclick="app.showPage('wallet')">
-          <span>💳</span> Smart Wallet
+          <span>💳</span> <span data-i18n="nav_wallet">Smart Wallet</span>
         </button>
         <button id="nav-utilities" class="nav-link-btn" onclick="app.showPage('utilities')">
-          <span>🗺️</span> Travel Utilities
+          <span>🗺️</span> <span data-i18n="nav_utilities">Travel Utilities</span>
         </button>
         <button id="nav-quiz" class="nav-link-btn" onclick="app.showPage('quiz')">
-          <span>🏆</span> Quiz & Rewards
+          <span>🏆</span> <span data-i18n="nav_quiz">Quiz & Rewards</span>
         </button>
         <button id="nav-vendor" class="nav-link-btn" onclick="app.openVendorPortal()">
-          <span>🔐</span> Vendor Portal
+          <span>🔐</span> <span data-i18n="nav_vendor">Vendor Portal</span>
         </button>
       </nav>
 
@@ -61,6 +61,29 @@
 
     <!-- Main Content Area -->
     <main class="main-viewport">
+
+      <!-- Top Global Header Bar -->
+      <header id="top-app-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:var(--glass-border); border-radius:16px; padding:12px 20px; position:sticky; top:0; z-index:100;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="btn-primary" onclick="app.openModal('app-flyer')" style="height:36px; padding:0 16px; font-size:13px; background:var(--accent-gradient); border-radius:10px; box-shadow:0 0 12px rgba(0,229,255,0.3); font-weight:700;">
+            <span>📱</span> <span data-i18n="get_app">Get Mobile App</span>
+          </button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:14px; color:var(--text-secondary);">🌐</span>
+          <select id="global-lang-select" onchange="app.changeLanguage(this.value)" style="width:150px; height:36px; font-size:13px; font-weight:600; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; cursor:pointer;">
+            <option value="en">🌐 English (EN)</option>
+            <option value="es">🇪🇸 Español (ES)</option>
+            <option value="fr">🇫🇷 Français (FR)</option>
+            <option value="de">🇩🇪 Deutsch (DE)</option>
+            <option value="hi">🇮🇳 हिन्दी (HI)</option>
+            <option value="ta">🇮🇳 தமிழ் (TA)</option>
+            <option value="zh">🇨🇳 中文 (ZH)</option>
+            <option value="ar">🇸🇦 العربية (AR)</option>
+          </select>
+        </div>
+      </header>
 
       <!-- View -1: User Type Selection (Entrance Gate) -->
       <section id="view-user-type" class="page-view active">
@@ -187,6 +210,20 @@
           <p>Airport Boarding & Assistance panel. Live flights, gate info, and baggage tracking states at your fingertips.</p>
         </div>
 
+        <!-- Promo Banner: Download Official Mobile App Flyer -->
+        <div class="glass-card" style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.12), rgba(26, 35, 126, 0.3)); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div style="flex: 1; min-width: 260px;">
+            <div class="status-badge" style="background: rgba(0, 229, 255, 0.2); color: #00E5FF; margin-bottom: 8px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</div>
+            <h3 style="font-size: 20px; margin-bottom: 6px;" data-i18n="dash_flyer_title">Experience AeroAssist on Your Smartphone</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;" data-i18n="dash_flyer_desc">
+              Download our official mobile app on Android & iOS for offline gate maps, live push notifications, and fast QR check-in.
+            </p>
+          </div>
+          <button class="btn-primary" onclick="app.openModal('app-flyer')" style="width: auto; padding: 0 24px; height: 44px; white-space: nowrap;" data-i18n="dash_flyer_btn">
+            VIEW APP POSTER 📱
+          </button>
+        </div>
+
         <div class="grid-container" style="margin-bottom: 24px;">
           <!-- Flight Stats -->
           <div class="glass-card">
@@ -279,13 +316,15 @@
           </div>
 
           <div class="chat-input-bar">
-            <select id="chat-lang" style="width: 120px; font-weight:600; background:rgba(255,255,255,0.05);">
-              <option value="en">English</option>
-              <option value="ta">Tamil</option>
-              <option value="hi">Hindi</option>
-              <option value="te">Telugu</option>
-              <option value="ml">Malayalam</option>
-              <option value="es">Spanish</option>
+            <select id="chat-lang" onchange="app.changeLanguage(this.value)" style="width: 130px; font-weight:600; background:rgba(0,0,0,0.5); color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px;">
+              <option value="en">🌐 English</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="hi">🇮🇳 हिन्दी</option>
+              <option value="ta">🇮🇳 தமிழ்</option>
+              <option value="zh">🇨🇳 中文</option>
+              <option value="ar">🇸🇦 العربية</option>
             </select>
             <input type="text" id="chat-input-msg" placeholder="Ask about baggage rules, flights, gate directions..." onkeydown="if(event.key === 'Enter') app.sendChatMessage()">
             <button class="btn-primary" style="width: 100px;" onclick="app.sendChatMessage()">SEND</button>
@@ -870,6 +909,82 @@
         <button class="btn-danger" onclick="app.submitAdminDeleteVendor()">REMOVE VENDOR ACCOUNT</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Modal: Official AeroAssist AI Mobile App Download Poster / Flyer -->
+  <div id="modal-app-flyer" class="modal-overlay">
+    <div class="modal-content glass-card" style="max-width: 600px; padding: 0; overflow: hidden; border-color: rgba(0, 229, 255, 0.4); background: linear-gradient(180deg, #091328 0%, #030712 100%);">
+      <div style="background: linear-gradient(135deg, #00E5FF, #1A237E); padding: 28px; text-align: center; position: relative;">
+        <button class="close-modal" onclick="app.closeModal('app-flyer')" style="position: absolute; top: 16px; right: 20px; color: #fff;">&times;</button>
+        <span class="status-badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; margin-bottom: 8px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</span>
+        <h2 style="font-size: 26px; color: #fff; margin-bottom: 6px;" data-i18n="flyer_title">Download AeroAssist AI Official App</h2>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.85);" data-i18n="flyer_sub">Unlock exclusive mobile-only features for an effortless airport journey.</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <!-- Poster Grid Showcase -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+          
+          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
+            <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f1">Real-time Push Alerts</h4>
+            <p style="font-size: 12px; color: var(--text-secondary);">Gate changes, flight delays, & baggage alerts.</p>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🍔</div>
+            <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f2">In-Seat Lounge Dining</h4>
+            <p style="font-size: 12px; color: var(--text-secondary);">Order food directly to your gate seat.</p>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
+            <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f3">3D AR Terminal Maps</h4>
+            <p style="font-size: 12px; color: var(--text-secondary);">Interactive indoor navigation & gate maps.</p>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">💳</div>
+            <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f4">Offline Document Wallet</h4>
+            <p style="font-size: 12px; color: var(--text-secondary);">Store passport & boarding passes safely.</p>
+          </div>
+        </div>
+
+        <!-- Interactive QR Code Poster Banner -->
+        <div style="background: rgba(0, 229, 255, 0.05); border: 1px dashed rgba(0, 229, 255, 0.3); border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <!-- Generated Stylized QR Code SVG -->
+            <div style="width: 80px; height: 80px; background: #fff; padding: 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <svg width="68" height="68" viewBox="0 0 100 100" fill="#060E1F">
+                <rect x="0" y="0" width="30" height="30" rx="4"/>
+                <rect x="5" y="5" width="20" height="20" fill="#fff"/>
+                <rect x="9" y="9" width="12" height="12" fill="#060E1F"/>
+                <rect x="70" y="0" width="30" height="30" rx="4"/>
+                <rect x="75" y="5" width="20" height="20" fill="#fff"/>
+                <rect x="79" y="9" width="12" height="12" fill="#060E1F"/>
+                <rect x="0" y="70" width="30" height="30" rx="4"/>
+                <rect x="5" y="75" width="20" height="20" fill="#fff"/>
+                <rect x="9" y="79" width="12" height="12" fill="#060E1F"/>
+                <rect x="40" y="10" width="10" height="10"/>
+                <rect x="50" y="30" width="10" height="10"/>
+                <rect x="30" y="50" width="10" height="10"/>
+                <rect x="60" y="60" width="10" height="10"/>
+                <rect x="40" y="80" width="10" height="10"/>
+                <rect x="80" y="80" width="10" height="10"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="margin-bottom: 4px; font-size: 14px;" data-i18n="btn_scan_qr">Scan QR Code on Phone</h4>
+              <p style="font-size: 12px; color: var(--text-secondary);">Point your phone camera to download app instantly</p>
+            </div>
+          </div>
+          
+          <a href="https://github.com/Santhoshbabu009/AeroAssistAI" target="_blank" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 13px; text-decoration: none;" data-i18n="btn_download_apk">
+            Direct APK Download 📥
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 

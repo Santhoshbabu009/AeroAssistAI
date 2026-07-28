@@ -54,6 +54,9 @@ class AeroAssistApp {
     this.currentQuizIdx = 0;
     this.quizScore = 0;
 
+    // Multi-Language i18n State
+    this.currentLang = localStorage.getItem("app_language") || "en";
+
     // Background Polling
     this.pollingInterval = null;
     
@@ -61,6 +64,7 @@ class AeroAssistApp {
   }
 
   init() {
+    this.changeLanguage(this.currentLang);
     this.updateUserSessionUI();
     this.renderChatHistory();
     this.loadQuizQuestion();
@@ -91,6 +95,386 @@ class AeroAssistApp {
         this.openOrderTracker(this.activeTrackingOrderId);
       }
     }, 5000);
+  }
+
+  // --- MULTI-LANGUAGE I18N SYSTEM ---
+  changeLanguage(lang) {
+    const TRANSLATIONS = {
+      en: {
+        get_app: "Get Mobile App",
+        nav_dashboard: "Dashboard",
+        nav_chat: "AI Assistant",
+        nav_dining: "Dining & Eats",
+        nav_lounges: "Lounges",
+        nav_wallet: "Smart Wallet",
+        nav_utilities: "Travel Utilities",
+        nav_quiz: "Quiz & Rewards",
+        nav_vendor: "Vendor Portal",
+        welcome_title: "Welcome to AeroAssist AI",
+        welcome_sub: "Your premium all-in-one smart airport dashboard suite. Select your role below to log in and access flight tracking, pre-orders, smart wallets, and merchant dashboards.",
+        role_visitor: "Airport Visitor",
+        role_visitor_desc: "Travelling through terminal gates. Track baggage hubs, pre-order meals, reserve premium lounge passes, and claim rewards.",
+        role_employee: "Airport Employee",
+        role_employee_desc: "Internal staff operations portal. Access quick-reference Customs rules, virtual ID cards, and converter tools.",
+        role_vendor: "Merchant / Admin",
+        role_vendor_desc: "Shop counter or terminal administrator. Process pre-order slots, manage items catalog, or register vendor profiles.",
+        btn_visitor: "ENTER AS VISITOR",
+        btn_employee: "ENTER AS EMPLOYEE",
+        btn_vendor: "ENTER PORTAL",
+        signin_title: "Passenger Account Sign In",
+        signin_sub: "Log in with your verified passenger email & password",
+        email_label: "Email Address",
+        password_label: "Password",
+        btn_signin: "SIGN IN",
+        google_signin: "Sign in with Google",
+        create_account: "Create Account",
+        guest_continue: "Or continue as Guest Visitor ➔",
+        flyer_badge: "OFFICIAL MOBILE APP",
+        flyer_title: "Download AeroAssist AI Official App",
+        flyer_sub: "Unlock exclusive mobile-only features for an effortless airport journey.",
+        flyer_f1: "Real-time Push Alerts",
+        flyer_f2: "In-Seat Lounge Dining",
+        flyer_f3: "3D AR Terminal Maps",
+        flyer_f4: "Offline Document Wallet",
+        btn_download_apk: "Direct APK Download 📥",
+        btn_scan_qr: "Scan QR Code on Phone",
+        dash_flyer_title: "Experience AeroAssist on Your Smartphone",
+        dash_flyer_desc: "Download our official mobile app on Android & iOS for offline gate maps, live push notifications, and fast QR check-in.",
+        dash_flyer_btn: "VIEW APP POSTER 📱"
+      },
+      es: {
+        get_app: "Obtener App Móvil",
+        nav_dashboard: "Panel Principal",
+        nav_chat: "Asistente IA",
+        nav_dining: "Restaurantes y Comida",
+        nav_lounges: "Salas VIP",
+        nav_wallet: "Billetera Inteligente",
+        nav_utilities: "Utilidades de Viaje",
+        nav_quiz: "Cuestionario y Premios",
+        nav_vendor: "Portal de Vendedores",
+        welcome_title: "Bienvenido a AeroAssist AI",
+        welcome_sub: "Su suite de panel de aeropuerto inteligente todo en uno. Seleccione su función a continuación.",
+        role_visitor: "Visitante de Aeropuerto",
+        role_visitor_desc: "Viajando por las puertas de embarque. Rastree equipaje, pida comida por adelantado y reserve salas VIP.",
+        role_employee: "Empleado de Aeropuerto",
+        role_employee_desc: "Portal de operaciones de personal interno. Acceda a reglas de aduana e identificaciones virtuales.",
+        role_vendor: "Comerciante / Admin",
+        role_vendor_desc: "Administrador de mostrador de tienda. Procese pedidos, gestione productos o registre perfiles.",
+        btn_visitor: "ENTRAR COMO VISITANTE",
+        btn_employee: "ENTRAR COMO EMPLOYEE",
+        btn_vendor: "ENTRAR AL PORTAL",
+        signin_title: "Iniciar Sesión de Pasajero",
+        signin_sub: "Ingrese con su correo electrónico y contraseña verificados",
+        email_label: "Correo Electrónico",
+        password_label: "Contraseña",
+        btn_signin: "INICIAR SESIÓN",
+        google_signin: "Iniciar sesión con Google",
+        create_account: "Crear Cuenta",
+        guest_continue: "O continuar como visitante ➔",
+        flyer_badge: "APLICACIÓN MÓVIL OFICIAL",
+        flyer_title: "Descargue la App Oficial AeroAssist AI",
+        flyer_sub: "Desbloquee funciones exclusivas para un viaje sin esfuerzo.",
+        flyer_f1: "Alertas Push de Puertas",
+        flyer_f2: "Entrega de Comida VIP",
+        flyer_f3: "Mapa 3D AR de Terminal",
+        flyer_f4: "Billetera Fuera de Línea",
+        btn_download_apk: "Descargar APK Directo 📥",
+        btn_scan_qr: "Escanear Código QR",
+        dash_flyer_title: "Experimente AeroAssist en su Smartphone",
+        dash_flyer_desc: "Descargue nuestra aplicación móvil oficial en Android e iOS.",
+        dash_flyer_btn: "VER FOLLETO DE LA APP 📱"
+      },
+      fr: {
+        get_app: "Obtenir l'application",
+        nav_dashboard: "Tableau de Bord",
+        nav_chat: "Assistant IA",
+        nav_dining: "Restauration",
+        nav_lounges: "Salons VIP",
+        nav_wallet: "Portefeuille Intelligent",
+        nav_utilities: "Services de Voyage",
+        nav_quiz: "Quiz & Récompenses",
+        nav_vendor: "Portail Vendeur",
+        welcome_title: "Bienvenue sur AeroAssist AI",
+        welcome_sub: "Votre suite de tableau de bord d'aéroport intelligent.",
+        role_visitor: "Visiteur d'Aéroport",
+        role_visitor_desc: "Suivez vos bagages et précommandez vos repas.",
+        role_employee: "Employé d'Aéroport",
+        role_employee_desc: "Portail du personnel.",
+        role_vendor: "Commerçant / Admin",
+        role_vendor_desc: "Gestion des commandes.",
+        btn_visitor: "ENTRER COMME VISITEUR",
+        btn_employee: "ENTRER COMME EMPLOYÉ",
+        btn_vendor: "ACCÉDER AU PORTAIL",
+        signin_title: "Connexion Passager",
+        signin_sub: "Connectez-vous avec vos identifiants passager",
+        email_label: "Adresse E-mail",
+        password_label: "Mot de passe",
+        btn_signin: "SE CONNECTER",
+        google_signin: "Se connecter avec Google",
+        create_account: "Créer un compte",
+        guest_continue: "Continuer comme invité ➔",
+        flyer_badge: "APPLICATION MOBILE OFFICIELLE",
+        flyer_title: "Téléchargez l'application AeroAssist AI",
+        flyer_sub: "Débloquez des fonctionnalités mobiles exclusives.",
+        flyer_f1: "Alertes push de porte",
+        flyer_f2: "Livraison de repas QR",
+        flyer_f3: "Cartes 3D AR de la terminale",
+        flyer_f4: "Portefeuille hors ligne",
+        btn_download_apk: "Téléchargement APK direct 📥",
+        btn_scan_qr: "Scanner le code QR",
+        dash_flyer_title: "AeroAssist sur votre smartphone",
+        dash_flyer_desc: "Téléchargez notre application mobile officielle sur Android & iOS.",
+        dash_flyer_btn: "VOIR LE PROSPECTUS 📱"
+      },
+      de: {
+        get_app: "App Herunterladen",
+        nav_dashboard: "Dashboard",
+        nav_chat: "KI-Assistent",
+        nav_dining: "Gastronomie",
+        nav_lounges: "Lounges",
+        nav_wallet: "Smart Wallet",
+        nav_utilities: "Reisedienste",
+        nav_quiz: "Quiz & Belohnungen",
+        nav_vendor: "Händlerportal",
+        welcome_title: "Willkommen bei AeroAssist AI",
+        welcome_sub: "Ihre intelligente Flughafen-Dashboard-Suite.",
+        role_visitor: "Flughafenbesucher",
+        role_visitor_desc: "Gepäckverfolgung und Essensbestellung.",
+        role_employee: "Flughafenmitarbeiter",
+        role_employee_desc: "Mitarbeiterportal.",
+        role_vendor: "Händler / Admin",
+        role_vendor_desc: "Bestellungen bearbeiten.",
+        btn_visitor: "ALS BESUCHER EINTRETEN",
+        btn_employee: "ALS MITARBEITER EINTRETEN",
+        btn_vendor: "ZUM PORTAL",
+        signin_title: "Passagier-Anmeldung",
+        signin_sub: "Melden Sie sich mit E-Mail an",
+        email_label: "E-Mail-Adresse",
+        password_label: "Passwort",
+        btn_signin: "ANMELDEN",
+        google_signin: "Mit Google anmelden",
+        create_account: "Konto erstellen",
+        guest_continue: "Als Gast fortfahren ➔",
+        flyer_badge: "OFFIZIELLE MOBILE APP",
+        flyer_title: "Laden Sie die AeroAssist AI App herunter",
+        flyer_sub: "Exklusive Funktionen für Ihr Smartphone.",
+        flyer_f1: "Echtzeit-Push-Alerts",
+        flyer_f2: "Lounge QR Essenslieferung",
+        flyer_f3: "3D AR-Karten der Terminale",
+        flyer_f4: "Offline-Dokumenten-Wallet",
+        btn_download_apk: "Direkter APK-Download 📥",
+        btn_scan_qr: "QR-Code scannen",
+        dash_flyer_title: "AeroAssist auf Ihrem Smartphone",
+        dash_flyer_desc: "Laden Sie die offizielle App für Android & iOS herunter.",
+        dash_flyer_btn: "APP-FLYER ANZEIGEN 📱"
+      },
+      hi: {
+        get_app: "ऐप डाउनलोड करें",
+        nav_dashboard: "डैशबोर्ड",
+        nav_chat: "एआई सहायक",
+        nav_dining: "खान-पान",
+        nav_lounges: "लाउंज",
+        nav_wallet: "स्मार्ट वॉलेट",
+        nav_utilities: "यात्रा सेवाएं",
+        nav_quiz: "क्विज़ और पुरस्कार",
+        nav_vendor: "विक्रेता पोर्टल",
+        welcome_title: "एयरोअसिस्ट एआई में आपका स्वागत है",
+        welcome_sub: "आपका प्रीमियम ऑल-इन-वन स्मार्ट एयरपोर्ट डैशबोर्ड।",
+        role_visitor: "एयरपोर्ट यात्री",
+        role_visitor_desc: "फ्लाइट ट्रैकिंग, भोजन ऑर्डर और लाउंज पास।",
+        role_employee: "एयरपोर्ट कर्मचारी",
+        role_employee_desc: "स्टाफ ऑपरेशन्स पोर्टल।",
+        role_vendor: "व्यापारी / व्यवस्थापक",
+        role_vendor_desc: "आदेश प्रसंकरण।",
+        btn_visitor: "यात्री के रूप में प्रवेश करें",
+        btn_employee: "कर्मचारी के रूप में प्रवेश करें",
+        btn_vendor: "पोर्टल खोलें",
+        signin_title: "यात्री लॉगिन",
+        signin_sub: "अपने ईमेल के साथ साइन इन करें",
+        email_label: "ईमेल पता",
+        password_label: "पासवर्ड",
+        btn_signin: "साइन इन करें",
+        google_signin: "गूगल के साथ साइन इन करें",
+        create_account: "खाता बनाएं",
+        guest_continue: "अतिथि के रूप में जारी रखें ➔",
+        flyer_badge: "आधिकारिक मोबाइल ऐप",
+        flyer_title: "एयरोअसिस्ट एआई ऐप डाउनलोड करें",
+        flyer_sub: "विशेष मोबाइल सुविधाओं का लाभ उठाएं।",
+        flyer_f1: "रियल-टाइम पुश अलर्ट",
+        flyer_f2: "क्यूआर कोड से लाउंज में खाना ऑर्डर",
+        flyer_f3: "3D AR टर्मिनल मैप नेविगेशन",
+        flyer_f4: "ऑफ़लाइन दस्तावेज़ वॉलेट",
+        btn_download_apk: "डायरेक्ट APK डाउनलोड 📥",
+        btn_scan_qr: "QR कोड स्कैन करें",
+        dash_flyer_title: "अपने स्मार्टफोन पर एयरोअसिस्ट का अनुभव करें",
+        dash_flyer_desc: "एंड्रॉइड और आईओएस पर आधिकारिक ऐप डाउनलोड करें।",
+        dash_flyer_btn: "ऐप पोस्टर देखें 📱"
+      },
+      ta: {
+        get_app: "செயலியைப் பதிவிறக்குக",
+        nav_dashboard: "டாஷ்போர்டு",
+        nav_chat: "AI உதவி",
+        nav_dining: "உணவகம்",
+        nav_lounges: "லவுஞ்ச்",
+        nav_wallet: "ஸ்மார்ட் வாலட்",
+        nav_utilities: "பயண சேவைகள்",
+        nav_quiz: "வினாடி வினா & பரிசுகள்",
+        nav_vendor: "விற்பனையாளர் போர்ட்டல்",
+        welcome_title: "ஏரோஅசிஸ்ட் AI க்கு வரவேற்கிறோம்",
+        welcome_sub: "உங்கள் விமான நிலைய ஸ்மார்ட் சேவை தளம்.",
+        role_visitor: "விமான நிலைய பயணி",
+        role_visitor_desc: "விமான விவரங்கள் மற்றும் உணவு ஆர்டர்கள்.",
+        role_employee: "விமான நிலைய ஊழியர்",
+        role_employee_desc: "ஊழியர் செயல்பாடுகள்.",
+        role_vendor: "வணிகர் / நிர்வாகி",
+        role_vendor_desc: "ஆர்டர்கள் நிர்வாகம்.",
+        btn_visitor: "பயணியாக நுழையவும்",
+        btn_employee: "ஊழியராக நுழையவும்",
+        btn_vendor: "போர்ட்டலுக்குச் செல்லவும்",
+        signin_title: "பயணி உள்நுழைவு",
+        signin_sub: "உங்கள் மின்னஞ்சல் பயன்படுத்தவும்",
+        email_label: "மின்னஞ்சல் முகவரி",
+        password_label: "கடவுச்சொல்",
+        btn_signin: "உள்நுழைக",
+        google_signin: "கூகிள் மூலம் உள்நுழைக",
+        create_account: "கணக்கை உருவாக்கவும்",
+        guest_continue: "விருந்தினராகத் தொடரவும் ➔",
+        flyer_badge: "அதிகாரப்பூர்வ மொபைல் செயலி",
+        flyer_title: "ஏரோஅசிஸ்ட் AI செயலியைப் பதிவிறக்கவும்",
+        flyer_sub: "சிறப்பு மொபைல் அம்சங்களைப் பெறுங்கள்.",
+        flyer_f1: "விமான நேர மாற்ற அறிவிப்புகள்",
+        flyer_f2: "QR மூலம் உணவு ஆர்டர்",
+        flyer_f3: "3D AR வரைபடம்",
+        flyer_f4: "ஆஃப்லைன் வாலட்",
+        btn_download_apk: "நேரடி APK பதிவிறக்கம் 📥",
+        btn_scan_qr: "QR குறியீட்டை ஸ்கேன் செய்க",
+        dash_flyer_title: "உங்கள் ஸ்மார்ட்போனில் ஏரோஅசிஸ்ட்",
+        dash_flyer_desc: "ஆண்ட்ராய்டு & iOS இல் அதிகாரப்பூர்வ செயலியைப் பதிவிறக்கவும்.",
+        dash_flyer_btn: "செயலி சுவரொட்டியைக் காண்க 📱"
+      },
+      zh: {
+        get_app: "下载移动应用",
+        nav_dashboard: "仪表板",
+        nav_chat: "AI 助手",
+        nav_dining: "餐饮美食",
+        nav_lounges: "贵宾休息室",
+        nav_wallet: "智能钱包",
+        nav_utilities: "旅行工具",
+        nav_quiz: "测验与奖励",
+        nav_vendor: "商家门户",
+        welcome_title: "欢迎使用 AeroAssist AI",
+        welcome_sub: "您的全功能智能机场仪表板套件。",
+        role_visitor: "机场旅客",
+        role_visitor_desc: "跟踪行李、预订餐食和贵宾室通行证。",
+        role_employee: "机场员工",
+        role_employee_desc: "内部员工门户。",
+        role_vendor: "商家 / 管理员",
+        role_vendor_desc: "处理预订订单，管理商品目录。",
+        btn_visitor: "以旅客身份进入",
+        btn_employee: "以员工身份进入",
+        btn_vendor: "进入门户",
+        signin_title: "旅客登录",
+        signin_sub: "使用已验证的邮箱和密码登录",
+        email_label: "电子邮箱",
+        password_label: "密码",
+        btn_signin: "登录",
+        google_signin: "使用 Google 登录",
+        create_account: "创建账号",
+        guest_continue: "以访客身份继续 ➔",
+        flyer_badge: "官方移动应用",
+        flyer_title: "下载 AeroAssist AI 官方 App",
+        flyer_sub: "解锁专属移动端功能。",
+        flyer_f1: "登机口变更与航班延误实时推送",
+        flyer_f2: "扫码在休息室点餐送达",
+        flyer_f3: "3D AR 航站楼地图导航",
+        flyer_f4: "离线文档钱包",
+        btn_download_apk: "直接下载 APK 📥",
+        btn_scan_qr: "扫描二维码",
+        dash_flyer_title: "在智能手机上体验 AeroAssist",
+        dash_flyer_desc: "在 Android 和 iOS 上下载我们的官方应用。",
+        dash_flyer_btn: "查看应用海报 📱"
+      },
+      ar: {
+        get_app: "تحميل التطبيق",
+        nav_dashboard: "لوحة التحكم",
+        nav_chat: "مساعد الذكاء الاصطناعي",
+        nav_dining: "المطاعم والمأكولات",
+        nav_lounges: "صالات الاستراحة",
+        nav_wallet: "المحفظة الذكية",
+        nav_utilities: "خدمات السفر",
+        nav_quiz: "الاختبار والجوائز",
+        nav_vendor: "بوابة التجار",
+        welcome_title: "مرحباً بكم في AeroAssist AI",
+        welcome_sub: "مجموعتك الشاملة للوحة تحكم المطار الذكية.",
+        role_visitor: "زائر المطار",
+        role_visitor_desc: "تتبع الأمتعة، طلب الوجبات وحجز صالات الاستراحة.",
+        role_employee: "موظف المطار",
+        role_employee_desc: "بوابة الموظفين.",
+        role_vendor: "تاجر / أدمن",
+        role_vendor_desc: "معالجة الطلبات وإدارة قائمة المنتجات.",
+        btn_visitor: "الدخول كزائر",
+        btn_employee: "الدخول كموظف",
+        btn_vendor: "الدخول للبوابة",
+        signin_title: "تسجيل دخول المسافر",
+        signin_sub: "سجل الدخول ببريدك الإلكتروني",
+        email_label: "البريد الإلكتروني",
+        password_label: "كلمة المرور",
+        btn_signin: "تسجيل الدخول",
+        google_signin: "تسجيل الدخول باستخدام Google",
+        create_account: "إنشاء حساب",
+        guest_continue: "المتابعة كزائر ➔",
+        flyer_badge: "التطبيق الرسمي للموبايل",
+        flyer_title: "تحميل تطبيق AeroAssist AI الرسمي",
+        flyer_sub: "احصل على ميزات حصرية لتجربة سفر سلسة.",
+        flyer_f1: "تنبيهات فورية لتغيير البوابة",
+        flyer_f2: "توصيل الطعام بالصالة عبر QR",
+        flyer_f3: "خرائط ثلاثية الأبعاد للمبنى",
+        flyer_f4: "محفظة مستندات بدون إنترنت",
+        btn_download_apk: "تحميل APK مباشر 📥",
+        btn_scan_qr: "مسح رمز QR",
+        dash_flyer_title: "تجربة AeroAssist على هاتفك",
+        dash_flyer_desc: "حمل تطبيقنا الرسمي على أندرويد وآيفون.",
+        dash_flyer_btn: "عرض منشور التطبيق 📱"
+      }
+    };
+
+    if (!lang || !TRANSLATIONS[lang]) lang = "en";
+    this.currentLang = lang;
+    localStorage.setItem("app_language", lang);
+
+    // Sync all dropdowns
+    const globalSelect = document.getElementById("global-lang-select");
+    if (globalSelect) globalSelect.value = lang;
+    const chatSelect = document.getElementById("chat-lang");
+    if (chatSelect) chatSelect.value = lang;
+
+    // RTL orientation support
+    if (lang === "ar") {
+      document.documentElement.dir = "rtl";
+    } else {
+      document.documentElement.dir = "ltr";
+    }
+
+    const dict = TRANSLATIONS[lang];
+    if (!dict) return;
+
+    // Translate data-i18n text nodes
+    const elements = document.querySelectorAll("[data-i18n]");
+    elements.forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        el.innerText = dict[key];
+      }
+    });
+
+    // Translate data-i18n-ph placeholders
+    const phElements = document.querySelectorAll("[data-i18n-ph]");
+    phElements.forEach(el => {
+      const key = el.getAttribute("data-i18n-ph");
+      if (dict[key]) {
+        el.placeholder = dict[key];
+      }
+    });
   }
 
   // --- ROLE GATE & SELECTION FLOW ---
