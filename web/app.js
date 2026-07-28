@@ -1018,18 +1018,26 @@ class AeroAssistApp {
       })
     });
 
-    if (res && res.status === "success" && res.token) {
-      this.currentUser = {
-        name: res.name || name,
-        email: email.trim().toLowerCase(),
-        token: res.token
-      };
-      localStorage.setItem("user_session", JSON.stringify(this.currentUser));
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("auth_token", res.token);
+    if (res && res.status === "success") {
+      if (res.existing === false) {
+        alert(res.message || `New account detected! An OTP verification code has been sent to ${email}. Please enter the code to verify and complete registration.`);
+        this.pendingVerifyEmail = email.trim().toLowerCase();
+        this.switchAuthMode("verify");
+        return;
+      }
+      if (res.token) {
+        this.currentUser = {
+          name: res.name || name,
+          email: email.trim().toLowerCase(),
+          token: res.token
+        };
+        localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("auth_token", res.token);
 
-      this.updateUserSessionUI();
-      this.showPage("dashboard");
+        this.updateUserSessionUI();
+        this.showPage("dashboard");
+      }
     } else {
       alert(res?.message || "Google OAuth Authentication failed.");
     }

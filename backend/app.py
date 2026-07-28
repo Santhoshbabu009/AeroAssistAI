@@ -1102,23 +1102,24 @@ def google_login():
             existing_user = db.get_user(email)
 
     if not existing_user:
-        # Auto-provision user account for Google Sign-In
+        # Require OTP verification for brand new Google accounts
         display_name = name if name and name != 'Google User' else email.split('@')[0].capitalize()
-        pwd_hash = generate_password_hash(f"google_oauth_{email}")
-        if USE_SQLITE:
-            db.create_user(email, pwd_hash, display_name, "")
-        else:
-            try:
-                supabase.table('users').insert({
-                    "email": email,
-                    "name": display_name,
-                    "mobile": "",
-                    "password_hash": pwd_hash
-                }).execute()
-            except Exception as e:
-                print("[FALLBACK] Supabase error in google_login auto-create:", str(e))
-                db.create_user(email, pwd_hash, display_name, "")
-        existing_user = {"name": display_name, "mobile": ""}
+        import secrets
+        otp = str(secrets.randbelow(900000) + 100000)
+        otp_store[email] = {
+            "otp": otp,
+            "name": display_name,
+            "password": f"google_oauth_{email}",
+            "mobile": "",
+            "attempts": 0
+        }
+        send_verification_email(email, otp, name=display_name)
+        print(f"\n[SERVER SECURE LOG] -> Sent OTP '{otp}' for new Google account target: {email}")
+        return jsonify({
+            "status": "success",
+            "existing": False,
+            "message": f"New account detected! An OTP verification code has been sent to {email}."
+        })
 
     token = generate_token(email, role="user")
     return jsonify({
