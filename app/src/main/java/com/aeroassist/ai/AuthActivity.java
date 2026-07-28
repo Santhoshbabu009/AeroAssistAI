@@ -206,6 +206,8 @@ public class AuthActivity extends AppCompatActivity {
                                     editor.putString("name", returnedName);
                                     editor.putString("mobile", returnedMobile);
                                     editor.putString("user_type", userType);
+                                    String token = resJson.optString("token", "");
+                                    if (!token.isEmpty()) editor.putString("auth_token", token);
                                     editor.apply();
 
                                     Toast.makeText(AuthActivity.this, "Welcome back, " + returnedName + "!", Toast.LENGTH_SHORT).show();
@@ -283,6 +285,8 @@ public class AuthActivity extends AppCompatActivity {
                                 editor.putString("name", name);
                                 editor.putString("mobile", mobile);
                                 editor.putString("user_type", userType);
+                                String token = resJson.optString("token", "");
+                                if (!token.isEmpty()) editor.putString("auth_token", token);
                                 editor.apply();
 
                                 Toast.makeText(AuthActivity.this, "Remote Login Successful", Toast.LENGTH_SHORT).show();

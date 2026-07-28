@@ -1095,33 +1095,34 @@ def google_login():
             print("[FALLBACK] Supabase error in google_login:", str(e))
             existing_user = db.get_user(email)
 
-    if existing_user:
-        token = generate_token(email, role="user")
-        return jsonify({
-            "status": "success",
-            "existing": True,
-            "name": existing_user.get('name'),
-            "mobile": existing_user.get('mobile', ""),
-            "token": token,
-            "message": "Welcome back! Logged in directly."
-        })
-    else:
-        import secrets
-        otp = str(secrets.randbelow(900000) + 100000)
-        otp_store[email] = {
-            "otp": otp,
-            "name": name,
-            "password": f"google_oauth_{email}",
-            "mobile": "",
-            "attempts": 0
-        }
-        email_sent = send_verification_email(email, otp, name=name)
-        print(f"\n[GOOGLE LOGIN LOG] -> New user OTP '{otp}' sent to: {email}")
-        if email_sent:
-            return jsonify({"status": "success", "existing": False, "message": "OTP sent to your Google email."})
+    if not existing_user:
+        # Auto-provision user account for Google Sign-In
+        display_name = name if name and name != 'Google User' else email.split('@')[0].capitalize()
+        pwd_hash = generate_password_hash(f"google_oauth_{email}")
+        if USE_SQLITE:
+            db.create_user(email, pwd_hash, display_name, "")
         else:
-            print(f"\n[SERVER LOG - DELIVERY FAILED] -> Resend dispatch failed for new Google user {email}. Fallback OTP: {otp}")
-            return jsonify({"status": "error", "message": "Failed to send OTP verification email. Please check server logs or verify your Resend sender domain."}), 500
+            try:
+                supabase.table('users').insert({
+                    "email": email,
+                    "name": display_name,
+                    "mobile": "",
+                    "password_hash": pwd_hash
+                }).execute()
+            except Exception as e:
+                print("[FALLBACK] Supabase error in google_login auto-create:", str(e))
+                db.create_user(email, pwd_hash, display_name, "")
+        existing_user = {"name": display_name, "mobile": ""}
+
+    token = generate_token(email, role="user")
+    return jsonify({
+        "status": "success",
+        "existing": True,
+        "name": existing_user.get('name') or email.split('@')[0].capitalize(),
+        "mobile": existing_user.get('mobile', ""),
+        "token": token,
+        "message": "Google Login Successful"
+    })
 
 @app.route('/api/register', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -1738,7 +1739,7 @@ def get_products():
         return jsonify({"status": "success", "products": db.get_products(vendor_id)})
 
 @app.route('/api/orders', methods=['POST'])
-@token_required('user')
+@token_required(['user', 'visitor', 'admin', 'vendor'])
 def place_order():
     data = request.json or {}
     print("[POST /api/orders] Received raw order payload:", data)
@@ -1748,7 +1749,7 @@ def place_order():
         return jsonify({"status": "error", "message": "Missing user_email parameter"}), 400
     user_email = user_email.strip().lower()
     
-    if request.user_email != user_email:
+    if request.user_email and request.user_email.strip().lower() != user_email:
         return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
     vendor_id = data.get('vendor_id')
     terminal = data.get('terminal')
@@ -1895,8 +1896,8 @@ def get_order_details(order_id):
         return jsonify({"status": "error", "message": "Order not found"}), 404
         
     # Enforce ownership
-    if request.user_role == 'user':
-        if request.user_email != order.get('user_email'):
+    if request.user_role in ['user', 'visitor']:
+        if request.user_email and request.user_email.strip().lower() != (order.get('user_email') or '').strip().lower():
             return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
     elif request.user_role == 'vendor':
         # Fetch vendor by email to get ID

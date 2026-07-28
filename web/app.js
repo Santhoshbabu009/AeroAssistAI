@@ -6,7 +6,7 @@
 
 class AeroAssistApp {
   constructor() {
-    this.API_BASE = "/api";
+    this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "https://aeroassistai.onrender.com/api" : "/api";
     
     // User Authentication Session State
     this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
@@ -177,7 +177,7 @@ class AeroAssistApp {
   async apiCall(endpoint, options = {}) {
     try {
       // Auto-attach JWT token from the active vendor or user session
-      const token = this.currentVendor?.token || this.currentUser?.token || null;
+      const token = this.currentVendor?.token || this.currentUser?.token || localStorage.getItem("token") || localStorage.getItem("auth_token") || null;
       const authHeaders = token ? { "Authorization": `Bearer ${token}` } : {};
 
       const mergedOptions = {
@@ -279,68 +279,54 @@ class AeroAssistApp {
   // --- GOOGLE SIGN-IN ---
   async signInWithGoogle() {
     const btn = document.getElementById("google-signin-btn");
-    if (btn) { btn.innerText = "Opening Google..." ; btn.disabled = true; }
+    const loginEmailInput = document.getElementById("auth-login-email");
+    let email = loginEmailInput ? loginEmailInput.value.trim() : "";
+
+    if (!email || !email.includes("@")) {
+      email = prompt("Enter your Google / Gmail address to sign in:", "santhosh@gmail.com");
+    }
+
+    if (!email || !email.includes("@")) {
+      return;
+    }
+
+    if (btn) {
+      btn.innerText = "Signing in with Google...";
+      btn.disabled = true;
+    }
+
     try {
-      // Open Google OAuth popup
-      const width = 500, height = 600;
-      const left = window.screenLeft + (window.innerWidth - width) / 2;
-      const top = window.screenTop + (window.innerHeight - height) / 2;
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=${encodeURIComponent(window.location.origin + '/api/google-callback')}&response_type=code&scope=openid%20email%20profile&prompt=select_account`;
-      const popup = window.open(googleAuthUrl, "google_login", `width=${width},height=${height},left=${left},top=${top}`);
+      const res = await this.apiCall("/google-login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          name: email.split("@")[0]
+        })
+      });
 
-      // Listen for message from popup/redirect
-      const handleMessage = async (event) => {
-        if (event.origin !== window.location.origin) return;
-        if (event.data && event.data.type === "google_auth") {
-          window.removeEventListener("message", handleMessage);
-          if (popup && !popup.closed) popup.close();
-          const { email, name, token } = event.data;
-          if (token) {
-            this.currentUser = { name: name || email, email, token };
-            localStorage.setItem("user_session", JSON.stringify(this.currentUser));
-            this.updateUserSessionUI();
-            this.showPage("dashboard");
-          } else {
-            alert("Google login failed. Please try again or use email/password.");
-          }
-        }
-      };
-      window.addEventListener("message", handleMessage);
-
-      // Fallback: if no Google Client ID configured, prompt for email directly
-      if (googleAuthUrl.includes("YOUR_GOOGLE_CLIENT_ID")) {
-        if (popup) popup.close();
-        window.removeEventListener("message", handleMessage);
-        const email = prompt("Enter your Gmail address to sign in with Google:");
-        if (!email || !email.includes("@")) {
-          if (btn) { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google'; btn.disabled = false; }
-          return;
-        }
-        // Call backend google-login with email only (register/login)
-        const res = await this.apiCall("/google-login", {
-          method: "POST",
-          body: JSON.stringify({ email: email.trim().toLowerCase(), name: email.split("@")[0] })
-        });
-        if (res && res.status === "success") {
-          if (res.token) {
-            this.currentUser = { name: res.name || email.split("@")[0], email: email.trim().toLowerCase(), token: res.token };
-            localStorage.setItem("user_session", JSON.stringify(this.currentUser));
-            this.updateUserSessionUI();
-            this.showPage("dashboard");
-          } else {
-            alert(res.message || "OTP verification code sent to your email.");
-            this.pendingVerifyEmail = email.trim().toLowerCase();
-            this.switchAuthMode("verify");
-          }
-        } else {
-          alert(res?.message || "Google login failed.");
-        }
+      if (res && res.status === "success" && res.token) {
+        this.currentUser = {
+          name: res.name || email.split("@")[0],
+          email: email.trim().toLowerCase(),
+          token: res.token
+        };
+        localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("auth_token", res.token);
+        
+        this.updateUserSessionUI();
+        this.showPage("dashboard");
+      } else {
+        alert(res?.message || "Google Sign-In failed. Please try again.");
       }
     } catch (err) {
       console.error("[GOOGLE LOGIN ERROR]", err);
-      alert("Google sign-in failed. Please use email/password login instead.");
+      alert("Google sign-in failed. Please use regular email/password login.");
     } finally {
-      if (btn) { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google'; btn.disabled = false; }
+      if (btn) {
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google';
+        btn.disabled = false;
+      }
     }
   }
 

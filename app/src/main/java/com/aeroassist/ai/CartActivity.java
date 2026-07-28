@@ -448,9 +448,60 @@ public class CartActivity extends AppCompatActivity {
     }
 
     private void executeBackendOrder(final String terminal, final String gate, final String paymentMethod) {
+        android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+        String savedToken = session.getString("auth_token", "");
+        String activeEmail = (email != null && !email.isEmpty()) ? email : session.getString("email", "");
+
+        if (savedToken.isEmpty() && activeEmail != null && !activeEmail.isEmpty()) {
+            // Self-healing: Fetch fresh token via /api/token-refresh if absent from local session
+            fetchTokenAndPlaceOrder(activeEmail, terminal, gate, paymentMethod);
+        } else {
+            sendOrderWithToken(savedToken, activeEmail, terminal, gate, paymentMethod);
+        }
+    }
+
+    private void fetchTokenAndPlaceOrder(final String activeEmail, final String terminal, final String gate, final String paymentMethod) {
+        try {
+            JSONObject refreshJson = new JSONObject();
+            refreshJson.put("email", activeEmail);
+            RequestBody body = RequestBody.create(
+                    refreshJson.toString(), MediaType.get("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(Constants.API_V1_BASE + "/token-refresh")
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    sendOrderWithToken("", activeEmail, terminal, gate, paymentMethod);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String newToken = "";
+                    if (response.isSuccessful()) {
+                        try {
+                            JSONObject resJson = new JSONObject(response.body().string());
+                            newToken = resJson.optString("token", "");
+                            if (!newToken.isEmpty()) {
+                                android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+                                session.edit().putString("auth_token", newToken).apply();
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                    sendOrderWithToken(newToken, activeEmail, terminal, gate, paymentMethod);
+                }
+            });
+        } catch (Exception e) {
+            sendOrderWithToken("", activeEmail, terminal, gate, paymentMethod);
+        }
+    }
+
+    private void sendOrderWithToken(final String token, final String activeEmail, final String terminal, final String gate, final String paymentMethod) {
         try {
             JSONObject orderJson = new JSONObject();
-            orderJson.put("user_email", email);
+            orderJson.put("user_email", activeEmail);
             orderJson.put("vendor_id", CartHelper.getCurrentVendorId());
             orderJson.put("terminal", terminal);
             orderJson.put("gate", gate);
@@ -471,7 +522,11 @@ public class CartActivity extends AppCompatActivity {
                     orderJson.toString(), MediaType.get("application/json; charset=utf-8"));
 
             String url = Constants.BACKEND_BASE_URL + "/api/orders";
-            Request request = new Request.Builder().url(url).post(body).build();
+            Request.Builder reqBuilder = new Request.Builder().url(url).post(body);
+            if (token != null && !token.isEmpty()) {
+                reqBuilder.addHeader("Authorization", "Bearer " + token);
+            }
+            Request request = reqBuilder.build();
 
             runOnUiThread(() -> Toast.makeText(CartActivity.this, "Placing your food order...", Toast.LENGTH_SHORT).show());
 
@@ -493,7 +548,7 @@ public class CartActivity extends AppCompatActivity {
                                 Toast.makeText(CartActivity.this, "Order placed successfully!", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(CartActivity.this, OrderTrackingActivity.class);
                                 intent.putExtra("order_id", orderId);
-                                intent.putExtra("email", email);
+                                intent.putExtra("email", activeEmail);
                                 startActivity(intent);
                                 finish();
                             });

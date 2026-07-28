@@ -103,8 +103,15 @@ public class OrderTrackingActivity extends AppCompatActivity {
     }
 
     private void checkOrderStatus() {
+        android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+        String token = session.getString("auth_token", "");
+
         String url = Constants.BACKEND_BASE_URL + "/api/orders/" + orderId;
-        Request request = new Request.Builder().url(url).build();
+        Request.Builder builder = new Request.Builder().url(url);
+        if (token != null && !token.isEmpty()) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+        Request request = builder.build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override

@@ -117,12 +117,24 @@ public class OtpActivity extends AppCompatActivity {
                         JSONObject resJson = new JSONObject(res);
                         String status = resJson.optString("status");
                         if ("success".equals(status)) {
+                            String token = resJson.optString("token", "");
+                            String name = resJson.optString("name", "User");
+                            String userType = getIntent().getStringExtra("user_type");
+                            
+                            android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+                            android.content.SharedPreferences.Editor editor = session.edit();
+                            editor.putString("email", email);
+                            editor.putString("name", name);
+                            editor.putString("user_type", userType != null ? userType : "Visitor");
+                            if (!token.isEmpty()) editor.putString("auth_token", token);
+                            editor.apply();
+
                             runOnUiThread(() -> {
                                 Toast.makeText(OtpActivity.this, "Server Verification Complete!", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(OtpActivity.this, MainActivity.class);
-                                intent.putExtra("name", resJson.optString("name", "User"));
+                                intent.putExtra("name", name);
                                 intent.putExtra("email", email);
-                                intent.putExtra("user_type", getIntent().getStringExtra("user_type"));
+                                intent.putExtra("user_type", userType);
                                 startActivity(intent);
                                 finish();
                             });
