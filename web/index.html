@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AeroAssist AI - Premium Web Application Suite</title>
+  <title>AeroAssist AI - World-Class Smart Airport Portal Suite</title>
   <link rel="stylesheet" href="styles.css">
   <!-- Google Identity Services (GIS) Official OAuth SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -17,34 +17,35 @@
     <aside class="sidebar">
       <div class="brand-wrapper">
         <a href="#" class="brand" onclick="app.showPage('dashboard')">
+          <div class="brand-logo-icon">✈</div>
           Aero<span>Assist AI</span>
         </a>
       </div>
 
       <nav class="sidebar-nav">
         <button id="nav-dashboard" class="nav-link-btn active" onclick="app.showPage('dashboard')">
-          <span>🏠</span> <span data-i18n="nav_dashboard">Dashboard</span>
+          <span class="nav-icon">🏠</span> <span data-i18n="nav_dashboard">Dashboard</span>
         </button>
         <button id="nav-chat" class="nav-link-btn" onclick="app.showPage('chat')">
-          <span>💬</span> <span data-i18n="nav_chat">AI Assistant</span>
+          <span class="nav-icon">💬</span> <span data-i18n="nav_chat">AI Assistant</span>
         </button>
         <button id="nav-dining" class="nav-link-btn" onclick="app.showPage('dining')">
-          <span>🍔</span> <span data-i18n="nav_dining">Dining & Eats</span>
+          <span class="nav-icon">🍔</span> <span data-i18n="nav_dining">Dining & Eats</span>
         </button>
         <button id="nav-lounges" class="nav-link-btn" onclick="app.showPage('lounges')">
-          <span>🛋️</span> <span data-i18n="nav_lounges">Lounges</span>
+          <span class="nav-icon">🛋️</span> <span data-i18n="nav_lounges">Lounges</span>
         </button>
         <button id="nav-wallet" class="nav-link-btn" onclick="app.showPage('wallet')">
-          <span>💳</span> <span data-i18n="nav_wallet">Smart Wallet</span>
+          <span class="nav-icon">💳</span> <span data-i18n="nav_wallet">Smart Wallet</span>
         </button>
         <button id="nav-utilities" class="nav-link-btn" onclick="app.showPage('utilities')">
-          <span>🗺️</span> <span data-i18n="nav_utilities">Travel Utilities</span>
+          <span class="nav-icon">🗺️</span> <span data-i18n="nav_utilities">Travel Utilities</span>
         </button>
         <button id="nav-quiz" class="nav-link-btn" onclick="app.showPage('quiz')">
-          <span>🏆</span> <span data-i18n="nav_quiz">Quiz & Rewards</span>
+          <span class="nav-icon">🏆</span> <span data-i18n="nav_quiz">Quiz & Rewards</span>
         </button>
-        <button id="nav-vendor" class="nav-link-btn" onclick="app.openVendorPortal()">
-          <span>🔐</span> <span data-i18n="nav_vendor">Vendor Portal</span>
+        <button id="nav-vendor" class="nav-link-btn" style="display: none;" onclick="app.openVendorPortal()">
+          <span class="nav-icon">🔐</span> <span data-i18n="nav_vendor">Vendor Portal</span>
         </button>
       </nav>
 
@@ -52,7 +53,7 @@
         <div class="user-badge" id="user-badge-profile" onclick="app.openProfileModal()">
           <div class="avatar" id="user-avatar-char">V</div>
           <div style="flex: 1; overflow: hidden;">
-            <h4 id="user-display-name" style="margin: 0; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Visitor Account</h4>
+            <h4 id="user-display-name" style="margin: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Visitor Account</h4>
             <span id="user-display-email" style="font-size: 11px; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; display: block;">Sign In / Sign Up</span>
           </div>
         </div>
@@ -63,73 +64,80 @@
     <main class="main-viewport">
 
       <!-- Top Global Header Bar -->
-      <header id="top-app-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:var(--glass-border); border-radius:16px; padding:12px 20px; position:sticky; top:0; z-index:100;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <button class="btn-primary" onclick="app.openModal('app-flyer')" style="height:36px; padding:0 16px; font-size:13px; background:var(--accent-gradient); border-radius:10px; box-shadow:0 0 12px rgba(0,229,255,0.3); font-weight:700;">
-            <span>📱</span> <span data-i18n="get_app">Get Mobile App</span>
-          </button>
+      <header id="top-app-bar">
+        <!-- Quick Spotlight Command Trigger -->
+        <div class="top-bar-search-trigger" onclick="app.openCommandPalette()">
+          <span>🔍 Search flights, dining, lounges...</span>
+          <kbd class="top-bar-kbd">Ctrl+K</kbd>
         </div>
 
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:14px; color:var(--text-secondary);">🌐</span>
-          <select id="global-lang-select" onchange="app.changeLanguage(this.value)" style="width:150px; height:36px; font-size:13px; font-weight:600; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; cursor:pointer;">
-            <option value="en">🌐 English (EN)</option>
-            <option value="es">🇪🇸 Español (ES)</option>
-            <option value="fr">🇫🇷 Français (FR)</option>
-            <option value="de">🇩🇪 Deutsch (DE)</option>
-            <option value="hi">🇮🇳 हिन्दी (HI)</option>
-            <option value="ta">🇮🇳 தமிழ் (TA)</option>
-            <option value="zh">🇨🇳 中文 (ZH)</option>
-            <option value="ar">🇸🇦 العربية (AR)</option>
-          </select>
+        <div class="top-bar-actions">
+          <!-- Theme Engine Switcher Button -->
+          <button class="theme-toggle-btn" onclick="app.toggleTheme()" title="Toggle Dark/Light Mode">
+            <span id="theme-toggle-icon">🌙</span>
+          </button>
+
+          <!-- Language Selector Dropdown -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <select id="global-lang-select" onchange="app.changeLanguage(this.value)" style="width:145px; height:38px; font-size:13px; font-weight:600; cursor:pointer;">
+              <option value="en">🌐 English (EN)</option>
+              <option value="es">🇪🇸 Español (ES)</option>
+              <option value="fr">🇫🇷 Français (FR)</option>
+              <option value="de">🇩🇪 Deutsch (DE)</option>
+              <option value="hi">🇮🇳 हिन्दी (HI)</option>
+              <option value="ta">🇮🇳 தமிழ் (TA)</option>
+              <option value="zh">🇨🇳 中文 (ZH)</option>
+              <option value="ar">🇸🇦 العربية (AR)</option>
+            </select>
+          </div>
         </div>
       </header>
 
       <!-- View -1: User Type Selection (Entrance Gate) -->
       <section id="view-user-type" class="page-view active">
-        <div class="glass-card" style="text-align: center; margin-bottom: 24px; padding: 40px; border-color: rgba(0, 229, 255, 0.2);">
-          <h1 style="font-size: 32px;">Welcome to <span class="gradient-text">AeroAssist AI</span></h1>
-          <p style="font-size: 15px; max-width: 600px; margin: 12px auto 0 auto; color: var(--text-secondary); line-height: 1.6;">
-            Your premium all-in-one smart airport dashboard suite. Select your role below to log in and access flight tracking, pre-orders, smart wallets, and merchant dashboards.
+        <div class="glass-card" style="text-align: center; margin-bottom: 24px; padding: 48px 24px; border-color: rgba(59, 130, 246, 0.3);">
+          <h1 style="font-size: 34px;">Welcome to <span class="gradient-text">AeroAssist AI</span></h1>
+          <p style="font-size: 15px; max-width: 640px; margin: 12px auto 0 auto; line-height: 1.6;">
+            Your premium all-in-one smart airport portal. Select your account role below to enter flight tracking, instant pre-orders, digital document wallets, and merchant counter queues.
           </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 30px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
           
           <!-- Role A: Airport Visitor / Passenger -->
-          <div class="glass-card" style="text-align: center; padding: 32px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; border-color: rgba(255,255,255,0.06);" onclick="app.selectUserType('Visitor')">
+          <div class="glass-card" style="text-align: center; padding: 36px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px;" onclick="app.selectUserType('Visitor')">
             <div>
-              <div class="avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 16px auto; background: var(--accent-gradient);">✈</div>
+              <div class="avatar" style="width: 64px; height: 64px; font-size: 26px; margin: 0 auto 20px auto;">✈</div>
               <h3 style="margin-bottom: 8px;">Airport Visitor</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-                Travelling through terminal gates. Track baggage hubs, pre-order meals, reserve premium lounge passes, and claim rewards.
+                Traveling through terminal gates. Track live flight status, pre-order counter dining, book VIP lounges, and claim rewards.
               </p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px; height: 38px; font-size: 13px;">ENTER AS VISITOR</button>
+            <button class="btn-primary" style="margin-top: 24px;">ENTER AS VISITOR</button>
           </div>
 
           <!-- Role B: Airport Employee -->
-          <div class="glass-card" style="text-align: center; padding: 32px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; border-color: rgba(255,255,255,0.06);" onclick="app.selectUserType('Employee')">
+          <div class="glass-card" style="text-align: center; padding: 36px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px;" onclick="app.selectUserType('Employee')">
             <div>
-              <div class="avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 16px auto; background: var(--accent-gradient);">👮</div>
+              <div class="avatar" style="width: 64px; height: 64px; font-size: 26px; margin: 0 auto 20px auto;">👮</div>
               <h3 style="margin-bottom: 8px;">Airport Employee</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-                Internal staff operations portal. Access quick-reference Customs rules, virtual ID cards, and converter tools.
+                Internal operations portal. Access quick-reference Customs handbooks, virtual ID credentials, and metric converters.
               </p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px; height: 38px; font-size: 13px;">ENTER AS EMPLOYEE</button>
+            <button class="btn-primary" style="margin-top: 24px;">ENTER AS EMPLOYEE</button>
           </div>
 
           <!-- Role C: Merchant Vendor / Admin -->
-          <div class="glass-card" style="text-align: center; padding: 32px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; border-color: rgba(255,255,255,0.06);" onclick="app.selectUserType('Vendor')">
+          <div class="glass-card" style="text-align: center; padding: 36px 24px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px;" onclick="app.selectUserType('Vendor')">
             <div>
-              <div class="avatar" style="width: 60px; height: 60px; font-size: 24px; margin: 0 auto 16px auto; background: var(--accent-gradient);">🔐</div>
+              <div class="avatar" style="width: 64px; height: 64px; font-size: 26px; margin: 0 auto 20px auto;">🔐</div>
               <h3 style="margin-bottom: 8px;">Merchant / Admin</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-                Shop counter or terminal administrator. Process pre-order slots, manage items catalog, or register vendor profiles.
+                Shop counter or airport administrator. Manage pre-order kitchen queues, item catalog, or add merchant credentials.
               </p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px; height: 38px; font-size: 13px;">ENTER PORTAL</button>
+            <button class="btn-primary" style="margin-top: 24px;">ENTER PORTAL</button>
           </div>
 
         </div>
@@ -137,7 +145,7 @@
 
       <!-- View 0: Passenger Login / Authentication Portal -->
       <section id="view-auth" class="page-view">
-        <div class="glass-card" style="max-width: 420px; margin: 60px auto;">
+        <div class="glass-card" style="max-width: 440px; margin: 40px auto; padding: 36px;">
           <h2 style="text-align: center; margin-bottom: 24px;" id="auth-title">Sign In to AeroAssist</h2>
           
           <!-- Login Form -->
@@ -150,21 +158,22 @@
               <label>Password</label>
               <input type="password" id="auth-login-password" placeholder="••••••••">
             </div>
-            <button class="btn-primary" onclick="app.submitUserLogin()" style="margin-bottom: 16px;">SIGN IN</button>
+            <button class="btn-primary" onclick="app.submitUserLogin()" style="margin-bottom: 20px;">SIGN IN</button>
 
             <!-- Google Sign-In Button -->
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-              <div style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+              <div style="flex:1; height:1px; background:var(--glass-border);"></div>
               <span style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">or continue with</span>
-              <div style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></div>
+              <div style="flex:1; height:1px; background:var(--glass-border);"></div>
             </div>
-            <button id="google-signin-btn" onclick="app.signInWithGoogle()" style="width:100%; height:44px; display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:12px; color:var(--text-primary); font-size:14px; font-weight:600; cursor:pointer; margin-bottom:14px; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            
+            <button id="google-signin-btn" onclick="app.signInWithGoogle()" style="width:100%; height:44px; display:flex; align-items:center; justify-content:center; gap:10px; background:var(--glass-bg); border:var(--glass-border); border-radius:var(--radius-md); color:var(--text-primary); font-size:14px; font-weight:600; cursor:pointer; margin-bottom:18px; transition:all 0.2s;">
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               Sign in with Google
             </button>
 
-             <p style="text-align: center; font-size: 13px;">Don't have an account? <a href="#" onclick="app.switchAuthMode('signup')" style="color:var(--accent-orange); font-weight:600; text-decoration:none;">Create Account</a></p>
-             <div style="text-align: center; margin-top: 14px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 12px;">
+             <p style="text-align: center; font-size: 13px;">Don't have an account? <a href="#" onclick="app.switchAuthMode('signup')" style="color:var(--accent-primary); font-weight:600; text-decoration:none;">Create Account</a></p>
+             <div style="text-align: center; margin-top: 16px; border-top: var(--glass-border); padding-top: 14px;">
                <a href="#" onclick="app.enterAsGuest()" style="color:var(--text-secondary); font-size:12px; font-weight:600; text-decoration:none;">Or continue as Guest Visitor ➔</a>
              </div>
           </div>
@@ -177,7 +186,7 @@
             </div>
             <div class="form-group">
               <label>Email Address</label>
-              <input type="email" id="auth-reg-email" placeholder="kfc@airport.com">
+              <input type="email" id="auth-reg-email" placeholder="santhosh@gmail.com">
             </div>
             <div class="form-group">
               <label>Password</label>
@@ -188,12 +197,12 @@
               <input type="text" id="auth-reg-mobile" placeholder="e.g. 9876543210">
             </div>
             <button class="btn-primary" onclick="app.submitUserRegister()" style="margin-bottom: 16px;">REGISTER ACCOUNT</button>
-            <p style="text-align: center; font-size: 13px;">Already have an account? <a href="#" onclick="app.switchAuthMode('login')" style="color:var(--accent-orange); font-weight:600; text-decoration:none;">Log In</a></p>
+            <p style="text-align: center; font-size: 13px;">Already have an account? <a href="#" onclick="app.switchAuthMode('login')" style="color:var(--accent-primary); font-weight:600; text-decoration:none;">Log In</a></p>
           </div>
 
           <!-- Verification OTP Form -->
           <div id="auth-verify-fields" style="display: none;">
-            <p style="font-size:13px; text-align:center; margin-bottom:16px; color:#FFA726;">OTP Verification code has been dispatched to your email address inbox!</p>
+            <p style="font-size:13px; text-align:center; margin-bottom:16px; color:var(--status-pending-text);">OTP Verification code dispatched to your email!</p>
             <div class="form-group">
               <label>Enter 4-Digit Verification Code</label>
               <input type="text" id="auth-verify-otp" placeholder="e.g. 1234" style="text-align:center; font-size:24px; font-weight:800; letter-spacing:8px;">
@@ -203,19 +212,19 @@
         </div>
       </section>
 
-      <!-- View 1: Main Smart Dashboard (Flight board & Baggage Hub) -->
+      <!-- View 1: Main Smart Dashboard (Flight Board & Live Status Tracker) -->
       <section id="view-dashboard" class="page-view">
         <div class="glass-card" style="margin-bottom: 24px;">
           <h1>AeroSmart <span class="gradient-text">Dashboard</span></h1>
-          <p>Airport Boarding & Assistance panel. Live flights, gate info, and baggage tracking states at your fingertips.</p>
+          <p>Real-time flight status tracker & departures board powered by your official aviation tracking engine.</p>
         </div>
 
-        <!-- Promo Banner: Download Official Mobile App Flyer -->
-        <div class="glass-card" style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.12), rgba(26, 35, 126, 0.3)); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <!-- Official App Poster Banner (Exclusively on Dashboard) -->
+        <div class="glass-card" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.25)); border-color: rgba(59, 130, 246, 0.3); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
           <div style="flex: 1; min-width: 260px;">
-            <div class="status-badge" style="background: rgba(0, 229, 255, 0.2); color: #00E5FF; margin-bottom: 8px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</div>
-            <h3 style="font-size: 20px; margin-bottom: 6px;" data-i18n="dash_flyer_title">Experience AeroAssist on Your Smartphone</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;" data-i18n="dash_flyer_desc">
+            <div class="status-badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent-primary); margin-bottom: 10px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</div>
+            <h3 style="font-size: 22px; margin-bottom: 8px;" data-i18n="dash_flyer_title">Experience AeroAssist on Your Smartphone</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;" data-i18n="dash_flyer_desc">
               Download our official mobile app on Android & iOS for offline gate maps, live push notifications, and fast QR check-in.
             </p>
           </div>
@@ -224,78 +233,62 @@
           </button>
         </div>
 
-        <div class="grid-container" style="margin-bottom: 24px;">
-          <!-- Flight Stats -->
-          <div class="glass-card">
-            <h4>Baggage Carousel</h4>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-              <div>
-                <div style="font-size:28px; font-weight:800; color:var(--accent-orange);">CAROUSEL 5</div>
-                <p style="font-size:12px; margin-top:4px;">Flight: AI-432 from Delhi</p>
-              </div>
-              <span class="status-badge accepted">Active</span>
+        <!-- Live Flight Search & Tracker Card -->
+        <div class="glass-card" style="margin-bottom: 24px; border-color: rgba(59, 130, 246, 0.3);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:16px;">
+            <div>
+              <h3 style="margin:0; font-size:18px;">✈️ Live Flight Status Lookup</h3>
+              <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-secondary);">Enter flight code (e.g. AI432, 6E2051, BA117) to track live gate & schedule</p>
+            </div>
+            <div style="display:flex; gap:10px; width:100%; max-width:440px;">
+              <input type="text" id="dash-flight-search-input" placeholder="Flight IATA (e.g. AI432)" style="flex:1; height:44px; text-transform:uppercase; font-weight:700; font-size:14px;" onkeypress="if(event.key==='Enter') app.fetchLiveFlightStatus()">
+              <button class="btn-primary" onclick="app.fetchLiveFlightStatus()" style="height:44px; width:auto; padding:0 20px; white-space:nowrap;">TRACK FLIGHT 🔍</button>
             </div>
           </div>
-          <!-- Smart Alerts -->
-          <div class="glass-card">
-            <h4>Security Wait Time</h4>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-              <div>
-                <div style="font-size:28px; font-weight:800; color:#ef5350;">8 MINS</div>
-                <p style="font-size:12px; margin-top:4px;">Terminal 1 Main Hub</p>
-              </div>
-              <span class="status-badge pending">Smooth Flow</span>
-            </div>
-          </div>
-          <!-- AeroRewards balance -->
-          <div class="glass-card">
-            <h4>AeroRewards Ledger</h4>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-              <div>
-                <div style="font-size:28px; font-weight:800; color:#66bb6a;" id="dash-rewards-val">750 pts</div>
-                <p style="font-size:12px; margin-top:4px;">Complete quizzes to earn more!</p>
-              </div>
-              <span class="status-badge delivered">Gold Member</span>
-            </div>
-          </div>
+          
+          <div id="dash-flight-result-box" style="display:none; margin-top:16px;"></div>
         </div>
 
-        <!-- Live Flights Board -->
+        <!-- Live Flights Schedule Board -->
         <div class="glass-card">
           <h2>Live Departure Schedule</h2>
-          <p style="margin-bottom: 16px;">Chennai International Airport Departures (MAA)</p>
+          <p style="margin-bottom: 18px;">Chennai & International Departures Status</p>
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <table>
               <thead>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); font-family: var(--font-display); font-weight: 700;">
-                  <th style="padding: 12px 8px;">Flight Number</th>
-                  <th style="padding: 12px 8px;">Destination</th>
-                  <th style="padding: 12px 8px;">Terminal</th>
-                  <th style="padding: 12px 8px;">Status</th>
-                  <th style="padding: 12px 8px;">Gate</th>
+                <tr>
+                  <th>Flight Number</th>
+                  <th>Destination</th>
+                  <th>Terminal</th>
+                  <th>Status</th>
+                  <th>Gate</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                  <td style="padding: 12px 8px; font-weight:600; color:var(--accent-orange);">AI-432</td>
-                  <td style="padding: 12px 8px;">Delhi (DEL)</td>
-                  <td style="padding: 12px 8px;">Terminal 1</td>
-                  <td style="padding: 12px 8px;"><span class="status-badge accepted">Boarding</span></td>
-                  <td style="padding: 12px 8px;">Gate 9</td>
+              <tbody id="dash-live-flights-tbody">
+                <tr>
+                  <td style="font-weight:700; color:var(--accent-primary);">AI-432</td>
+                  <td>Delhi (DEL)</td>
+                  <td>Terminal 1</td>
+                  <td><span class="status-badge boarding">Boarding</span></td>
+                  <td>Gate 9</td>
+                  <td><button class="btn-secondary" onclick="app.fetchLiveFlightStatus('AI432')" style="height:32px; padding:0 12px; font-size:12px;">Track Live</button></td>
                 </tr>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                  <td style="padding: 12px 8px; font-weight:600; color:var(--accent-orange);">6E-2051</td>
-                  <td style="padding: 12px 8px;">Mumbai (BOM)</td>
-                  <td style="padding: 12px 8px;">Terminal 1</td>
-                  <td style="padding: 12px 8px;"><span class="status-badge pending">Delayed</span></td>
-                  <td style="padding: 12px 8px;">Gate 14</td>
+                <tr>
+                  <td style="font-weight:700; color:var(--accent-primary);">6E-2051</td>
+                  <td>Mumbai (BOM)</td>
+                  <td>Terminal 1</td>
+                  <td><span class="status-badge delayed">Delayed</span></td>
+                  <td>Gate 14</td>
+                  <td><button class="btn-secondary" onclick="app.fetchLiveFlightStatus('6E2051')" style="height:32px; padding:0 12px; font-size:12px;">Track Live</button></td>
                 </tr>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                  <td style="padding: 12px 8px; font-weight:600; color:var(--accent-orange);">SG-103</td>
-                  <td style="padding: 12px 8px;">Bangalore (BLR)</td>
-                  <td style="padding: 12px 8px;">Terminal 2</td>
-                  <td style="padding: 12px 8px;"><span class="status-badge delivered">On Time</span></td>
-                  <td style="padding: 12px 8px;">Gate 25</td>
+                <tr>
+                  <td style="font-weight:700; color:var(--accent-primary);">SG-103</td>
+                  <td>Bangalore (BLR)</td>
+                  <td>Terminal 2</td>
+                  <td><span class="status-badge delivered">On Time</span></td>
+                  <td>Gate 25</td>
+                  <td><button class="btn-secondary" onclick="app.fetchLiveFlightStatus('SG103')" style="height:32px; padding:0 12px; font-size:12px;">Track Live</button></td>
                 </tr>
               </tbody>
             </table>
@@ -316,7 +309,7 @@
           </div>
 
           <div class="chat-input-bar">
-            <select id="chat-lang" onchange="app.changeLanguage(this.value)" style="width: 130px; font-weight:600; background:rgba(0,0,0,0.5); color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px;">
+            <select id="chat-lang" onchange="app.changeLanguage(this.value)" style="width: 140px; font-weight:600;">
               <option value="en">🌐 English</option>
               <option value="es">🇪🇸 Español</option>
               <option value="fr">🇫🇷 Français</option>
@@ -327,7 +320,7 @@
               <option value="ar">🇸🇦 العربية</option>
             </select>
             <input type="text" id="chat-input-msg" placeholder="Ask about baggage rules, flights, gate directions..." onkeydown="if(event.key === 'Enter') app.sendChatMessage()">
-            <button class="btn-primary" style="width: 100px;" onclick="app.sendChatMessage()">SEND</button>
+            <button class="btn-primary" style="width: 110px;" onclick="app.sendChatMessage()">SEND</button>
           </div>
         </div>
       </section>
@@ -346,7 +339,7 @@
       <!-- View 4: Restaurant menu list -->
       <section id="view-menu" class="page-view">
         <div class="menu-header-bar" onclick="app.showPage('dining')" style="display:flex; align-items:center; gap:8px; margin-bottom:20px; cursor:pointer;">
-          <span style="font-weight:700; color:var(--accent-orange); font-family:var(--font-display);">◀ BACK TO RESTAURANTS</span>
+          <span style="font-weight:700; color:var(--accent-primary); font-family:var(--font-display);">◀ BACK TO RESTAURANTS</span>
         </div>
         <div class="glass-card" style="margin-bottom: 24px;">
           <h2 id="menu-vendor-name">Restaurant Menu</h2>
@@ -380,33 +373,33 @@
           <div class="glass-card wallet-card">
             <div class="boarding-pass-head">
               <div>
-                <div style="font-size:12px; color:var(--text-secondary); text-transform:uppercase;">BOARDING PASS</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">BOARDING PASS</div>
                 <h3 style="margin:4px 0 0 0;">INDIAN AIRLINES</h3>
               </div>
-              <span class="status-badge accepted">BOARDING</span>
+              <span class="status-badge boarding">BOARDING</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <h2 style="margin:0; font-size:32px; font-weight:800;">MAA</h2>
-                <p style="font-size:11px;">Chennai</p>
+                <p style="font-size:12px;">Chennai</p>
               </div>
               <span style="font-size:24px;">✈</span>
               <div style="text-align:right;">
                 <h2 style="margin:0; font-size:32px; font-weight:800;">DEL</h2>
-                <p style="font-size:11px;">Delhi</p>
+                <p style="font-size:12px;">Delhi</p>
               </div>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:16px; font-size:12px;">
+            <div style="display:flex; justify-content:space-between; margin-top:18px; font-size:13px;">
               <div>
-                <span style="color:var(--text-secondary); display:block; font-size:10px;">FLIGHT</span>
-                <strong style="color:var(--accent-orange);">AI-432</strong>
+                <span style="color:var(--text-muted); display:block; font-size:11px;">FLIGHT</span>
+                <strong style="color:var(--accent-primary);">AI-432</strong>
               </div>
               <div>
-                <span style="color:var(--text-secondary); display:block; font-size:10px;">SEAT</span>
+                <span style="color:var(--text-muted); display:block; font-size:11px;">SEAT</span>
                 <strong>14A</strong>
               </div>
               <div>
-                <span style="color:var(--text-secondary); display:block; font-size:10px;">GATE</span>
+                <span style="color:var(--text-muted); display:block; font-size:11px;">GATE</span>
                 <strong>Gate 9</strong>
               </div>
             </div>
@@ -416,13 +409,13 @@
           <!-- Digital ID Card Card -->
           <div class="glass-card wallet-card">
             <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px;">
-              <div class="avatar" style="width:48px; height:48px; font-size:18px;">ID</div>
+              <div class="avatar" style="width:50px; height:50px; font-size:18px;">ID</div>
               <div>
                 <h3 style="margin:0;" id="wallet-id-name">Santhosh Babu</h3>
-                <p style="font-size:11px; color:#FFA726;">AeroSmart Trusted Traveler</p>
+                <p style="font-size:12px; color:var(--status-pending-text);">AeroSmart Trusted Traveler</p>
               </div>
             </div>
-            <div style="font-size:13px; line-height:1.8;">
+            <div style="font-size:13px; line-height:2;">
               <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Nationality:</span><strong>Indian</strong></div>
               <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Verified Mobile:</span><strong id="wallet-id-mobile">9876543210</strong></div>
               <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Secure Email:</span><strong id="wallet-id-email">santhosh@gmail.com</strong></div>
@@ -447,7 +440,7 @@
                 <input type="text" id="wallet-pass-place" value="Chennai RPO">
               </div>
             </div>
-            <button class="btn-primary" style="width:auto; padding:0 20px; margin-top:8px;" onclick="alert('Passport parameters updated successfully!')">SAVE PASSPORT REGISTRY</button>
+            <button class="btn-primary" style="width:auto; padding:0 24px; margin-top:8px;" onclick="alert('Passport parameters updated successfully!')">SAVE PASSPORT REGISTRY</button>
           </div>
         </div>
       </section>
@@ -465,15 +458,15 @@
             <h3>Currency Exchange Calculator</h3>
             <div class="form-group" style="display:flex; gap:10px; margin-top:16px;">
               <input type="number" id="conv-curr-val" value="100" style="flex:1;" oninput="app.calculateCurrency()">
-              <select id="conv-curr-type" style="width:100px;" onchange="app.calculateCurrency()">
+              <select id="conv-curr-type" style="width:110px;" onchange="app.calculateCurrency()">
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
               </select>
             </div>
-            <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:10px; text-align:center;">
-              <span style="font-size:12px; color:var(--text-secondary);">CONVERTED VALUE</span>
-              <div style="font-size:24px; font-weight:800; color:#66bb6a; margin-top:4px;" id="conv-curr-result">₹8,350.00 INR</div>
+            <div style="background:var(--glass-bg-hover); padding:16px; border-radius:var(--radius-md); text-align:center;">
+              <span style="font-size:12px; color:var(--text-muted);">CONVERTED VALUE</span>
+              <div style="font-size:26px; font-weight:800; color:var(--status-accepted-text); margin-top:4px;" id="conv-curr-result">₹8,350.00 INR</div>
             </div>
           </div>
 
@@ -482,33 +475,33 @@
             <h3>Metric Unit Converter</h3>
             <div class="form-group" style="display:flex; gap:10px; margin-top:16px;">
               <input type="number" id="conv-unit-val" value="23" style="flex:1;" oninput="app.calculateUnit()">
-              <select id="conv-unit-type" style="width:120px;" onchange="app.calculateUnit()">
+              <select id="conv-unit-type" style="width:130px;" onchange="app.calculateUnit()">
                 <option value="kg">kg to lbs</option>
                 <option value="lbs">lbs to kg</option>
                 <option value="km">km to miles</option>
                 <option value="miles">miles to km</option>
               </select>
             </div>
-            <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:10px; text-align:center;">
-              <span style="font-size:12px; color:var(--text-secondary);">CONVERTED RESULT</span>
-              <div style="font-size:24px; font-weight:800; color:var(--accent-orange); margin-top:4px;" id="conv-unit-result">50.71 lbs</div>
+            <div style="background:var(--glass-bg-hover); padding:16px; border-radius:var(--radius-md); text-align:center;">
+              <span style="font-size:12px; color:var(--text-muted);">CONVERTED RESULT</span>
+              <div style="font-size:26px; font-weight:800; color:var(--accent-primary); margin-top:4px;" id="conv-unit-result">50.71 lbs</div>
             </div>
           </div>
 
           <!-- Quick Reference Handbook -->
           <div class="glass-card" style="grid-column:1/-1;">
             <h3>Airport Quick Reference Guidebook</h3>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:16px;">
-              <div style="background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);">
-                <h4 style="color:#FFA726; font-size:16px;">Customs Guidelines</h4>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:18px;">
+              <div style="background:var(--glass-bg-hover); padding:18px; border-radius:var(--radius-md); border:var(--glass-border);">
+                <h4 style="color:var(--status-pending-text); font-size:16px;">Customs Guidelines</h4>
                 <p style="font-size:13px; margin-top:6px;">Duty-free allowance limits: Alcohol up to 2 liters, cigarettes up to 100 sticks. Declare gold jewelry exceeding limits.</p>
               </div>
-              <div style="background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);">
-                <h4 style="color:#66bb6a; font-size:16px;">Baggage Restrictions</h4>
+              <div style="background:var(--glass-bg-hover); padding:18px; border-radius:var(--radius-md); border:var(--glass-border);">
+                <h4 style="color:var(--status-accepted-text); font-size:16px;">Baggage Restrictions</h4>
                 <p style="font-size:13px; margin-top:6px;">Cabin limits: Maximum 7 kg bag. Liquid gels must fit in 100ml containers placed in clear transparent zip bags.</p>
               </div>
-              <div style="background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);">
-                <h4 style="color:#ef5350; font-size:16px;">Security Rules</h4>
+              <div style="background:var(--glass-bg-hover); padding:18px; border-radius:var(--radius-md); border:var(--glass-border);">
+                <h4 style="color:var(--status-cancelled-text); font-size:16px;">Security Rules</h4>
                 <p style="font-size:13px; margin-top:6px;">Place all metal items, laptops, phones, and power banks inside physical trays. Remove jackets/belts before scanning.</p>
               </div>
             </div>
@@ -531,7 +524,7 @@
             <div id="quiz-options-container">
               <!-- Rendered in app.js -->
             </div>
-            <button class="btn-primary" id="btn-quiz-next" style="display:none; margin-top:10px;" onclick="app.loadNextQuizQuestion()">NEXT QUESTION</button>
+            <button class="btn-primary" id="btn-quiz-next" style="display:none; margin-top:14px;" onclick="app.loadNextQuizQuestion()">NEXT QUESTION</button>
           </div>
 
           <!-- Competitor leaderboards -->
@@ -539,29 +532,29 @@
             <h3>Smart Leaderboards</h3>
             <p style="font-size:12px; margin-bottom:12px;">Top competing airport passengers this week.</p>
             <div style="overflow-x:auto;">
-              <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
+              <table>
                 <thead>
-                  <tr style="border-bottom:1px solid rgba(255,255,255,0.08); font-family:var(--font-display); font-weight:700;">
-                    <th style="padding:8px 4px;">Rank</th>
-                    <th style="padding:8px 4px;">Name</th>
-                    <th style="padding:8px 4px;">Tokens</th>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Tokens</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                    <td style="padding:8px 4px; font-weight:700; color:#d4af37;">🥇 #1</td>
-                    <td style="padding:8px 4px;">Santhosh Babu</td>
-                    <td style="padding:8px 4px; font-weight:700; color:#d4af37;">950 pts</td>
+                  <tr>
+                    <td style="font-weight:700; color:#d4af37;">🥇 #1</td>
+                    <td>Santhosh Babu</td>
+                    <td style="font-weight:700; color:#d4af37;">950 pts</td>
                   </tr>
-                  <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                    <td style="padding:8px 4px; font-weight:700; color:#c0c0c0;">🥈 #2</td>
-                    <td style="padding:8px 4px;">Vikram Shah</td>
-                    <td style="padding:8px 4px;">820 pts</td>
+                  <tr>
+                    <td style="font-weight:700; color:#c0c0c0;">🥈 #2</td>
+                    <td>Vikram Shah</td>
+                    <td>820 pts</td>
                   </tr>
-                  <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                    <td style="padding:8px 4px; font-weight:700; color:#cd7f32;">🥉 #3</td>
-                    <td style="padding:8px 4px;">Aisha Sen</td>
-                    <td style="padding:8px 4px;">780 pts</td>
+                  <tr>
+                    <td style="font-weight:700; color:#cd7f32;">🥉 #3</td>
+                    <td>Aisha Sen</td>
+                    <td>780 pts</td>
                   </tr>
                 </tbody>
               </table>
@@ -573,35 +566,35 @@
             <h3>Certificate of Aeronautical Achievement</h3>
             <p style="font-size:13px;">Complete the Aviation Quiz successfully to generate a downloadable certificate credentials pass.</p>
             
-            <div class="certificate-preview-box" id="certificate-print-box">
-              <div class="cert-title">AEROWARDS ACADEMY</div>
-              <div class="cert-sub">CERTIFICATE OF ACHIEVEMENT</div>
-              <p style="margin: 0; font-style:italic; font-size:14px; color:var(--text-secondary);">This is proudly awarded to</p>
-              <div class="cert-recipient" id="cert-recipient-name">Santhosh Babu</div>
-              <p style="max-width:500px; margin:0 auto; font-size:13px; line-height:1.6; color:var(--text-secondary);">
+            <div class="certificate-preview-box" id="certificate-print-box" style="background:#080d19; border:4px double #d4af37; border-radius:var(--radius-xl); padding:40px; text-align:center; box-shadow: 0 0 30px rgba(212,175,55,0.15); margin-top:20px;">
+              <div style="font-family:var(--font-display); font-weight:800; font-size:28px; color:#d4af37; letter-spacing:2px; margin-bottom:8px;">AEROWARDS ACADEMY</div>
+              <div style="font-size:12px; text-transform:uppercase; letter-spacing:3px; color:#94a3b8; margin-bottom:24px;">CERTIFICATE OF ACHIEVEMENT</div>
+              <p style="margin: 0; font-style:italic; font-size:14px; color:#94a3b8;">This is proudly awarded to</p>
+              <div style="font-family:var(--font-display); font-weight:700; font-size:24px; border-bottom:1px solid #d4af37; display:inline-block; padding:4px 30px; margin: 12px 0 16px 0; color:#ffffff;" id="cert-recipient-name">Santhosh Babu</div>
+              <p style="max-width:500px; margin:0 auto; font-size:13px; line-height:1.6; color:#94a3b8;">
                 For completing the AeroAssist Airport & Aviation trivia challenge. Demonstrated mastery of customs guidelines, security rules, and airport structures.
               </p>
-              <div class="cert-seal">PASS</div>
+              <div style="width:70px; height:70px; border-radius:50%; background:#d4af37; box-shadow:0 0 10px rgba(212,175,55,0.5); margin:20px auto 0 auto; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#080d19; font-family:var(--font-display);">PASS</div>
             </div>
             
-            <button class="btn-primary" style="width:auto; padding:0 20px; margin-top:20px;" onclick="window.print()">PRINT CERTIFICATE PASS</button>
+            <button class="btn-primary" style="width:auto; padding:0 24px; margin-top:24px;" onclick="window.print()">PRINT CERTIFICATE PASS</button>
           </div>
         </div>
       </section>
 
       <!-- View 9: Vendor Dashboard View -->
       <section id="view-vendor" class="page-view">
-        <div class="glass-card" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="glass-card" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
           <div>
             <h2 id="vendor-portal-title">Vendor Admin Portal</h2>
             <p id="vendor-portal-location">Logged in vendor location profile</p>
           </div>
-          <button class="portal-btn" style="background:#d32f2f; border-color:transparent;" onclick="app.logoutVendor()">Log Out</button>
+          <button class="btn-danger" style="width: auto; padding: 0 20px; height: 38px;" onclick="app.logoutVendor()">Log Out</button>
         </div>
 
-        <div class="tab-header">
-          <button id="tab-queue" class="tab-link active" onclick="app.switchVendorTab('queue')">Incoming Queue</button>
-          <button id="tab-catalog" class="tab-link" onclick="app.switchVendorTab('catalog')">Menu Catalog</button>
+        <div style="display:flex; gap:12px; margin-bottom:20px;">
+          <button id="tab-queue" class="btn-primary" style="width:auto; padding:0 20px; height:40px;" onclick="app.switchVendorTab('queue')">Incoming Queue</button>
+          <button id="tab-catalog" class="btn-secondary" style="width:auto; padding:0 20px; height:40px;" onclick="app.switchVendorTab('catalog')">Menu Catalog</button>
         </div>
 
         <!-- Tab Content: Queue -->
@@ -615,11 +608,11 @@
         </div>
 
         <!-- Tab Content: Catalog -->
-        <div id="vendor-tab-catalog" class="tab-content">
+        <div id="vendor-tab-catalog" class="tab-content" style="display:none;">
           <div class="glass-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
               <h3>Product Catalog</h3>
-              <button class="btn-primary" style="width: auto; padding: 0 20px;" onclick="app.openAddProductModal()">+ Add New Product</button>
+              <button class="btn-primary" style="width: auto; padding: 0 20px; height:38px;" onclick="app.openAddProductModal()">+ Add New Product</button>
             </div>
             <div class="grid-container" id="vendor-catalog-grid">
               <!-- Rendered dynamically in app.js -->
@@ -634,11 +627,11 @@
 
   <!-- Sidebar Checkout Cart Drawer -->
   <div id="cart-drawer" class="cart-sidebar">
-    <div class="cart-header">
-      <h3 style="margin: 0; color: var(--text-primary);">Shopping Cart</h3>
+    <div class="modal-header">
+      <h3 style="margin: 0;">Shopping Cart</h3>
       <button class="close-modal" onclick="app.toggleCart(false)">&times;</button>
     </div>
-    <div class="cart-items-list" id="cart-items-container">
+    <div class="cart-items-list" id="cart-items-container" style="flex:1; overflow-y:auto; margin-bottom:16px;">
       <!-- Items dynamically added here -->
     </div>
     
@@ -664,12 +657,12 @@
       </select>
     </div>
 
-    <div class="cart-summary">
-      <div class="summary-row">
+    <div style="background:var(--glass-bg-hover); padding:16px; border-radius:var(--radius-md); margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">
         <span>Cart Items Total</span>
         <span id="cart-subtotal">₹0.00</span>
       </div>
-      <div class="summary-row total">
+      <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:var(--accent-primary);">
         <span>Total Price</span>
         <span id="cart-total">₹0.00</span>
       </div>
@@ -680,25 +673,40 @@
   <!-- FLOATING STATUS ACTIVE BANNERS -->
   <div id="floating-dining-banner" class="floating-status-banner" style="display: none;" onclick="app.openActiveOrderTracker()">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 10px; height: 10px; border-radius: 50%; background: #66bb6a; box-shadow: 0 0 10px #66bb6a; animation: pulse 1.5s infinite;"></div>
-      <span style="font-family: var(--font-display); font-weight: 700; font-size: 15px;">Your Pre-Order • Status: <span id="floating-dining-status">Pending</span></span>
+      <div style="width: 10px; height: 10px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; animation: pulseGlow 1.5s infinite;"></div>
+      <span style="font-family: var(--font-display); font-weight: 700; font-size: 14px;">Your Pre-Order • Status: <span id="floating-dining-status">Pending</span></span>
     </div>
-    <span style="font-weight: 700; color: var(--accent-orange); font-size: 13px;">TRACK ></span>
+    <span style="font-weight: 700; color: var(--accent-primary); font-size: 13px;">TRACK ></span>
   </div>
 
-  <div id="floating-lounge-banner" class="floating-status-banner green" style="display: none; bottom: 85px;" onclick="app.showPage('wallet')">
+  <div id="floating-lounge-banner" class="floating-status-banner" style="display: none; bottom: 85px;" onclick="app.showPage('wallet')">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 10px; height: 10px; border-radius: 50%; background: #42a5f5; box-shadow: 0 0 10px #42a5f5; animation: pulse 1.5s infinite;"></div>
-      <span style="font-family: var(--font-display); font-weight: 700; font-size: 15px;">Your Lounges • Pass: <span id="floating-lounge-status">Pending</span></span>
+      <div style="width: 10px; height: 10px; border-radius: 50%; background: #3B82F6; box-shadow: 0 0 10px #3B82F6; animation: pulseGlow 1.5s infinite;"></div>
+      <span style="font-family: var(--font-display); font-weight: 700; font-size: 14px;">Your Lounges • Pass: <span id="floating-lounge-status">Pending</span></span>
     </div>
-    <span style="font-weight: 700; color: var(--accent-orange); font-size: 13px;">VIEW PASS ></span>
+    <span style="font-weight: 700; color: var(--accent-primary); font-size: 13px;">VIEW PASS ></span>
   </div>
 
   <!-- MODALS OVERLAYS SYSTEM -->
+
+  <!-- Modal 0: Global Command Palette Spotlight Search -->
+  <div id="modal-command-palette" class="modal-overlay" onclick="if(event.target===this) app.closeModal('command-palette')">
+    <div class="modal-content" style="max-width: 600px; padding: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; background: var(--glass-bg-hover); padding: 10px 14px; border-radius: var(--radius-md); border: var(--glass-border-focus);">
+        <span style="font-size: 18px;">🔍</span>
+        <input type="text" id="command-palette-input" placeholder="Type a command or jump to page..." style="border: none; background: transparent; height: 32px; font-size: 15px;" oninput="app.filterCommandPalette(this.value)">
+        <kbd class="top-bar-kbd">ESC</kbd>
+      </div>
+
+      <div id="command-palette-results" style="display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto;">
+        <!-- Results rendered dynamically in app.js -->
+      </div>
+    </div>
+  </div>
   
   <!-- Modal 1: Profile & Edit Details -->
-  <div id="modal-profile" class="modal-overlay">
-    <div class="modal-content glass-card">
+  <div id="modal-profile" class="modal-overlay" onclick="if(event.target===this) app.closeModal('profile')">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>User Profile Management</h3>
         <button class="close-modal" onclick="app.closeModal('profile')">&times;</button>
@@ -714,7 +722,7 @@
         </div>
         <div class="form-group">
           <label>Passenger Email</label>
-          <input type="email" id="profile-email" readonly style="background: rgba(255,255,255,0.02);">
+          <input type="email" id="profile-email" readonly style="opacity:0.7;">
         </div>
         <button class="btn-primary" style="margin-bottom: 12px;" onclick="app.submitProfileUpdate()">SAVE CHANGES</button>
         <button class="btn-danger" onclick="app.logoutUser()">LOG OUT OF ACCOUNT</button>
@@ -727,8 +735,8 @@
   </div>
 
   <!-- Modal 2: Vendor Login overlay -->
-  <div id="modal-vendor-login" class="modal-overlay">
-    <div class="modal-content glass-card">
+  <div id="modal-vendor-login" class="modal-overlay" onclick="if(event.target===this) app.closeModal('vendor-login')">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>Vendor Login Portal</h3>
         <button class="close-modal" onclick="app.closeModal('vendor-login')">&times;</button>
@@ -753,15 +761,15 @@
   </div>
 
   <!-- Modal 3: Lounge Booking dialog -->
-  <div id="modal-lounge-booking" class="modal-overlay">
-    <div class="modal-content glass-card">
+  <div id="modal-lounge-booking" class="modal-overlay" onclick="if(event.target===this) app.closeModal('lounge-booking')">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>Book Lounge Slot</h3>
         <button class="close-modal" onclick="app.closeModal('lounge-booking')">&times;</button>
       </div>
       <div class="form-group">
         <label>Lounge Target Name</label>
-        <input type="text" id="booking-lounge-name" readonly style="background: rgba(255,255,255,0.02);">
+        <input type="text" id="booking-lounge-name" readonly style="opacity:0.7;">
       </div>
       <div class="form-group">
         <label>Select Reservation Date</label>
@@ -774,24 +782,24 @@
       <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <span style="font-weight: 600; font-size: 14px;">Select Guests (Slots)</span>
         <div style="display: flex; align-items: center; gap: 12px;">
-          <button class="qty-btn" onclick="app.updateBookingGuests(-1)">-</button>
+          <button class="btn-secondary" style="width:32px; height:32px; padding:0;" onclick="app.updateBookingGuests(-1)">-</button>
           <span id="booking-guests-label" style="font-family: var(--font-display); font-weight:700;">1</span>
-          <button class="qty-btn" onclick="app.updateBookingGuests(1)">+</button>
+          <button class="btn-secondary" style="width:32px; height:32px; padding:0;" onclick="app.updateBookingGuests(1)">+</button>
         </div>
       </div>
-      <div class="cart-summary" style="margin-top: 16px;">
-        <div class="summary-row total">
+      <div style="background:var(--glass-bg-hover); padding:16px; border-radius:var(--radius-md); margin-top: 16px;">
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; color:var(--accent-primary);">
           <span>Amount Total</span>
           <span id="booking-total-price">₹1,200.00</span>
         </div>
       </div>
-      <button class="btn-primary" onclick="app.submitLoungeBooking()">CONFIRM BOOKING PASS</button>
+      <button class="btn-primary" style="margin-top:20px;" onclick="app.submitLoungeBooking()">CONFIRM BOOKING PASS</button>
     </div>
   </div>
 
   <!-- Modal 4: Add/Edit Product catalog -->
-  <div id="modal-add-product" class="modal-overlay">
-    <div class="modal-content glass-card">
+  <div id="modal-add-product" class="modal-overlay" onclick="if(event.target===this) app.closeModal('add-product')">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>Add Menu Catalog Item</h3>
         <button class="close-modal" onclick="app.closeModal('add-product')">&times;</button>
@@ -822,44 +830,44 @@
   </div>
 
   <!-- Modal 5: Live Order Tracker Dialog -->
-  <div id="modal-order-tracker" class="modal-overlay">
-    <div class="modal-content glass-card" style="max-width: 500px;">
+  <div id="modal-order-tracker" class="modal-overlay" onclick="if(event.target===this) app.closeModal('order-tracker')">
+    <div class="modal-content" style="max-width: 520px;">
       <div class="modal-header">
         <h3 id="tracker-restaurant-title">Restaurant Track Board</h3>
         <button class="close-modal" onclick="app.closeModal('order-tracker')">&times;</button>
       </div>
       
-      <div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;">
+      <div style="background: var(--glass-bg-hover); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; font-weight: 700; font-family: var(--font-display);">
           <span id="tracker-order-id">Order #ID</span>
-          <span id="tracker-order-location" style="color: var(--accent-orange);">T1 Gate 14</span>
+          <span id="tracker-order-location" style="color: var(--accent-primary);">T1 Gate 14</span>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
           <span id="tracker-order-est">Est. Time: 15-20 mins</span>
-          <span id="tracker-order-total" style="color: #66bb6a; font-weight: 600;">Total: ₹0</span>
+          <span id="tracker-order-total" style="color: var(--status-accepted-text); font-weight: 600;">Total: ₹0</span>
         </div>
-        <div id="tracker-order-items" style="color: var(--text-secondary); font-size: 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+        <div id="tracker-order-items" style="color: var(--text-secondary); font-size: 14px; margin-top: 8px; border-top: var(--glass-border); padding-top: 8px;">
           <!-- Items Summary -->
         </div>
       </div>
 
-      <div class="stepper" id="tracker-stepper">
+      <div class="stepper" id="tracker-stepper" style="display:flex; flex-direction:column; gap:14px;">
         <!-- Steps rendered in app.js -->
       </div>
     </div>
   </div>
 
   <!-- Modal 6: Admin Panel Console -->
-  <div id="modal-admin-panel" class="modal-overlay">
-    <div class="modal-content glass-card" style="max-width: 520px; overflow-y: auto; max-height: 90vh;">
+  <div id="modal-admin-panel" class="modal-overlay" onclick="if(event.target===this) app.closeModal('admin-panel')">
+    <div class="modal-content" style="max-width: 540px; overflow-y: auto; max-height: 90vh;">
       <div class="modal-header">
-        <h3 style="color:#FFA726;">AeroAssist AI Administrator</h3>
+        <h3 style="color:var(--status-pending-text);">AeroAssist AI Administrator</h3>
         <button class="close-modal" onclick="app.closeModal('admin-panel')">&times;</button>
       </div>
       
       <!-- Section A: Register Vendor -->
-      <div class="glass-card" style="margin-bottom: 20px; background: rgba(255,255,255,0.01); padding:16px;">
-        <h4 style="margin-bottom: 12px;">Create Vendor Account</h4>
+      <div class="glass-card" style="margin-bottom: 20px; padding:18px;">
+        <h4 style="margin-bottom: 14px;">Create Vendor Account</h4>
         <div class="form-group">
           <label>Business Name</label>
           <input type="text" id="admin-reg-name" placeholder="e.g. KFC Express">
@@ -879,7 +887,7 @@
             <option value="lounge">Premium Lounge Pass</option>
           </select>
         </div>
-        <div class="form-group" style="display: flex; gap: 10px;">
+        <div class="form-group" style="display: flex; gap: 12px;">
           <div style="flex: 1.2;">
             <label>Terminal Location</label>
             <select id="admin-reg-terminal">
@@ -897,11 +905,11 @@
       </div>
 
       <!-- Divider -->
-      <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+      <div style="border-top: var(--glass-border); margin-bottom: 20px;"></div>
 
       <!-- Section B: Delete Vendor -->
-      <div class="glass-card" style="background: rgba(255,255,255,0.01); padding:16px;">
-        <h4 style="color: #FF8A80; margin-bottom: 12px;">Remove Vendor Account</h4>
+      <div class="glass-card" style="padding:18px;">
+        <h4 style="color: var(--status-cancelled-text); margin-bottom: 14px;">Remove Vendor Account</h4>
         <div class="form-group">
           <label>Vendor Email to Remove</label>
           <input type="email" id="admin-del-email" placeholder="e.g. kfc@airport.com">
@@ -913,38 +921,38 @@
   </div>
 
   <!-- Modal: Official AeroAssist AI Mobile App Download Poster / Flyer -->
-  <div id="modal-app-flyer" class="modal-overlay">
-    <div class="modal-content glass-card" style="max-width: 600px; padding: 0; overflow: hidden; border-color: rgba(0, 229, 255, 0.4); background: linear-gradient(180deg, #091328 0%, #030712 100%);">
-      <div style="background: linear-gradient(135deg, #00E5FF, #1A237E); padding: 28px; text-align: center; position: relative;">
+  <div id="modal-app-flyer" class="modal-overlay" onclick="if(event.target===this) app.closeModal('app-flyer')">
+    <div class="modal-content" style="max-width: 620px; padding: 0; overflow: hidden; border-color: rgba(59, 130, 246, 0.4);">
+      <div style="background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 32px; text-align: center; position: relative;">
         <button class="close-modal" onclick="app.closeModal('app-flyer')" style="position: absolute; top: 16px; right: 20px; color: #fff;">&times;</button>
-        <span class="status-badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; margin-bottom: 8px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</span>
-        <h2 style="font-size: 26px; color: #fff; margin-bottom: 6px;" data-i18n="flyer_title">Download AeroAssist AI Official App</h2>
-        <p style="font-size: 13px; color: rgba(255,255,255,0.85);" data-i18n="flyer_sub">Unlock exclusive mobile-only features for an effortless airport journey.</p>
+        <span class="status-badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; margin-bottom: 10px;" data-i18n="flyer_badge">OFFICIAL MOBILE APP</span>
+        <h2 style="font-size: 26px; color: #fff; margin-bottom: 8px;" data-i18n="flyer_title">Download AeroAssist AI Official App</h2>
+        <p style="font-size: 14px; color: rgba(255,255,255,0.9);" data-i18n="flyer_sub">Unlock exclusive mobile-only features for an effortless airport journey.</p>
       </div>
 
-      <div style="padding: 24px;">
+      <div style="padding: 28px;">
         <!-- Poster Grid Showcase -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
           
-          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+          <div style="background: var(--glass-bg-hover); border: var(--glass-border); border-radius: var(--radius-md); padding: 18px;">
             <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
             <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f1">Real-time Push Alerts</h4>
             <p style="font-size: 12px; color: var(--text-secondary);">Gate changes, flight delays, & baggage alerts.</p>
           </div>
 
-          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+          <div style="background: var(--glass-bg-hover); border: var(--glass-border); border-radius: var(--radius-md); padding: 18px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🍔</div>
             <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f2">In-Seat Lounge Dining</h4>
             <p style="font-size: 12px; color: var(--text-secondary);">Order food directly to your gate seat.</p>
           </div>
 
-          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+          <div style="background: var(--glass-bg-hover); border: var(--glass-border); border-radius: var(--radius-md); padding: 18px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
             <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f3">3D AR Terminal Maps</h4>
             <p style="font-size: 12px; color: var(--text-secondary);">Interactive indoor navigation & gate maps.</p>
           </div>
 
-          <div style="background: rgba(255,255,255,0.03); border: var(--glass-border); border-radius: 14px; padding: 16px;">
+          <div style="background: var(--glass-bg-hover); border: var(--glass-border); border-radius: var(--radius-md); padding: 18px;">
             <div style="font-size: 24px; margin-bottom: 8px;">💳</div>
             <h4 style="font-size: 14px; margin-bottom: 4px;" data-i18n="flyer_f4">Offline Document Wallet</h4>
             <p style="font-size: 12px; color: var(--text-secondary);">Store passport & boarding passes safely.</p>
@@ -952,20 +960,19 @@
         </div>
 
         <!-- Interactive QR Code Poster Banner -->
-        <div style="background: rgba(0, 229, 255, 0.05); border: 1px dashed rgba(0, 229, 255, 0.3); border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="background: var(--glass-bg-hover); border: 1px dashed var(--accent-primary); border-radius: var(--radius-lg); padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
           <div style="display: flex; align-items: center; gap: 16px;">
-            <!-- Generated Stylized QR Code SVG -->
-            <div style="width: 80px; height: 80px; background: #fff; padding: 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-              <svg width="68" height="68" viewBox="0 0 100 100" fill="#060E1F">
+            <div style="width: 80px; height: 80px; background: #fff; padding: 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+              <svg width="68" height="68" viewBox="0 0 100 100" fill="#020617">
                 <rect x="0" y="0" width="30" height="30" rx="4"/>
                 <rect x="5" y="5" width="20" height="20" fill="#fff"/>
-                <rect x="9" y="9" width="12" height="12" fill="#060E1F"/>
+                <rect x="9" y="9" width="12" height="12" fill="#020617"/>
                 <rect x="70" y="0" width="30" height="30" rx="4"/>
                 <rect x="75" y="5" width="20" height="20" fill="#fff"/>
-                <rect x="79" y="9" width="12" height="12" fill="#060E1F"/>
+                <rect x="79" y="9" width="12" height="12" fill="#020617"/>
                 <rect x="0" y="70" width="30" height="30" rx="4"/>
                 <rect x="5" y="75" width="20" height="20" fill="#fff"/>
-                <rect x="9" y="79" width="12" height="12" fill="#060E1F"/>
+                <rect x="9" y="79" width="12" height="12" fill="#020617"/>
                 <rect x="40" y="10" width="10" height="10"/>
                 <rect x="50" y="30" width="10" height="10"/>
                 <rect x="30" y="50" width="10" height="10"/>
@@ -980,7 +987,7 @@
             </div>
           </div>
           
-          <a href="https://github.com/Santhoshbabu009/AeroAssistAI" target="_blank" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 13px; text-decoration: none;" data-i18n="btn_download_apk">
+          <a href="https://github.com/Santhoshbabu009/AeroAssistAI" target="_blank" class="btn-primary" style="width: auto; padding: 0 20px; height: 42px; font-size: 13px; text-decoration: none;" data-i18n="btn_download_apk">
             Direct APK Download 📥
           </a>
         </div>

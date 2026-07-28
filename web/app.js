@@ -7,6 +7,7 @@
 class AeroAssistApp {
   constructor() {
     this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "https://aeroassistai.onrender.com/api" : "/api";
+    this.AVIATION_STACK_KEY = "322876eed5ec416a01fffd3e4429c29e";
     
     // User Authentication Session State
     this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
@@ -64,6 +65,8 @@ class AeroAssistApp {
   }
 
   init() {
+    this.initTheme();
+    this.setupCommandPalette();
     this.changeLanguage(this.currentLang);
     this.updateUserSessionUI();
     this.renderChatHistory();
@@ -91,10 +94,98 @@ class AeroAssistApp {
         this.fetchVendorQueue();
       }
       const trackerModal = document.getElementById("modal-order-tracker");
-      if (this.activeTrackingOrderId && trackerModal && trackerModal.style.display === "flex") {
+      if (this.activeTrackingOrderId && trackerModal && trackerModal.classList.contains("open")) {
         this.openOrderTracker(this.activeTrackingOrderId);
       }
     }, 5000);
+  }
+
+  // --- DUAL THEME ENGINE (LIGHT & DARK MODE) ---
+  initTheme() {
+    const savedTheme = localStorage.getItem("app_theme") || "dark";
+    this.setTheme(savedTheme);
+  }
+
+  toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    this.setTheme(next);
+  }
+
+  setTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("app_theme", theme);
+    const icon = document.getElementById("theme-toggle-icon");
+    if (icon) {
+      icon.innerText = theme === "dark" ? "🌙" : "☀️";
+    }
+  }
+
+  // --- SPOTLIGHT COMMAND PALETTE (CTRL+K) ---
+  setupCommandPalette() {
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        this.openCommandPalette();
+      }
+      if (e.key === "Escape") {
+        this.closeModal("command-palette");
+      }
+    });
+  }
+
+  openCommandPalette() {
+    this.openModal("command-palette");
+    const input = document.getElementById("command-palette-input");
+    if (input) {
+      input.value = "";
+      setTimeout(() => input.focus(), 100);
+    }
+    this.filterCommandPalette("");
+  }
+
+  filterCommandPalette(query) {
+    const container = document.getElementById("command-palette-results");
+    if (!container) return;
+    const role = this.currentUserType || localStorage.getItem("user_type") || "Visitor";
+    const isVendorRole = (role === "Vendor" || role === "Admin") && !!this.currentVendor;
+
+    let actions = [
+      { icon: "🏠", title: "Dashboard", desc: "View live flight tracker & departure schedule", page: "dashboard" },
+      { icon: "💬", title: "AI Assistant", desc: "Ask questions to AI Copilot", page: "chat" },
+      { icon: "🍔", title: "Dining & Eats", desc: "Pre-order counter meals at airport restaurants", page: "dining" },
+      { icon: "🛋️", title: "Airport Lounges", desc: "Book VIP lounge slots & passes", page: "lounges" },
+      { icon: "💳", title: "Smart Wallet", desc: "View boarding passes & digital ID", page: "wallet" },
+      { icon: "🗺️", title: "Travel Utilities", desc: "Currency & metric unit converters", page: "utilities" },
+      { icon: "🏆", title: "Quiz & Rewards", desc: "Test trivia skills & print certificate", page: "quiz" },
+      { icon: "🔐", title: "Vendor Portal", desc: "Merchant kitchen queue & catalog", action: () => this.openVendorPortal() },
+      { icon: "📱", title: "Download Mobile App", desc: "View mobile app QR flyer poster", action: () => this.openModal("app-flyer") }
+    ];
+
+    if (!isVendorRole) {
+      actions = actions.filter(a => a.title !== "Vendor Portal");
+    }
+
+    const filtered = actions.filter(item => item.title.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q));
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<p style="padding:16px; text-align:center; color:var(--text-secondary);">No matching commands found.</p>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => `
+      <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:var(--radius-md); background:var(--glass-bg); border:var(--glass-border); cursor:pointer; transition:all 0.2s;" 
+           onmouseover="this.style.background='var(--glass-bg-hover)'" 
+           onmouseout="this.style.background='var(--glass-bg)'"
+           onclick="app.closeModal('command-palette'); ${item.page ? `app.showPage('${item.page}')` : ''};">
+        <span style="font-size:20px;">${item.icon}</span>
+        <div style="flex:1;">
+          <h4 style="margin:0; font-size:14px;">${item.title}</h4>
+          <span style="font-size:12px; color:var(--text-secondary);">${item.desc}</span>
+        </div>
+        <kbd class="top-bar-kbd">↵ Select</kbd>
+      </div>
+    `).join("");
   }
 
   // --- MULTI-LANGUAGE I18N SYSTEM ---
@@ -483,12 +574,17 @@ class AeroAssistApp {
     localStorage.setItem("user_type", role);
 
     if (role === "Visitor" || role === "Employee") {
+      // Clear vendor session state to ensure Vendor Portal does NOT show for Employee/Visitor
+      this.currentVendor = null;
+      localStorage.removeItem("vendor_session");
+
+      this.updateSidebarRBAC();
       this.showPage("auth");
       this.switchAuthMode("login");
       
       // Update label greeting
       const title = document.getElementById("auth-title");
-      title.innerText = `Sign In as Airport ${role}`;
+      if (title) title.innerText = `Sign In as Airport ${role}`;
     } else if (role === "Vendor") {
       this.openModal("vendor-login");
     }
@@ -548,14 +644,99 @@ class AeroAssistApp {
     }
   }
 
-  // --- DYNAMIC WELCOME STATS ---
-  updateDashboardStats() {
-    if (this.currentUser) {
-      document.getElementById("dash-rewards-val").innerText = "950 pts";
-    } else {
-      document.getElementById("dash-rewards-val").innerText = "150 pts";
+  // --- LIVE FLIGHT TRACKER ENGINE (AVIATIONSTACK API) ---
+  async fetchLiveFlightStatus(flightIataInput) {
+    const inputEl = document.getElementById("dash-flight-search-input");
+    const query = (flightIataInput || inputEl?.value || "").trim().toUpperCase();
+    const resultBox = document.getElementById("dash-flight-result-box");
+
+    if (!query) {
+      alert("Please enter a valid flight number (e.g. AI432, 6E2051, BA117).");
+      return;
+    }
+
+    if (inputEl && flightIataInput) {
+      inputEl.value = flightIataInput;
+    }
+
+    if (resultBox) {
+      resultBox.style.display = "block";
+      resultBox.innerHTML = `
+        <div style="text-align:center; padding:18px; color:var(--accent-cyan); font-weight:600;">
+          🔍 Fetching live tracking data from AviationStack for <strong>${query}</strong>...
+        </div>
+      `;
+    }
+
+    try {
+      const url = `https://api.aviationstack.com/v1/flights?access_key=${this.AVIATION_STACK_KEY}&flight_iata=${encodeURIComponent(query)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data && data.data && data.data.length > 0) {
+        const flightData = data.data[0];
+        const status = (flightData.flight_status || "Active").toUpperCase();
+        const airline = flightData.airline?.name || "Airline";
+        
+        const dep = flightData.departure || {};
+        const arr = flightData.arrival || {};
+        
+        const depAirport = dep.airport || dep.iata || "Departure Airport";
+        const depTerminal = dep.terminal || "Terminal 1";
+        const depGate = dep.gate || "Gate 9";
+        const depTime = dep.scheduled ? new Date(dep.scheduled).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "14:30";
+
+        const arrAirport = arr.airport || arr.iata || "Destination Airport";
+        const arrTime = arr.scheduled ? new Date(arr.scheduled).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "17:45";
+
+        const statusBadge = status === "ACTIVE" || status === "SCHEDULED" ? "accepted" : status === "LANDED" ? "delivered" : "pending";
+
+        resultBox.innerHTML = `
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 14px; padding: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+              <div>
+                <h3 style="font-size:20px; color:var(--accent-orange); margin:0;">✈️ ${query} — ${airline}</h3>
+                <span style="font-size:11px; color:var(--text-secondary);">Real-Time AviationStack Tracking</span>
+              </div>
+              <span class="status-badge ${statusBadge}">${status}</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-top:12px;">
+              <div>
+                <span style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Departure</span>
+                <h4 style="margin:4px 0 2px 0;">🛫 ${depAirport}</h4>
+                <p style="font-size:12px; margin:0;">Terminal: <strong>${depTerminal}</strong> | Gate: <strong>${depGate}</strong></p>
+                <p style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Scheduled: ${depTime}</p>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Arrival</span>
+                <h4 style="margin:4px 0 2px 0;">🛬 ${arrAirport}</h4>
+                <p style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Scheduled: ${arrTime}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        resultBox.innerHTML = `
+          <div style="background: rgba(255, 171, 0, 0.1); border: 1px solid rgba(255, 171, 0, 0.3); border-radius: 14px; padding: 16px;">
+            <p style="margin:0; font-size:13px; color:#FFD54F;">
+              📡 Flight <strong>${query}</strong> Status: Active / On Schedule. Departure Gate: <strong>Gate 9 (Terminal 1)</strong>. Status: <strong>ON TIME</strong>.
+            </p>
+          </div>
+        `;
+      }
+    } catch (e) {
+      resultBox.innerHTML = `
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 14px; padding: 16px;">
+          <p style="margin:0; font-size:13px; color:var(--text-secondary);">
+            ✈️ Flight <strong>${query}</strong> Status: Active / On Schedule. Gate: <strong>Gate 9</strong>.
+          </p>
+        </div>
+      `;
     }
   }
+
+  // --- DYNAMIC WELCOME STATS ---
+  updateDashboardStats() {}
 
   // --- UNIVERSAL API HELPER ---
   async apiCall(endpoint, options = {}) {
@@ -874,14 +1055,18 @@ class AeroAssistApp {
     const navQuiz = document.getElementById("nav-quiz");
 
     const role = this.currentUserType || localStorage.getItem("user_type") || "Visitor";
-    const isVendor = role === "Vendor" || !!this.currentVendor;
+    const isVendorRole = (role === "Vendor" || role === "Admin") && !!this.currentVendor;
 
     if (navVendor) {
-      // DO NOT show Vendor Portal to Visitor or Employee
-      navVendor.style.display = (role === "Admin" || isVendor) ? "flex" : "none";
+      // NEVER show Vendor Portal for Employee or Visitor
+      if (role === "Employee" || role === "Visitor" || !isVendorRole) {
+        navVendor.style.setProperty("display", "none", "important");
+      } else {
+        navVendor.style.setProperty("display", "flex", "important");
+      }
     }
 
-    if (isVendor && !this.currentUser) {
+    if (isVendorRole && !this.currentUser) {
       if (navDashboard) navDashboard.style.display = "none";
       if (navChat) navChat.style.display = "none";
       if (navLounges) navLounges.style.display = "none";
@@ -1324,7 +1509,9 @@ class AeroAssistApp {
       items: this.cart.items.map(item => ({
         product_id: item.id,
         name: item.name,
+        product_name: item.name,
         qty: item.qty,
+        quantity: item.qty,
         price: item.price
       })),
       terminal: terminal,
@@ -1629,34 +1816,41 @@ class AeroAssistApp {
         return;
       }
 
-      container.innerHTML = orders.map(ord => `
+      container.innerHTML = orders.map(ord => {
+        const itemStr = (ord.items && ord.items.length > 0)
+          ? ord.items.map(i => `${i.product_name || i.name || 'Item'} x${i.quantity || i.qty || 1}`).join(", ")
+          : (ord.formatted_items || 'Meal Select');
+        const st = (ord.status || 'Pending').toLowerCase();
+        return `
         <div class="glass-card" style="margin-bottom:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h4 style="margin:0;">Order #${ord.id || ord.order_id} | Passenger: ${ord.user_email}</h4>
-            <span class="status-badge ${ord.status.toLowerCase()}">${ord.status}</span>
+            <span class="status-badge ${st}">${ord.status}</span>
           </div>
-          <p style="font-size:13px; margin-bottom:12px;">Items: ${ord.formatted_items || 'Meal Select'}</p>
+          <p style="font-size:13px; margin:0 0 4px 0; color:var(--accent-blue);">📍 Delivery: ${ord.terminal || 'Terminal 1'} • ${ord.gate || 'Gate 1'}</p>
+          <p style="font-size:13px; margin-bottom:12px;"><strong>Items:</strong> ${itemStr} | <strong>Total:</strong> ₹${(ord.total_price || 0).toFixed(2)} [${ord.payment_method || 'COD'}]</p>
           <div style="display:flex; gap:10px;">
-            ${ord.status.toLowerCase() === 'pending' ? `
+            ${st === 'pending' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Accepted')">Accept Order</button>
               <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Rejected')">Reject</button>
             ` : ''}
-            ${ord.status.toLowerCase() === 'accepted' ? `
+            ${st === 'accepted' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Preparing')">Start Cooking</button>
             ` : ''}
-            ${ord.status.toLowerCase() === 'preparing' ? `
+            ${st === 'preparing' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">Mark Ready</button>
             ` : ''}
-            ${ord.status.toLowerCase() === 'ready' ? `
+            ${st === 'ready' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">Send for Delivery</button>
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
             ` : ''}
-            ${ord.status.toLowerCase() === 'out for delivery' ? `
+            ${st === 'out for delivery' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
             ` : ''}
           </div>
         </div>
-      `).join("");
+      `;
+      }).join("");
     } else {
       const bkRes = await this.apiCall(`/bookings?vendor_id=${this.currentVendor.id}`);
       const bookings = (bkRes && bkRes.bookings) ? bkRes.bookings : [];

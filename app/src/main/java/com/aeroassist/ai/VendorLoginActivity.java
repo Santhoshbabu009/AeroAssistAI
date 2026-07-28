@@ -93,6 +93,7 @@ public class VendorLoginActivity extends AppCompatActivity {
                         JSONObject resJson = new JSONObject(res);
                         String status = resJson.optString("status");
                         if ("success".equals(status)) {
+                            String token = resJson.optString("token", "");
                             JSONObject vendorJson = resJson.getJSONObject("vendor");
                             long vendorId = vendorJson.getLong("id");
                             String name = vendorJson.getString("name");
@@ -109,6 +110,7 @@ public class VendorLoginActivity extends AppCompatActivity {
                                 editor.putString("type", type);
                                 editor.putString("terminal", terminal);
                                 editor.putString("gate", gate);
+                                editor.putString("token", token);
                                 editor.apply();
 
                                 Toast.makeText(VendorLoginActivity.this, "Vendor Authentication Success", Toast.LENGTH_SHORT).show();

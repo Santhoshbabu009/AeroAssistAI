@@ -40,7 +40,7 @@ public class VendorDashboardActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     private long vendorId;
-    private String email, name, type, terminal, gate;
+    private String email, name, type, terminal, gate, token;
     private OkHttpClient client;
     private Handler handler;
     private Runnable refreshRunnable;
@@ -64,6 +64,7 @@ public class VendorDashboardActivity extends AppCompatActivity {
         type = prefs.getString("type", "restaurant");
         terminal = prefs.getString("terminal", "T1");
         gate = prefs.getString("gate", "Gate 1");
+        token = prefs.getString("token", "");
 
         if (vendorId == -1) {
             startActivity(new Intent(this, UserTypeSelectionActivity.class));
@@ -134,6 +135,14 @@ public class VendorDashboardActivity extends AppCompatActivity {
         handler.removeCallbacks(refreshRunnable);
     }
 
+    private Request.Builder getRequestBuilder(String url) {
+        Request.Builder builder = new Request.Builder().url(url);
+        if (token != null && !token.isEmpty()) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+        return builder;
+    }
+
     private void fetchVendorData() {
         String url;
         if ("restaurant".equals(type)) {
@@ -142,7 +151,7 @@ public class VendorDashboardActivity extends AppCompatActivity {
             url = Constants.BACKEND_BASE_URL + "/api/vendors/bookings?vendor_id=" + vendorId;
         }
 
-        Request request = new Request.Builder().url(url).build();
+        Request request = getRequestBuilder(url).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {}
@@ -187,7 +196,7 @@ public class VendorDashboardActivity extends AppCompatActivity {
             RequestBody body = RequestBody.create(
                     json.toString(), MediaType.get("application/json; charset=utf-8"));
 
-            Request request = new Request.Builder().url(url).post(body).build();
+            Request request = getRequestBuilder(url).post(body).build();
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {}
@@ -216,7 +225,7 @@ public class VendorDashboardActivity extends AppCompatActivity {
             RequestBody body = RequestBody.create(
                     json.toString(), MediaType.get("application/json; charset=utf-8"));
 
-            Request request = new Request.Builder().url(url).post(body).build();
+            Request request = getRequestBuilder(url).post(body).build();
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {}
