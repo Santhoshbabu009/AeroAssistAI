@@ -2,7 +2,7 @@ package com.aeroassist.ai;
 
 public class Constants {
     // Backend API
-    public static final String BACKEND_BASE_URL = "https://web-production-6e916.up.railway.app";
+    public static final String BACKEND_BASE_URL = "https://aeroassistai.onrender.com";
     public static final String API_V1_BASE = BACKEND_BASE_URL + "/api";
     
     // API Keys
