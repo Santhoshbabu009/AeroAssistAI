@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-public class ProfileEditActivity extends AppCompatActivity {
+public class ProfileEditActivity extends BaseActivity {
 
     private static final int PICK_IMAGE = 100;
     private ImageView profileImage;

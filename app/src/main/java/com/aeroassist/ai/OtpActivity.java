@@ -17,7 +17,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 
-public class OtpActivity extends AppCompatActivity {
+public class OtpActivity extends BaseActivity {
 
     private EditText otp1, otp2, otp3, otp4;
     private Button verifyButton;

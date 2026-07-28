@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AchievementsActivity extends AppCompatActivity {
+public class AchievementsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +27,9 @@ public class AchievementsActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         List<Achievement> list = new ArrayList<>();
-        list.add(new Achievement("Frequent Flyer", "Completed 10 flights", "🏆"));
-        list.add(new Achievement("Airport Explorer", "Visited 5 different airports", "🌍"));
-        list.add(new Achievement("Early Bird", "Checked in 24h before flight", "🐦"));
+        list.add(new Achievement("Frequent Flyer", "Completed 10 flights", "ðŸ†"));
+        list.add(new Achievement("Airport Explorer", "Visited 5 different airports", "ðŸŒ"));
+        list.add(new Achievement("Early Bird", "Checked in 24h before flight", "ðŸ¦"));
 
         rv.setAdapter(new AchievementAdapter(list));
     }

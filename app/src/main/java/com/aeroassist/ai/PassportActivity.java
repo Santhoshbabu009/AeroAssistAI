@@ -19,7 +19,7 @@ import androidx.cardview.widget.CardView;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-public class PassportActivity extends AppCompatActivity {
+public class PassportActivity extends BaseActivity {
 
     private static final int PICK_IMAGE = 200;
     private ImageView passportPreview;

@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-public class ServicesActivity extends AppCompatActivity {
+public class ServicesActivity extends BaseActivity {
 
     private String email;
 

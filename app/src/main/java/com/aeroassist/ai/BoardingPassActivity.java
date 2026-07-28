@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 
-public class BoardingPassActivity extends AppCompatActivity {
+public class BoardingPassActivity extends BaseActivity {
 
     private TextView tvPassengerName, tvClass, tvFromCity, tvFromCode, tvToCity, tvToCode, tvFlightNumber, tvGate, tvSeat;
     private ImageView imgQRCode, btnEditTicket;

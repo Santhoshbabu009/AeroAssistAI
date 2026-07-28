@@ -12,4 +12,10 @@ public class BaseActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleHelper.setLocale(newBase));
     }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AeroAssistApplication.resetInactivityTimer();
+    }
 }

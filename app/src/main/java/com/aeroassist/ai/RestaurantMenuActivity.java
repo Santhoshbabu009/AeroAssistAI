@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestaurantMenuActivity extends AppCompatActivity {
+public class RestaurantMenuActivity extends BaseActivity {
 
     private ImageView backBtn;
     private TextView restaurantNameText;
@@ -136,7 +136,7 @@ public class RestaurantMenuActivity extends AppCompatActivity {
         if (count > 0) {
             cartContainer.setVisibility(View.VISIBLE);
             cartCountText.setText(count + (count == 1 ? " Item Added" : " Items Added"));
-            cartTotalText.setText("₹" + String.format("%.2f", CartHelper.getCartTotal()));
+            cartTotalText.setText("â‚¹" + String.format("%.2f", CartHelper.getCartTotal()));
         } else {
             cartContainer.setVisibility(View.GONE);
         }
@@ -166,7 +166,7 @@ public class RestaurantMenuActivity extends AppCompatActivity {
 
             holder.nameText.setText(name);
             holder.descText.setText(desc);
-            holder.priceText.setText("₹" + String.format("%.2f", price));
+            holder.priceText.setText("â‚¹" + String.format("%.2f", price));
 
             Glide.with(holder.itemView.getContext())
                     .load(imgUrl)

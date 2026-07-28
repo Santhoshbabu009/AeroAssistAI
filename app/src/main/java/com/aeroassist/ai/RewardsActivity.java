@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
-public class RewardsActivity extends AppCompatActivity {
+public class RewardsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

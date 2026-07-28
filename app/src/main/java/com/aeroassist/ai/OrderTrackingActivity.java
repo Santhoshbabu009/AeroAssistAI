@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class OrderTrackingActivity extends AppCompatActivity {
+public class OrderTrackingActivity extends BaseActivity {
 
     private ImageView backBtn;
     private TextView restaurantNameText, orderInfoText, itemsSummaryText;
@@ -163,7 +163,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
 
                             runOnUiThread(() -> {
                                 restaurantNameText.setText(vendorName);
-                                orderInfoText.setText("Order #" + orderId + " • " + term + " " + gate + " • " + paymentMethod);
+                                orderInfoText.setText("Order #" + orderId + " â€¢ " + term + " " + gate + " â€¢ " + paymentMethod);
                                 itemsSummaryText.setText(itemsSb.toString());
                                 updateStepperUI(status);
                             });

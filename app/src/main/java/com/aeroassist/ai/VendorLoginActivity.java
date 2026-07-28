@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class VendorLoginActivity extends AppCompatActivity {
+public class VendorLoginActivity extends BaseActivity {
 
     private EditText emailEditText, passwordEditText;
     private AppCompatButton loginButton;

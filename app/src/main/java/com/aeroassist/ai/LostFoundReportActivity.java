@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class LostFoundReportActivity extends AppCompatActivity {
+public class LostFoundReportActivity extends BaseActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 101;
 
@@ -119,7 +119,7 @@ public class LostFoundReportActivity extends AppCompatActivity {
         try {
             JSONObject json = new JSONObject();
             json.put("name", name);
-            json.put("description", desc + " • " + location);
+            json.put("description", desc + " â€¢ " + location);
             json.put("location", location);
             json.put("contact", contact);
             json.put("type", type);
@@ -163,15 +163,15 @@ public class LostFoundReportActivity extends AppCompatActivity {
 
     private String getEmojiForName(String name) {
         String n = name.toLowerCase();
-        if (n.contains("phone") || n.contains("mobile") || n.contains("iphone")) return "📱";
-        if (n.contains("wallet") || n.contains("purse") || n.contains("money") || n.contains("cash")) return "👛";
-        if (n.contains("macbook") || n.contains("laptop") || n.contains("computer") || n.contains("dell") || n.contains("hp")) return "💻";
-        if (n.contains("glass") || n.contains("spectacles") || n.contains("sunglass") || n.contains("rayban")) return "👓";
-        if (n.contains("bag") || n.contains("luggage") || n.contains("suitcase") || n.contains("backpack")) return "🎒";
-        if (n.contains("key")) return "🔑";
-        if (n.contains("watch") || n.contains("smartwatch")) return "⌚";
-        if (n.contains("headphone") || n.contains("earbud") || n.contains("airpod")) return "🎧";
-        if (n.contains("book") || n.contains("novel") || n.contains("diary")) return "📖";
-        return "📦";
+        if (n.contains("phone") || n.contains("mobile") || n.contains("iphone")) return "ðŸ“±";
+        if (n.contains("wallet") || n.contains("purse") || n.contains("money") || n.contains("cash")) return "ðŸ‘›";
+        if (n.contains("macbook") || n.contains("laptop") || n.contains("computer") || n.contains("dell") || n.contains("hp")) return "ðŸ’»";
+        if (n.contains("glass") || n.contains("spectacles") || n.contains("sunglass") || n.contains("rayban")) return "ðŸ‘“";
+        if (n.contains("bag") || n.contains("luggage") || n.contains("suitcase") || n.contains("backpack")) return "ðŸŽ’";
+        if (n.contains("key")) return "ðŸ”‘";
+        if (n.contains("watch") || n.contains("smartwatch")) return "âŒš";
+        if (n.contains("headphone") || n.contains("earbud") || n.contains("airpod")) return "ðŸŽ§";
+        if (n.contains("book") || n.contains("novel") || n.contains("diary")) return "ðŸ“–";
+        return "ðŸ“¦";
     }
 }

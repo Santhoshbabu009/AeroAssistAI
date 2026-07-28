@@ -18,7 +18,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends BaseActivity {
 
     private EditText nameEditText, emailEditText, passwordEditText, mobileEditText, confirmPasswordEditText;
     private Button signUpButton;

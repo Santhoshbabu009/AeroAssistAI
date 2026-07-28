@@ -3,7 +3,7 @@ package com.aeroassist.ai;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class NotificationSettingsActivity extends AppCompatActivity {
+public class NotificationSettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

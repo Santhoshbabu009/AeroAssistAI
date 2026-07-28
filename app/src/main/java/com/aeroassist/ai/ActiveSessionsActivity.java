@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ActiveSessionsActivity extends AppCompatActivity {
+public class ActiveSessionsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +30,6 @@ public class ActiveSessionsActivity extends AppCompatActivity {
         
         String deviceDisplayName = manufacturer + " " + model;
         tvCurrentDeviceName.setText(deviceDisplayName + " (Current)");
-        tvCurrentDeviceDetails.setText("AeroAssist App • Android " + androidVersion + " • Active Now");
+        tvCurrentDeviceDetails.setText("AeroAssist App â€¢ Android " + androidVersion + " â€¢ Active Now");
     }
 }

@@ -14,7 +14,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 
-public class PasswordResetOtpActivity extends AppCompatActivity {
+public class PasswordResetOtpActivity extends BaseActivity {
 
     private EditText otp1, otp2, otp3, otp4;
     private Button verifyButton;

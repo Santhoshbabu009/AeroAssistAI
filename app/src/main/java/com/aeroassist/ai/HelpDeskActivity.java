@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class HelpDeskActivity extends AppCompatActivity {
+public class HelpDeskActivity extends BaseActivity {
 
     private static final String DEVELOPER_EMAIL = "noreplyaeroassistapp@gmail.com";
     private GestureDetector navGestureDetector;
@@ -26,7 +26,7 @@ public class HelpDeskActivity extends AppCompatActivity {
         // Receive email from intent
         email = getIntent().getStringExtra("email");
 
-        // Swipe left → Profile page
+        // Swipe left â†’ Profile page
         navGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -34,14 +34,14 @@ public class HelpDeskActivity extends AppCompatActivity {
                 float diffY = e2.getY() - e1.getY();
                 if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 120 && Math.abs(velocityX) > 150) {
                     if (diffX < 0) {
-                        // Swipe Left → Profile page
+                        // Swipe Left â†’ Profile page
                         Intent intent = new Intent(HelpDeskActivity.this, ProfileActivity.class);
                         intent.putExtra("email", email);
                         startActivity(intent);
                         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                         return true;
                     } else {
-                        // Swipe Right → Main page
+                        // Swipe Right â†’ Main page
                         finish();
                         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                         return true;
@@ -72,7 +72,7 @@ public class HelpDeskActivity extends AppCompatActivity {
         findViewById(R.id.emailDeveloperBtn).setOnClickListener(v -> {
             Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
             emailIntent.setData(Uri.parse("mailto:" + DEVELOPER_EMAIL));
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "AeroAssist AI – Query/Feedback");
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "AeroAssist AI â€“ Query/Feedback");
             emailIntent.putExtra(Intent.EXTRA_TEXT,
                     "Hi AeroAssist Team,\n\n[Describe your query here]\n\nUser: " + (email != null ? email : ""));
             try {

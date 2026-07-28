@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-public class TerminalHubActivity extends AppCompatActivity {
+public class TerminalHubActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

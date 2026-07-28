@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends BaseActivity {
 
     private int currentQuestionIndex = 0;
     private TextView questionCount, questionText;
@@ -110,7 +110,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("Quiz Completed! 🏆")
+                .setTitle("Quiz Completed! ðŸ†")
                 .setMessage("You scored " + finalScore + " pts (" + correctAnswersCount + "/10 correct). See your ranking on the leaderboard!")
                 .setPositiveButton("View Leaderboard", (dialog, which) -> {
                     Intent intent = new Intent(QuizActivity.this, LeaderboardActivity.class);

@@ -35,7 +35,7 @@ import android.app.ProgressDialog;
 import android.os.Handler;
 import com.bumptech.glide.Glide;
 
-public class LoungeDetailsActivity extends AppCompatActivity {
+public class LoungeDetailsActivity extends BaseActivity {
 
     private ImageView backBtn, loungeImageCover;
     private TextView loungeNameText, loungeLocationText, pricePerSlotText, slotsText, bookingTotalText;
@@ -80,7 +80,7 @@ public class LoungeDetailsActivity extends AppCompatActivity {
         btnBook = findViewById(R.id.btnBook);
 
         loungeNameText.setText(loungeName);
-        pricePerSlotText.setText("₹" + String.format("%.0f", pricePerSlot) + " / Slot (per person)");
+        pricePerSlotText.setText("â‚¹" + String.format("%.0f", pricePerSlot) + " / Slot (per person)");
 
         if (loungeImageUrl != null && !loungeImageUrl.isEmpty()) {
             Glide.with(this)
@@ -149,7 +149,7 @@ public class LoungeDetailsActivity extends AppCompatActivity {
     private void updateTotals() {
         slotsText.setText(String.valueOf(guestCount));
         double total = guestCount * pricePerSlot;
-        bookingTotalText.setText("₹" + String.format("%.2f", total));
+        bookingTotalText.setText("â‚¹" + String.format("%.2f", total));
     }
 
     private void bookLoungeSlot() {
@@ -218,7 +218,7 @@ public class LoungeDetailsActivity extends AppCompatActivity {
         
         // Subtitle Text
         TextView subText = new TextView(this);
-        subText.setText("AeroAssist Lounge Booking • ₹" + String.format("%.2f", amount));
+        subText.setText("AeroAssist Lounge Booking â€¢ â‚¹" + String.format("%.2f", amount));
         subText.setTextSize(13);
         subText.setTextColor(Color.parseColor("#64748B")); // Slate 500
         subText.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -352,7 +352,7 @@ public class LoungeDetailsActivity extends AppCompatActivity {
         progress.show();
         
         new Handler().postDelayed(() -> {
-            progress.setMessage("Processing payment of ₹" + String.format("%.2f", guestCount * pricePerSlot) + "...");
+            progress.setMessage("Processing payment of â‚¹" + String.format("%.2f", guestCount * pricePerSlot) + "...");
             
             new Handler().postDelayed(() -> {
                 progress.dismiss();
@@ -368,7 +368,7 @@ public class LoungeDetailsActivity extends AppCompatActivity {
                 layout.setGravity(Gravity.CENTER);
                 
                 TextView tick = new TextView(LoungeDetailsActivity.this);
-                tick.setText("✔");
+                tick.setText("âœ”");
                 tick.setTextSize(36);
                 tick.setTextColor(Color.parseColor("#10B981")); // Tailwind emerald 500
                 tick.setGravity(Gravity.CENTER);

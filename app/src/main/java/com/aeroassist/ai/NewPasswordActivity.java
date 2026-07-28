@@ -12,7 +12,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 
-public class NewPasswordActivity extends AppCompatActivity {
+public class NewPasswordActivity extends BaseActivity {
 
     private EditText newPassword, confirmPassword;
     private Button btnSubmitPassword;

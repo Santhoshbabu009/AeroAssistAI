@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CurrencyConverterActivity extends AppCompatActivity {
+public class CurrencyConverterActivity extends BaseActivity {
 
     private EditText etAmount;
     private Spinner spinnerFrom, spinnerTo;

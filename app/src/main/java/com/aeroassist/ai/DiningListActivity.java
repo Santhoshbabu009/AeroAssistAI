@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiningListActivity extends AppCompatActivity {
+public class DiningListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ServiceAdapter adapter;
@@ -52,17 +52,17 @@ public class DiningListActivity extends AppCompatActivity {
     private List<ServiceItem> getMockData(String type) {
         List<ServiceItem> list = new ArrayList<>();
         if (type.equals("shopping")) {
-            list.add(new ServiceItem("Duty Free Americas", "Luxury Goods", "4.2", "🛍️"));
-            list.add(new ServiceItem("Relay", "Books & Travel", "4.5", "📖"));
-            list.add(new ServiceItem("Tech2Go", "Electronics", "4.0", "🎧"));
+            list.add(new ServiceItem("Duty Free Americas", "Luxury Goods", "4.2", "ðŸ›ï¸"));
+            list.add(new ServiceItem("Relay", "Books & Travel", "4.5", "ðŸ“–"));
+            list.add(new ServiceItem("Tech2Go", "Electronics", "4.0", "ðŸŽ§"));
         } else if (type.equals("lounges")) {
-            list.add(new ServiceItem("Plaza Premium Lounge", "Terminal 1", "4.8", "🛋️"));
-            list.add(new ServiceItem("Air India Lounge", "Terminal 2", "4.1", "🍷"));
+            list.add(new ServiceItem("Plaza Premium Lounge", "Terminal 1", "4.8", "ðŸ›‹ï¸"));
+            list.add(new ServiceItem("Air India Lounge", "Terminal 2", "4.1", "ðŸ·"));
         } else {
-            list.add(new ServiceItem("Starbucks Coffee", "Cafe • Gate 14", "4.5", "☕"));
-            list.add(new ServiceItem("Burger King", "Fast Food • Gate 9", "4.2", "🍔"));
-            list.add(new ServiceItem("The Great Kabab Factory", "Fine Dining • T2", "4.7", "🍱"));
-            list.add(new ServiceItem("Subway", "Quick Service • Gate 22", "4.0", "🥪"));
+            list.add(new ServiceItem("Starbucks Coffee", "Cafe â€¢ Gate 14", "4.5", "â˜•"));
+            list.add(new ServiceItem("Burger King", "Fast Food â€¢ Gate 9", "4.2", "ðŸ”"));
+            list.add(new ServiceItem("The Great Kabab Factory", "Fine Dining â€¢ T2", "4.7", "ðŸ±"));
+            list.add(new ServiceItem("Subway", "Quick Service â€¢ Gate 22", "4.0", "ðŸ¥ª"));
         }
         return list;
     }
@@ -93,7 +93,7 @@ public class DiningListActivity extends AppCompatActivity {
             ServiceItem item = items.get(position);
             holder.name.setText(item.name);
             holder.category.setText(item.category);
-            holder.rating.setText("⭐ " + item.rating);
+            holder.rating.setText("â­ " + item.rating);
             holder.icon.setText(item.icon);
         }
 

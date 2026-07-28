@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class VendorRegistrationActivity extends AppCompatActivity {
+public class VendorRegistrationActivity extends BaseActivity {
 
     private ImageView backBtn;
     private EditText adminKeyInput, vendorNameInput, vendorEmailInput, vendorPasswordInput, gateInput, deleteEmailInput;

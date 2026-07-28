@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VendorMenuActivity extends AppCompatActivity {
+public class VendorMenuActivity extends BaseActivity {
 
     private ImageView backBtn;
     private RecyclerView recyclerView;
@@ -247,20 +247,20 @@ public class VendorMenuActivity extends AppCompatActivity {
 
             holder.nameText.setText(nameStr);
             holder.categoryText.setText(catStr);
-            holder.priceText.setText("₹" + String.format("%.2f", priceVal));
+            holder.priceText.setText("â‚¹" + String.format("%.2f", priceVal));
 
             // Set simple item emoji indicator based on category
             String catLower = catStr.toLowerCase();
             if (catLower.contains("drink") || catLower.contains("coffee") || catLower.contains("tea")) {
-                holder.placeholderText.setText("☕");
+                holder.placeholderText.setText("â˜•");
             } else if (catLower.contains("burger")) {
-                holder.placeholderText.setText("🍔");
+                holder.placeholderText.setText("ðŸ”");
             } else if (catLower.contains("fries") || catLower.contains("side")) {
-                holder.placeholderText.setText("🍟");
+                holder.placeholderText.setText("ðŸŸ");
             } else if (catLower.contains("croissant") || catLower.contains("bake")) {
-                holder.placeholderText.setText("🥐");
+                holder.placeholderText.setText("ðŸ¥");
             } else {
-                holder.placeholderText.setText("🍱");
+                holder.placeholderText.setText("ðŸ±");
             }
 
             holder.btnEdit.setOnClickListener(v -> showProductDialog(product));

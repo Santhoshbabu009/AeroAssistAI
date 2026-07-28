@@ -54,7 +54,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
-public class NavigationActivity extends AppCompatActivity implements OlaMapCallback {
+public class NavigationActivity extends BaseActivity implements OlaMapCallback {
 
     private OlaMap olaMap;
     private OlaMapView mapView;

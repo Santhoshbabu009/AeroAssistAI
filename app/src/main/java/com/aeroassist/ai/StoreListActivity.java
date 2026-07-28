@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StoreListActivity extends AppCompatActivity {
+public class StoreListActivity extends BaseActivity {
 
     private ImageView backBtn, orderHistoryBtn;
     private RecyclerView recyclerView;
@@ -220,11 +220,11 @@ public class StoreListActivity extends AppCompatActivity {
             String imgUrl = store.optString("image_url");
 
             holder.nameText.setText(nameStr);
-            holder.detailsText.setText(term + " • " + gate);
+            holder.detailsText.setText(term + " â€¢ " + gate);
             
             // Random-looking but deterministic rating
             double rating = 4.0 + (id % 10) * 0.1;
-            holder.ratingText.setText("★ " + String.format("%.1f", rating));
+            holder.ratingText.setText("â˜… " + String.format("%.1f", rating));
 
             if (imgUrl != null && !imgUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())

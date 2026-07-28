@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatListActivity extends AppCompatActivity {
+public class ChatListActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +25,9 @@ public class ChatListActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         List<ChatRoom> list = new ArrayList<>();
-        list.add(new ChatRoom("JFK Terminal 4 Lounge", "12 people active", "💬"));
-        list.add(new ChatRoom("DXB Duty Free Chat", "45 people active", "🛒"));
-        list.add(new ChatRoom("LHR Terminal 5 Info", "8 people active", "ℹ️"));
+        list.add(new ChatRoom("JFK Terminal 4 Lounge", "12 people active", "ðŸ’¬"));
+        list.add(new ChatRoom("DXB Duty Free Chat", "45 people active", "ðŸ›’"));
+        list.add(new ChatRoom("LHR Terminal 5 Info", "8 people active", "â„¹ï¸"));
 
         rv.setAdapter(new ChatAdapter(list));
     }

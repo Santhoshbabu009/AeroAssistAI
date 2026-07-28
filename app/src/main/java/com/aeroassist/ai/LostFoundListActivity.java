@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LostFoundListActivity extends AppCompatActivity {
+public class LostFoundListActivity extends BaseActivity {
 
     private TabLayout tabLayout;
     private RecyclerView rv;

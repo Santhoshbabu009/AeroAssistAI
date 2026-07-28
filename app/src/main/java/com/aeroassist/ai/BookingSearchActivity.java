@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.net.URLEncoder;
 import java.util.Calendar;
 
-public class BookingSearchActivity extends AppCompatActivity {
+public class BookingSearchActivity extends BaseActivity {
 
     EditText originInput, destInput;
     Button dateBtn, searchBtn;
@@ -67,7 +67,7 @@ public class BookingSearchActivity extends AppCompatActivity {
                 android.content.SharedPreferences histPrefs = getSharedPreferences("BookingHistory", MODE_PRIVATE);
                 java.util.Set<String> existing = histPrefs.getStringSet("searches", new java.util.LinkedHashSet<>());
                 java.util.Set<String> updated = new java.util.LinkedHashSet<>(existing);
-                updated.add(origin + " → " + dest + " | " + selectedDate);
+                updated.add(origin + " â†’ " + dest + " | " + selectedDate);
                 histPrefs.edit().putStringSet("searches", updated).apply();
 
                 // Construct highly optimized Google Flights Aggregator Query

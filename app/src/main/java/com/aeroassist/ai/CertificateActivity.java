@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class CertificateActivity extends AppCompatActivity {
+public class CertificateActivity extends BaseActivity {
 
     private String userEmail, userName;
     private TextView statusText;
@@ -70,7 +70,7 @@ public class CertificateActivity extends AppCompatActivity {
         btnDownload.setOnClickListener(v -> {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, "I just earned my AeroAssist AI Aviation Expert Certificate! ✈️🏆");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "I just earned my AeroAssist AI Aviation Expert Certificate! âœˆï¸ðŸ†");
             sendIntent.setType("text/plain");
             startActivity(Intent.createChooser(sendIntent, "Share Certificate via"));
         });

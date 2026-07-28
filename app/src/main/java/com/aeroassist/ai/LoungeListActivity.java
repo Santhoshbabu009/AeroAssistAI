@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoungeListActivity extends AppCompatActivity {
+public class LoungeListActivity extends BaseActivity {
 
     private ImageView backBtn, bookingHistoryBtn;
     private RecyclerView recyclerView;
@@ -117,7 +117,7 @@ public class LoungeListActivity extends AppCompatActivity {
                                 String loungeName = latestBooking.optString("lounge_name", "Premium Lounge");
                                 int slots = latestBooking.optInt("slots", 1);
                                 String guestsStr = slots + (slots == 1 ? " Guest" : " Guests");
-                                String displayText = loungeName + " • " + guestsStr 
+                                String displayText = loungeName + " â€¢ " + guestsStr 
                                         + "\nStatus: " + status.toUpperCase();
 
                                 runOnUiThread(() -> {
@@ -201,7 +201,7 @@ public class LoungeListActivity extends AppCompatActivity {
             String imgUrl = lounge.optString("image_url");
 
             holder.nameText.setText(nameStr);
-            holder.detailsText.setText(term + " • " + gate);
+            holder.detailsText.setText(term + " â€¢ " + gate);
             
             // Availability badge styling
             if ("Available".equalsIgnoreCase(availability)) {
@@ -216,7 +216,7 @@ public class LoungeListActivity extends AppCompatActivity {
 
             // Deterministic slot price
             double slotPrice = 1000.0 + (id % 5) * 200.0;
-            holder.priceText.setText("₹" + String.format("%.0f", slotPrice) + "/slot");
+            holder.priceText.setText("â‚¹" + String.format("%.0f", slotPrice) + "/slot");
 
             if (imgUrl != null && !imgUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())

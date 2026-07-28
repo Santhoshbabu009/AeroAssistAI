@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class TimeZoneActivity extends AppCompatActivity {
+public class TimeZoneActivity extends BaseActivity {
 
     private LinearLayout clockContainer;
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -56,7 +56,7 @@ public class TimeZoneActivity extends AppCompatActivity {
             TextView icon = card.findViewById(R.id.itemIcon);
 
             name.setText(city[0]);
-            icon.setText("🏙️");
+            icon.setText("ðŸ™ï¸");
 
             sdf.setTimeZone(TimeZone.getTimeZone(city[1]));
             dateSdf.setTimeZone(TimeZone.getTimeZone(city[1]));

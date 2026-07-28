@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class LeaderboardActivity extends AppCompatActivity {
+public class LeaderboardActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +94,11 @@ public class LeaderboardActivity extends AppCompatActivity {
         for (int i = 0; i < list.size(); i++) {
             Player p = list.get(i);
             if (i == 0) {
-                p.rank = "🥇";
+                p.rank = "ðŸ¥‡";
             } else if (i == 1) {
-                p.rank = "🥈";
+                p.rank = "ðŸ¥ˆ";
             } else if (i == 2) {
-                p.rank = "🥉";
+                p.rank = "ðŸ¥‰";
             } else {
                 p.rank = "#" + (i + 1);
             }

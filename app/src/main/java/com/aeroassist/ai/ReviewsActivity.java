@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReviewsActivity extends AppCompatActivity {
+public class ReviewsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +27,9 @@ public class ReviewsActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         List<Review> list = new ArrayList<>();
-        list.add(new Review("John Doe", "Terminal 2 is amazing, very clean!", "⭐⭐⭐⭐⭐"));
-        list.add(new Review("Alice Smith", "Food court in T1 has great options.", "⭐⭐⭐⭐"));
-        list.add(new Review("Bob Wilson", "Security lines were a bit long today.", "⭐⭐⭐"));
+        list.add(new Review("John Doe", "Terminal 2 is amazing, very clean!", "â­â­â­â­â­"));
+        list.add(new Review("Alice Smith", "Food court in T1 has great options.", "â­â­â­â­"));
+        list.add(new Review("Bob Wilson", "Security lines were a bit long today.", "â­â­â­"));
 
         rv.setAdapter(new ReviewAdapter(list));
     }
@@ -55,7 +55,7 @@ public class ReviewsActivity extends AppCompatActivity {
             holder.name.setText(item.user);
             holder.desc.setText(item.content);
             holder.rating.setText(item.rating);
-            holder.icon.setText("👤");
+            holder.icon.setText("ðŸ‘¤");
         }
 
         @Override

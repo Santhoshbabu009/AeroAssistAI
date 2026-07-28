@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TravelTipsActivity extends AppCompatActivity {
+public class TravelTipsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +25,9 @@ public class TravelTipsActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         List<Tip> list = new ArrayList<>();
-        list.add(new Tip("Arrive early for international flights to avoid long security queues.", "💡 Tip #1"));
-        list.add(new Tip("Free water stations are located near Gate 5 and Gate 18.", "💡 Tip #2"));
-        list.add(new Tip("Use the terminal shuttle instead of walking between T1 and T2.", "💡 Tip #3"));
+        list.add(new Tip("Arrive early for international flights to avoid long security queues.", "ðŸ’¡ Tip #1"));
+        list.add(new Tip("Free water stations are located near Gate 5 and Gate 18.", "ðŸ’¡ Tip #2"));
+        list.add(new Tip("Use the terminal shuttle instead of walking between T1 and T2.", "ðŸ’¡ Tip #3"));
 
         rv.setAdapter(new TipAdapter(list));
     }
@@ -53,7 +53,7 @@ public class TravelTipsActivity extends AppCompatActivity {
             holder.name.setText(item.id);
             holder.desc.setText(item.content);
             holder.rating.setVisibility(View.GONE);
-            holder.icon.setText("✈️");
+            holder.icon.setText("âœˆï¸");
         }
 
         @Override

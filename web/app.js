@@ -67,6 +67,7 @@ class AeroAssistApp {
   init() {
     this.initTheme();
     this.setupCommandPalette();
+    this.setupInactivityListener();
     this.changeLanguage(this.currentLang);
     this.updateUserSessionUI();
     this.renderChatHistory();
@@ -98,6 +99,48 @@ class AeroAssistApp {
         this.openOrderTracker(this.activeTrackingOrderId);
       }
     }, 5000);
+  }
+
+  // --- INACTIVITY AUTO-LOGOUT (20 MINUTES) ---
+  setupInactivityListener() {
+    this.inactivityTimeout = null;
+    this.INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutes in milliseconds
+    const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "click"];
+    events.forEach(evt => {
+      window.addEventListener(evt, () => this.resetInactivityTimer(), { passive: true });
+    });
+    this.resetInactivityTimer();
+  }
+
+  resetInactivityTimer() {
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    }
+    if (!this.currentUser && !this.currentVendor) return;
+    this.inactivityTimeout = setTimeout(() => {
+      this.handleInactivityLogout();
+    }, this.INACTIVITY_LIMIT);
+  }
+
+  handleInactivityLogout() {
+    if (this.currentUser || this.currentVendor) {
+      if (this.currentUser) {
+        this.currentUser = null;
+        this.currentUserType = null;
+        localStorage.removeItem("user_session");
+        localStorage.removeItem("user_type");
+      }
+      if (this.currentVendor) {
+        this.currentVendor = null;
+        localStorage.removeItem("vendor_session");
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("auth_token");
+      this.updateUserSessionUI();
+      this.updateSidebarRBAC();
+      this.showPage("user-type");
+      alert("You have been automatically logged out due to 20 minutes of inactivity.");
+    }
   }
 
   // --- DUAL THEME ENGINE (LIGHT & DARK MODE) ---
@@ -1041,6 +1084,7 @@ class AeroAssistApp {
       emailLabel.innerText = "Sign In / Sign Up";
     }
     this.updateSidebarRBAC();
+    this.resetInactivityTimer();
   }
 
   // --- ROLE-BASED SIDEBAR ACCESS CONTROL (RBAC) ---

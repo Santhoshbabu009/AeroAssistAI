@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class UnitConverterActivity extends AppCompatActivity {
+public class UnitConverterActivity extends BaseActivity {
 
     private Spinner spinnerCategory, spinnerFrom, spinnerTo;
     private EditText etInput;

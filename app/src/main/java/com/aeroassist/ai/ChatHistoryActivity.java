@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatHistoryActivity extends AppCompatActivity {
+public class ChatHistoryActivity extends BaseActivity {
 
     RecyclerView historyRecycler;
     ChatDatabase db;

@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class BookingHistoryActivity extends AppCompatActivity {
+public class BookingHistoryActivity extends BaseActivity {
 
     LinearLayout historyList;
     TextView emptyText;
@@ -64,7 +64,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
         String[] arr = entries.toArray(new String[0]);
         for (int i = arr.length - 1; i >= 0; i--) {
             String entry = arr[i];
-            // Format: "DEL → BOM | 2025-06-15"
+            // Format: "DEL â†’ BOM | 2025-06-15"
             CardView card = new CardView(this);
             CardView.LayoutParams params = new CardView.LayoutParams(
                     CardView.LayoutParams.MATCH_PARENT,
@@ -85,7 +85,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
             String date = parts.length > 1 ? parts[1].trim() : "";
 
             TextView routeView = new TextView(this);
-            routeView.setText("✈  " + route);
+            routeView.setText("âœˆ  " + route);
             routeView.setTextSize(18);
             routeView.setTextColor(Color.parseColor("#0b2447"));
             routeView.setTypeface(null, android.graphics.Typeface.BOLD);

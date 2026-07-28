@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-public class FlightSearchHistoryActivity extends AppCompatActivity {
+public class FlightSearchHistoryActivity extends BaseActivity {
 
     LinearLayout historyList;
     Button clearHistoryBtn;
@@ -80,7 +80,7 @@ public class FlightSearchHistoryActivity extends AppCompatActivity {
         tv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
         TextView reSearch = new TextView(this);
-        reSearch.setText("Search 🔍");
+        reSearch.setText("Search ðŸ”");
         reSearch.setTextColor(0xFF6C4AB6);
         reSearch.setTextSize(14);
         reSearch.setPadding(16, 8, 16, 8);

@@ -37,7 +37,7 @@ import com.ola.mapsdk.view.OlaMap;
 import com.ola.mapsdk.view.OlaMapView;
 import com.ola.mapsdk.view.Marker;
 
-public class FlightStatusActivity extends AppCompatActivity implements OlaMapCallback {
+public class FlightStatusActivity extends BaseActivity implements OlaMapCallback {
 
     EditText flightInput;
     Button checkBtn, scanBtn, historyBtn, aiInsightsBtn;
@@ -138,7 +138,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
 
         saveToHistory(flight);
 
-        resultText.setText("🔍 Searching for " + flight + "...");
+        resultText.setText("ðŸ” Searching for " + flight + "...");
         if (mapCard != null) mapCard.setVisibility(View.GONE);
 
         String url = "https://api.aviationstack.com/v1/flights?access_key="
@@ -150,7 +150,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
 
             @Override
             public void onFailure(Call call, java.io.IOException e) {
-                runOnUiThread(() -> resultText.setText("❌ Network error. Check your internet connection.\n" + e.getMessage()));
+                runOnUiThread(() -> resultText.setText("âŒ Network error. Check your internet connection.\n" + e.getMessage()));
             }
 
             @Override
@@ -165,14 +165,14 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
                         String errMsg = error.optString("message", "Unknown API error");
                         String errCode = error.optString("code", "");
                         runOnUiThread(() -> resultText.setText(
-                                "⚠️ API Error: " + errMsg +
+                                "âš ï¸ API Error: " + errMsg +
                                 "\nCode: " + errCode +
                                 "\n\nYour AviationStack free plan may have exceeded its monthly quota."));
                         return;
                     }
 
                     if (!obj.has("data")) {
-                        runOnUiThread(() -> resultText.setText("⚠️ Unexpected API response. Try again."));
+                        runOnUiThread(() -> resultText.setText("âš ï¸ Unexpected API response. Try again."));
                         return;
                     }
 
@@ -180,7 +180,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
 
                     if(data.length() == 0){
                         runOnUiThread(() -> resultText.setText(
-                                "✈️ Flight " + flight + " not found.\n\n• Check the IATA code (e.g. AI101, EK202)\n• Flight may have landed or not departed yet"));
+                                "âœˆï¸ Flight " + flight + " not found.\n\nâ€¢ Check the IATA code (e.g. AI101, EK202)\nâ€¢ Flight may have landed or not departed yet"));
                         return;
                     }
 
@@ -202,14 +202,14 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
                     String depTime = scheduledDep.length() >= 16 ? scheduledDep.replace("T"," ").substring(0,16) : scheduledDep;
                     String arrTime = scheduledArr.length() >= 16 ? scheduledArr.replace("T"," ").substring(0,16) : scheduledArr;
 
-                    String statusEmoji = "active".equals(status) ? "🟢" : "landed".equals(status) ? "🔵" : "🔴";
+                    String statusEmoji = "active".equals(status) ? "ðŸŸ¢" : "landed".equals(status) ? "ðŸ”µ" : "ðŸ”´";
 
                     String result =
-                            "✈️  " + flight + " — " + airlineName +
+                            "âœˆï¸  " + flight + " â€” " + airlineName +
                             "\n\n" + statusEmoji + " Status: " + status.toUpperCase() +
-                            "\n\n🛫 From: " + departureAirport +
+                            "\n\nðŸ›« From: " + departureAirport +
                             "\n       Dep: " + depTime + "  |  Gate: " + gate +
-                            "\n\n🛬 To: " + arrivalAirport +
+                            "\n\nðŸ›¬ To: " + arrivalAirport +
                             "\n       Arr: " + arrTime;
 
                     JSONObject live = flightData.optJSONObject("live");
@@ -228,9 +228,9 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
                     }
 
                     String liveNote = hasLive[0]
-                            ? "\n\n📍 Position: " + String.format("%.3f", flightCoords[0]) + "°, " + String.format("%.3f", flightCoords[1]) + "°"
-                            + "\n⚡ Speed: " + (int)flightCoords[3] + " km/h  |  Alt: " + (int)flightCoords[2] + " m"
-                            : "\n\n📡 No live GPS position available for this flight.";
+                            ? "\n\nðŸ“ Position: " + String.format("%.3f", flightCoords[0]) + "Â°, " + String.format("%.3f", flightCoords[1]) + "Â°"
+                            + "\nâš¡ Speed: " + (int)flightCoords[3] + " km/h  |  Alt: " + (int)flightCoords[2] + " m"
+                            : "\n\nðŸ“¡ No live GPS position available for this flight.";
 
                     runOnUiThread(() -> {
                         resultText.setText(result + liveNote);
@@ -287,7 +287,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    runOnUiThread(() -> resultText.setText("❌ Parsing error: " + e.getMessage()));
+                    runOnUiThread(() -> resultText.setText("âŒ Parsing error: " + e.getMessage()));
                 }
             }
         });
@@ -306,7 +306,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
         if (currentStatus.isEmpty()) return;
 
         aiInsightsCard.setVisibility(View.VISIBLE);
-        aiInsightsText.setText("🤖 AeroAssist AI is analyzing flight details...");
+        aiInsightsText.setText("ðŸ¤– AeroAssist AI is analyzing flight details...");
         aiInsightsBtn.setEnabled(false);
 
         JSONObject json = new JSONObject();
@@ -325,7 +325,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
             @Override
             public void onFailure(Call call, java.io.IOException e) {
                 runOnUiThread(() -> {
-                    aiInsightsText.setText("❌ Failed to reach AI assistant. Please try again.");
+                    aiInsightsText.setText("âŒ Failed to reach AI assistant. Please try again.");
                     aiInsightsBtn.setEnabled(true);
                 });
             }
@@ -343,7 +343,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
                     });
                 } catch (Exception e) {
                     runOnUiThread(() -> {
-                        aiInsightsText.setText("❌ Error parsing AI response.");
+                        aiInsightsText.setText("âŒ Error parsing AI response.");
                         aiInsightsBtn.setEnabled(true);
                     });
                 }
@@ -428,7 +428,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
         // 1. Immediate Boarding Alert
         handler.postDelayed(() -> {
             notificationHelper.sendFlightNotification(
-                "📢 Boarding Started: " + flight,
+                "ðŸ“¢ Boarding Started: " + flight,
                 "Boarding for flight " + flight + " has commenced at Gate A12. Please proceed for boarding."
             );
         }, 5000); // 5 seconds after search
@@ -436,7 +436,7 @@ public class FlightStatusActivity extends AppCompatActivity implements OlaMapCal
         // 2. Delayed Gate Change Alert (The "Smart" part)
         handler.postDelayed(() -> {
             notificationHelper.sendFlightNotification(
-                "⚠️ Gate Change Alert: " + flight,
+                "âš ï¸ Gate Change Alert: " + flight,
                 "Flight " + flight + " has been moved from Gate A12 to Gate B5. Please update your navigation."
             );
         }, 15000); // 15 seconds after search
