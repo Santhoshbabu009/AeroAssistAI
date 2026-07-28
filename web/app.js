@@ -932,7 +932,8 @@ class AeroAssistApp {
       
       const clientIdParam = googleClientId;
       const redirectUri = encodeURIComponent(`${window.location.origin}/api/google-callback`);
-      const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientIdParam}&redirect_uri=${redirectUri}&response_type=code%20id_token&scope=openid%20email%20profile&prompt=select_account`;
+      const nonce = "aero_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientIdParam}&redirect_uri=${redirectUri}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
 
       const popup = window.open(
         googleOAuthUrl,
@@ -961,7 +962,7 @@ class AeroAssistApp {
           }
 
           if (userEmail) {
-            await this.handleGoogleOAuthSuccess(userEmail);
+            await this.handleGoogleOAuthSuccess(authPayload.idToken || userEmail);
           } else {
             alert("Google OAuth verification failed to return a verified email address.");
           }
