@@ -1932,11 +1932,25 @@ def order_history():
     try:
         orders_resp = supabase.table('orders').select('*').eq('user_email', user_email).order('id', desc=True).execute()
         orders = orders_resp.data or []
-        for order in orders:
-            v_resp = supabase.table('vendors').select('name').eq('id', order['vendor_id']).execute()
-            order['vendor_name'] = v_resp.data[0]['name'] if v_resp.data else "Unknown Restaurant"
-            items_resp = supabase.table('order_items').select('*').eq('order_id', order['id']).execute()
-            order['items'] = items_resp.data or []
+        if orders:
+            order_ids = [order['id'] for order in orders]
+            vendor_ids = list(set([order['vendor_id'] for order in orders if order.get('vendor_id')]))
+            
+            vendors_by_id = {}
+            if vendor_ids:
+                v_resp = supabase.table('vendors').select('id,name').in_('id', vendor_ids).execute()
+                for v in (v_resp.data or []):
+                    vendors_by_id[v['id']] = v['name']
+                    
+            items_by_order = {}
+            items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
+            for item in (items_resp.data or []):
+                oid = item.get('order_id')
+                items_by_order.setdefault(oid, []).append(item)
+                
+            for order in orders:
+                order['vendor_name'] = vendors_by_id.get(order.get('vendor_id'), "Unknown Restaurant")
+                order['items'] = items_by_order.get(order['id'], [])
         return jsonify({"status": "success", "orders": orders})
     except Exception as e:
         print("[FALLBACK] Supabase order history fetch error:", str(e))
@@ -2236,9 +2250,16 @@ def get_vendor_orders():
     try:
         orders_resp = supabase.table('orders').select('*').eq('vendor_id', vendor_id).order('id', desc=True).execute()
         orders = orders_resp.data or []
-        for order in orders:
-            items_resp = supabase.table('order_items').select('*').eq('order_id', order['id']).execute()
-            order['items'] = items_resp.data or []
+        if orders:
+            order_ids = [order['id'] for order in orders]
+            items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
+            all_items = items_resp.data or []
+            items_by_order = {}
+            for item in all_items:
+                oid = item.get('order_id')
+                items_by_order.setdefault(oid, []).append(item)
+            for order in orders:
+                order['items'] = items_by_order.get(order['id'], [])
         return jsonify({"status": "success", "orders": orders})
     except Exception as e:
         print("[FALLBACK] Supabase vendor orders fetch error:", str(e))

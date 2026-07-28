@@ -88,17 +88,17 @@ class AeroAssistApp {
       this.showPage("user-type");
     }
     
-    // Setup background interval polling (Every 5 seconds)
+    // Setup background interval polling (Every 10 seconds)
     this.pollingInterval = setInterval(() => {
       this.fetchPassengerHistory();
-      if (this.currentVendor) {
+      if (this.currentVendor && (!this.vendorTab || this.vendorTab === 'queue')) {
         this.fetchVendorQueue();
       }
       const trackerModal = document.getElementById("modal-order-tracker");
       if (this.activeTrackingOrderId && trackerModal && trackerModal.classList.contains("open")) {
         this.openOrderTracker(this.activeTrackingOrderId);
       }
-    }, 5000);
+    }, 10000);
   }
 
   // --- INACTIVITY AUTO-LOGOUT (20 MINUTES) ---
@@ -1848,6 +1848,11 @@ class AeroAssistApp {
 
     document.getElementById("vendor-portal-title").innerText = this.currentVendor.name;
     document.getElementById("vendor-portal-location").innerText = `Terminal ${this.currentVendor.terminal} • ${this.currentVendor.gate}`;
+
+    const queueTitleEl = document.getElementById("queue-title");
+    if (queueTitleEl) {
+      queueTitleEl.innerText = isRestaurant ? "Food Orders Queue" : "Reservations Queue";
+    }
 
     const container = document.getElementById("vendor-queue-list");
     if (!container) return;
