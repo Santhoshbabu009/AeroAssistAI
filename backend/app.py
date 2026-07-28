@@ -1161,10 +1161,11 @@ def google_callback():
     </div>
     <script>
         (function() {
-            const params = new URLSearchParams(window.location.search || window.location.hash.substring(1));
-            const code = params.get('code');
-            const idToken = params.get('id_token') || params.get('access_token');
-            let email = params.get('email');
+            const searchParams = new URLSearchParams(window.location.search.substring(1));
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const code = searchParams.get('code') || hashParams.get('code');
+            const idToken = searchParams.get('id_token') || hashParams.get('id_token') || searchParams.get('access_token') || hashParams.get('access_token');
+            let email = searchParams.get('email') || hashParams.get('email');
             
             if (window.opener) {
                 window.opener.postMessage({
@@ -1181,7 +1182,7 @@ def google_callback():
     </script>
 </body>
 </html>"""
-    return render_template_string(html_content)
+    return html_content, 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 @app.route('/api/register', methods=['POST'])
 @limiter.limit("5 per minute")
