@@ -253,7 +253,8 @@ class AeroAssistApp {
       this.currentUser = {
         name: res.name || "Santhosh Babu",
         email: this.pendingVerifyEmail,
-        mobile: "9876543210"
+        mobile: "9876543210",
+        token: res.token || null
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
       this.updateUserSessionUI();
@@ -685,6 +686,20 @@ class AeroAssistApp {
       return;
     }
 
+    // Fetch a fresh token if session doesn't have one (e.g. old cached session)
+    if (!this.currentUser.token) {
+      const refreshRes = await this.apiCall("/token-refresh", {
+        method: "POST",
+        body: JSON.stringify({ email: this.currentUser.email })
+      });
+      if (!refreshRes || !refreshRes.token) {
+        alert("Your session has expired. Please sign out and log in again to place orders.");
+        return;
+      }
+      this.currentUser.token = refreshRes.token;
+      localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+    }
+
     const payload = {
       user_email: this.currentUser.email,
       vendor_id: this.cart.restaurant.id,
@@ -696,6 +711,7 @@ class AeroAssistApp {
       })),
       terminal: terminal,
       gate: gate,
+      payment_method: "COD",
       total_price: this.cart.items.reduce((sum, item) => sum + (item.price * item.qty), 0)
     };
 

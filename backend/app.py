@@ -1290,6 +1290,33 @@ def login():
 # The original duplicate chat function has been removed to avoid route mapping conflicts.
 # Its functionality is now fully integrated into the unified chat endpoint above.
 
+@app.route('/api/token-refresh', methods=['POST'])
+@limiter.limit("20 per minute")
+def token_refresh():
+    """Issue a fresh JWT for a registered user by verifying their email exists in the DB."""
+    data = request.json or {}
+    email = data.get('email', '').strip().lower()
+    if not email:
+        return jsonify({"status": "error", "message": "Missing email"}), 400
+
+    # Verify user exists
+    user = None
+    if USE_SQLITE:
+        user = db.get_user(email)
+    else:
+        try:
+            response = supabase.table('users').select('name').ilike('email', email).execute()
+            user = response.data[0] if response.data else None
+        except Exception:
+            user = db.get_user(email)
+
+    if not user:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+
+    token = generate_token(email, role="user")
+    return jsonify({"status": "success", "token": token})
+
+
 @app.route('/api/save-chat', methods=['POST'])
 def save_chat():
     data = request.json or {}
