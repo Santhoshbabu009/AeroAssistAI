@@ -1124,6 +1124,59 @@ def google_login():
         "message": "Google Login Successful"
     })
 
+@app.route('/api/config', methods=['GET'])
+def get_public_config():
+    """Returns public environment configuration for OAuth clients."""
+    return jsonify({
+        "status": "success",
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "")
+    })
+
+@app.route('/api/google-callback', methods=['GET'])
+def google_callback():
+    """OAuth 2.0 callback endpoint rendering postMessage script for parent popup handlers."""
+    html_content = """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Google Authentication Success</title>
+    <style>
+        body { background: #0F172A; color: #F8FAFC; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #38BDF8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 16px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner"></div>
+        <h2>Completing Google Sign-In...</h2>
+        <p style="color:#94A3B8; font-size:14px;">Connecting your account with AeroAssist AI</p>
+    </div>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search || window.location.hash.substring(1));
+            const code = params.get('code');
+            const idToken = params.get('id_token') || params.get('access_token');
+            let email = params.get('email');
+            
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'google_auth',
+                    code: code,
+                    idToken: idToken,
+                    email: email
+                }, '*');
+                setTimeout(function() { window.close(); }, 800);
+            } else {
+                window.location.href = '/web/index.html';
+            }
+        })();
+    </script>
+</body>
+</html>"""
+    return render_template_string(html_content)
+
 @app.route('/api/register', methods=['POST'])
 @limiter.limit("5 per minute")
 def register():

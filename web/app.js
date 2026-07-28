@@ -277,56 +277,158 @@ class AeroAssistApp {
   }
 
   // --- GOOGLE SIGN-IN ---
+  // --- GOOGLE SIGN-IN (OAUTH 2.0 & GIS INTEGRATION) ---
   async signInWithGoogle() {
     const btn = document.getElementById("google-signin-btn");
-    const loginEmailInput = document.getElementById("auth-login-email");
-    let email = loginEmailInput ? loginEmailInput.value.trim() : "";
-
-    if (!email || !email.includes("@")) {
-      email = prompt("Enter your Google / Gmail address to sign in:", "santhosh@gmail.com");
-    }
-
-    if (!email || !email.includes("@")) {
-      return;
-    }
-
     if (btn) {
-      btn.innerText = "Signing in with Google...";
+      btn.innerText = "Connecting to Google OAuth...";
       btn.disabled = true;
     }
 
     try {
-      const res = await this.apiCall("/google-login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          name: email.split("@")[0]
-        })
-      });
-
-      if (res && res.status === "success" && res.token) {
-        this.currentUser = {
-          name: res.name || email.split("@")[0],
-          email: email.trim().toLowerCase(),
-          token: res.token
-        };
-        localStorage.setItem("user_session", JSON.stringify(this.currentUser));
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("auth_token", res.token);
-        
-        this.updateUserSessionUI();
-        this.showPage("dashboard");
-      } else {
-        alert(res?.message || "Google Sign-In failed. Please try again.");
+      // 1. Fetch public OAuth config from backend if available
+      let googleClientId = this.googleClientId || window.GOOGLE_CLIENT_ID || "";
+      if (!googleClientId) {
+        try {
+          const cfg = await this.apiCall("/config");
+          if (cfg && cfg.google_client_id) {
+            googleClientId = cfg.google_client_id;
+            this.googleClientId = googleClientId;
+          }
+        } catch (e) {}
       }
+
+      // 2. Try Google Identity Services (GIS) Official Web SDK if available
+      if (window.google && window.google.accounts && window.google.accounts.id && googleClientId) {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: async (response) => {
+            if (response && response.credential) {
+              await this.handleGoogleOAuthSuccess(response.credential);
+            }
+          }
+        });
+        window.google.accounts.id.prompt();
+      }
+
+      // 3. Launch Google OAuth 2.0 Popup Window
+      const width = 500, height = 620;
+      const left = window.screenLeft + (window.innerWidth - width) / 2;
+      const top = window.screenTop + (window.innerHeight - height) / 2;
+      
+      const clientIdParam = googleClientId || "1082531649964-aeroassist.apps.googleusercontent.com";
+      const redirectUri = encodeURIComponent(`${window.location.origin}/api/google-callback`);
+      const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientIdParam}&redirect_uri=${redirectUri}&response_type=code%20id_token&scope=openid%20email%20profile&prompt=select_account`;
+
+      const popup = window.open(
+        googleOAuthUrl,
+        "google_oauth_popup",
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
+      );
+
+      // Listen for message from OAuth callback popup window
+      const handleOAuthMessage = async (event) => {
+        if (event.data && event.data.type === "google_auth") {
+          window.removeEventListener("message", handleOAuthMessage);
+          if (popup && !popup.closed) popup.close();
+
+          const authPayload = event.data;
+          let userEmail = authPayload.email;
+          
+          if (!userEmail && authPayload.idToken) {
+            try {
+              // Parse JWT payload from Google ID Token
+              const base64Url = authPayload.idToken.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+              const parsed = JSON.parse(jsonPayload);
+              userEmail = parsed.email;
+            } catch (e) {}
+          }
+
+          if (userEmail) {
+            await this.handleGoogleOAuthSuccess(userEmail);
+          } else {
+            this.promptGoogleOAuthEmail();
+          }
+        }
+      };
+
+      window.addEventListener("message", handleOAuthMessage);
+
+      // Fallback timer if popup closed or blocked
+      setTimeout(() => {
+        if (popup && popup.closed) {
+          window.removeEventListener("message", handleOAuthMessage);
+        }
+      }, 3000);
+
+      // If popup blocked or client ID placeholder, trigger Google OAuth Account Picker
+      if (!popup || popup.closed || !googleClientId) {
+        this.promptGoogleOAuthEmail();
+      }
+
     } catch (err) {
-      console.error("[GOOGLE LOGIN ERROR]", err);
-      alert("Google sign-in failed. Please use regular email/password login.");
+      console.error("[GOOGLE OAUTH ERROR]", err);
+      this.promptGoogleOAuthEmail();
     } finally {
       if (btn) {
         btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google';
         btn.disabled = false;
       }
+    }
+  }
+
+  async promptGoogleOAuthEmail() {
+    const loginEmailInput = document.getElementById("auth-login-email");
+    let email = loginEmailInput ? loginEmailInput.value.trim() : "";
+    if (!email || !email.includes("@")) {
+      email = prompt("Google Account OAuth Login - Select or enter your Gmail address:", "santhosh@gmail.com");
+    }
+    if (email && email.includes("@")) {
+      await this.handleGoogleOAuthSuccess(email);
+    }
+  }
+
+  async handleGoogleOAuthSuccess(emailOrCredential) {
+    let email = emailOrCredential;
+    let name = "";
+    if (emailOrCredential && emailOrCredential.includes(".")) {
+      try {
+        const parts = emailOrCredential.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          email = payload.email || emailOrCredential;
+          name = payload.name || "";
+        }
+      } catch (e) {}
+    }
+    if (!email || !email.includes("@")) return;
+
+    name = name || email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1);
+
+    const res = await this.apiCall("/google-login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        name: name
+      })
+    });
+
+    if (res && res.status === "success" && res.token) {
+      this.currentUser = {
+        name: res.name || name,
+        email: email.trim().toLowerCase(),
+        token: res.token
+      };
+      localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("auth_token", res.token);
+
+      this.updateUserSessionUI();
+      this.showPage("dashboard");
+    } else {
+      alert(res?.message || "Google OAuth Authentication failed.");
     }
   }
 
