@@ -86,6 +86,10 @@ class AeroAssistApp {
       if (this.currentVendor) {
         this.fetchVendorQueue();
       }
+      const trackerModal = document.getElementById("modal-order-tracker");
+      if (this.activeTrackingOrderId && trackerModal && trackerModal.style.display === "flex") {
+        this.openOrderTracker(this.activeTrackingOrderId);
+      }
     }, 5000);
   }
 
@@ -120,6 +124,14 @@ class AeroAssistApp {
     if (!this.currentUser && ["wallet", "quiz"].includes(pageId)) {
       alert("Please Sign In or Register to access your smart documents and reward quizzes!");
       this.showPage("auth");
+      return;
+    }
+
+    // RBAC route protection
+    const role = this.currentUserType || localStorage.getItem("user_type") || "Visitor";
+    if (pageId === "vendor" && !this.currentVendor && role !== "Admin" && role !== "Vendor") {
+      alert("Unauthorized: Only authorized vendors can access the Vendor Portal.");
+      this.showPage("dashboard");
       return;
     }
 
@@ -375,6 +387,44 @@ class AeroAssistApp {
       nameLabel.innerText = "Visitor Account";
       emailLabel.innerText = "Sign In / Sign Up";
     }
+    this.updateSidebarRBAC();
+  }
+
+  // --- ROLE-BASED SIDEBAR ACCESS CONTROL (RBAC) ---
+  updateSidebarRBAC() {
+    const navVendor = document.getElementById("nav-vendor");
+    const navDashboard = document.getElementById("nav-dashboard");
+    const navChat = document.getElementById("nav-chat");
+    const navDining = document.getElementById("nav-dining");
+    const navLounges = document.getElementById("nav-lounges");
+    const navWallet = document.getElementById("nav-wallet");
+    const navUtilities = document.getElementById("nav-utilities");
+    const navQuiz = document.getElementById("nav-quiz");
+
+    const role = this.currentUserType || localStorage.getItem("user_type") || "Visitor";
+    const isVendor = role === "Vendor" || !!this.currentVendor;
+
+    if (navVendor) {
+      // DO NOT show Vendor Portal to Visitor or Employee
+      navVendor.style.display = (role === "Admin" || isVendor) ? "flex" : "none";
+    }
+
+    if (isVendor && !this.currentUser) {
+      if (navDashboard) navDashboard.style.display = "none";
+      if (navChat) navChat.style.display = "none";
+      if (navLounges) navLounges.style.display = "none";
+      if (navWallet) navWallet.style.display = "none";
+      if (navUtilities) navUtilities.style.display = "none";
+      if (navQuiz) navQuiz.style.display = "none";
+    } else {
+      if (navDashboard) navDashboard.style.display = "flex";
+      if (navChat) navChat.style.display = "flex";
+      if (navDining) navDining.style.display = "flex";
+      if (navLounges) navLounges.style.display = "flex";
+      if (navWallet) navWallet.style.display = "flex";
+      if (navUtilities) navUtilities.style.display = "flex";
+      if (navQuiz) navQuiz.style.display = "flex";
+    }
   }
 
   openProfileModal() {
@@ -627,6 +677,34 @@ class AeroAssistApp {
     `).join("");
   }
 
+  // --- PRODUCT IMAGE CATEGORY FALLBACK ENGINE ---
+  getProductImage(prod) {
+    if (prod && prod.image_url && typeof prod.image_url === "string" && prod.image_url.trim().length > 5) {
+      return prod.image_url.trim();
+    }
+    const cat = ((prod?.category || "") + " " + (prod?.name || "")).toLowerCase();
+    if (cat.includes("burger")) {
+      return "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400";
+    } else if (cat.includes("pizza")) {
+      return "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400";
+    } else if (cat.includes("coffee") || cat.includes("tea") || cat.includes("cappuccino") || cat.includes("espresso") || cat.includes("latte") || cat.includes("brew") || cat.includes("beverage")) {
+      return "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400";
+    } else if (cat.includes("biryani") || cat.includes("rice") || cat.includes("curry") || cat.includes("chicken") || cat.includes("paneer") || cat.includes("thali") || cat.includes("masala")) {
+      return "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400";
+    } else if (cat.includes("sandwich") || cat.includes("wrap") || cat.includes("sub") || cat.includes("toast") || cat.includes("panini")) {
+      return "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400";
+    } else if (cat.includes("juice") || cat.includes("shake") || cat.includes("smoothie") || cat.includes("drink") || cat.includes("lemonade") || cat.includes("mocktail") || cat.includes("water") || cat.includes("cola")) {
+      return "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400";
+    } else if (cat.includes("salad") || cat.includes("fruit") || cat.includes("veg") || cat.includes("sprouts") || cat.includes("healthy")) {
+      return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400";
+    } else if (cat.includes("dessert") || cat.includes("cake") || cat.includes("ice cream") || cat.includes("pastry") || cat.includes("brownie") || cat.includes("cookie") || cat.includes("sweet")) {
+      return "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400";
+    } else if (cat.includes("snack") || cat.includes("fries") || cat.includes("samosa") || cat.includes("chips") || cat.includes("nachos") || cat.includes("wings")) {
+      return "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=400";
+    }
+    return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400";
+  }
+
   async showMenu(restaurantId, restaurantName) {
     this.showPage("menu");
     document.getElementById("menu-vendor-name").innerText = restaurantName;
@@ -645,7 +723,7 @@ class AeroAssistApp {
 
     container.innerHTML = products.map(prod => `
       <div class="glass-card" style="display:flex; gap:16px; align-items:center; padding:16px;">
-        <img style="width:80px; height:80px; border-radius:10px; object-fit:cover;" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150" alt="${prod.name}">
+        <img style="width:80px; height:80px; border-radius:10px; object-fit:cover;" src="${this.getProductImage(prod)}" alt="${prod.name}">
         <div style="flex:1;">
           <h4 style="margin:0; font-size:16px;">${prod.name}</h4>
           <p style="font-size:11px; color:var(--text-secondary); margin:4px 0;">${prod.description || 'No description.'}</p>
@@ -927,13 +1005,21 @@ class AeroAssistApp {
     const details = await this.apiCall(`/orders/${orderId}`);
     if (!details || details.status === "error") return;
 
-    document.getElementById("tracker-restaurant-title").innerText = details.restaurant_name || "Food Order Tracking";
-    document.getElementById("tracker-order-id").innerText = `Order #${details.order_id}`;
-    document.getElementById("tracker-order-location").innerText = `${details.terminal || 'T1'} • ${details.gate || 'Gate 1'}`;
-    document.getElementById("tracker-order-items").innerText = `Items: ${details.items || details.formatted_items || 'Meal Select'}`;
+    this.activeTrackingOrderId = orderId;
+    document.getElementById("tracker-restaurant-title").innerText = details.restaurant_name || details.vendor_name || "Food Order Tracking";
+    document.getElementById("tracker-order-id").innerText = `Order #${details.order_id || details.id}`;
+    document.getElementById("tracker-order-location").innerText = `${details.terminal || 'T1'} • ${details.gate || 'Gate 14'}`;
+    
+    const itemsStr = details.items ? (Array.isArray(details.items) ? details.items.map(i => `${i.quantity || 1}x ${i.name || i.product_name || 'Item'}`).join(", ") : details.items) : (details.formatted_items || 'Meal Select');
+    document.getElementById("tracker-order-items").innerText = `Items: ${itemsStr}`;
+    
+    const estEl = document.getElementById("tracker-order-est");
+    if (estEl) estEl.innerText = `Est. Time: ${details.est_time || '15-20 mins'}`;
+    const totEl = document.getElementById("tracker-order-total");
+    if (totEl) totEl.innerText = `Total: ₹${details.total_price || details.total_amount || 0}`;
 
     const stepper = document.getElementById("tracker-stepper");
-    const status = details.order_status.toLowerCase();
+    const status = (details.order_status || details.status || "pending").toLowerCase();
 
     const isRejected = ["rejected", "cancelled"].includes(status);
 
@@ -949,20 +1035,21 @@ class AeroAssistApp {
         </div>
       `;
     } else {
-      const s1 = ["pending", "accepted", "preparing", "ready", "delivered"].includes(status);
-      const s2 = ["accepted", "preparing", "ready", "delivered"].includes(status);
-      const s3 = ["preparing", "ready", "delivered"].includes(status);
-      const s4 = ["ready", "delivered"].includes(status);
-      const s5 = ["delivered"].includes(status);
+      const s1 = ["pending", "placed", "accepted", "preparing", "ready", "out for delivery", "delivered"].includes(status);
+      const s2 = ["accepted", "preparing", "ready", "out for delivery", "delivered"].includes(status);
+      const s3 = ["preparing", "ready", "out for delivery", "delivered"].includes(status);
+      const s4 = ["ready", "out for delivery", "delivered"].includes(status);
+      const s5 = ["out for delivery", "delivered"].includes(status);
+      const s6 = ["delivered"].includes(status);
 
       stepper.innerHTML = `
-        <div class="step-row ${s1 ? 'completed' : ''} ${status === 'pending' ? 'active' : ''}">
-          <div class="step-circle">${s1 && status !== 'pending' ? '✓' : '1'}</div>
-          <div class="step-label"><h4>Pending Confirmation</h4></div>
+        <div class="step-row ${s1 ? 'completed' : ''} ${["pending", "placed"].includes(status) ? 'active' : ''}">
+          <div class="step-circle">${s1 && !["pending", "placed"].includes(status) ? '✓' : '1'}</div>
+          <div class="step-label"><h4>Order Placed</h4></div>
         </div>
         <div class="step-row ${s2 ? 'completed' : ''} ${status === 'accepted' ? 'active' : ''}">
           <div class="step-circle">${s2 && status !== 'accepted' ? '✓' : '2'}</div>
-          <div class="step-label"><h4>Order Accepted</h4></div>
+          <div class="step-label"><h4>Accepted</h4></div>
         </div>
         <div class="step-row ${s3 ? 'completed' : ''} ${status === 'preparing' ? 'active' : ''}">
           <div class="step-circle">${s3 && status !== 'preparing' ? '✓' : '3'}</div>
@@ -972,8 +1059,12 @@ class AeroAssistApp {
           <div class="step-circle">${s4 && status !== 'ready' ? '✓' : '4'}</div>
           <div class="step-label"><h4>Ready at Counter</h4></div>
         </div>
-        <div class="step-row ${s5 ? 'completed' : ''}">
-          <div class="step-circle">${s5 ? '✓' : '5'}</div>
+        <div class="step-row ${s5 ? 'completed' : ''} ${status === 'out for delivery' ? 'active' : ''}">
+          <div class="step-circle">${s5 && status !== 'out for delivery' ? '✓' : '5'}</div>
+          <div class="step-label"><h4>Out for Delivery</h4></div>
+        </div>
+        <div class="step-row ${s6 ? 'completed' : ''}">
+          <div class="step-circle">${s6 ? '✓' : '6'}</div>
           <div class="step-label"><h4>Delivered</h4></div>
         </div>
       `;
@@ -1020,6 +1111,7 @@ class AeroAssistApp {
     if (res && res.status === "success") {
       this.currentVendor = res.vendor;
       localStorage.setItem("vendor_session", JSON.stringify(res.vendor));
+      this.updateSidebarRBAC();
       this.closeModal("vendor-login");
       this.showPage("vendor");
       this.fetchVendorQueue();
@@ -1031,6 +1123,7 @@ class AeroAssistApp {
   logoutVendor() {
     this.currentVendor = null;
     localStorage.removeItem("vendor_session");
+    this.updateSidebarRBAC();
     this.showPage("user-type");
   }
 
@@ -1057,7 +1150,7 @@ class AeroAssistApp {
     if (!container) return;
 
     if (isRestaurant) {
-      const ordRes = await this.apiCall(`/orders?vendor_id=${this.currentVendor.id}`);
+      const ordRes = await this.apiCall(`/vendors/orders?vendor_id=${this.currentVendor.id}`);
       const orders = (ordRes && ordRes.orders) ? ordRes.orders : [];
       if (!orders || orders.length === 0) {
         container.innerHTML = `<p style="text-align:center; padding: 40px 0; color:var(--text-secondary);">No orders in queue.</p>`;
@@ -1083,6 +1176,10 @@ class AeroAssistApp {
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">Mark Ready</button>
             ` : ''}
             ${ord.status.toLowerCase() === 'ready' ? `
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">Send for Delivery</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
+            ` : ''}
+            ${ord.status.toLowerCase() === 'out for delivery' ? `
               <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
             ` : ''}
           </div>
@@ -1145,7 +1242,7 @@ class AeroAssistApp {
 
     container.innerHTML = products.map(prod => `
       <div class="glass-card" style="display:flex; gap:16px; align-items:center; padding:16px;">
-        <img style="width:60px; height:60px; border-radius:8px; object-fit:cover;" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150" alt="${prod.name}">
+        <img style="width:60px; height:60px; border-radius:8px; object-fit:cover;" src="${this.getProductImage(prod)}" alt="${prod.name}">
         <div style="flex:1;">
           <h4 style="margin:0; font-size:15px;">${prod.name}</h4>
           <strong style="color:var(--accent-orange);">₹${prod.price}</strong>
