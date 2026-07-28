@@ -1287,9 +1287,6 @@ def login():
         })
         
     return jsonify({"status": "error", "message": "Invalid credentials. If you are a new user, please create an account first."}), 401
-# The original duplicate chat function has been removed to avoid route mapping conflicts.
-# Its functionality is now fully integrated into the unified chat endpoint above.
-
 @app.route('/api/token-refresh', methods=['POST'])
 @limiter.limit("20 per minute")
 def token_refresh():
