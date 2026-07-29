@@ -699,6 +699,31 @@ class AeroAssistApp {
     }
   }
 
+  // --- NEW MODULE LOGIC ---
+  trackBaggage() {
+    const input = document.getElementById("baggage-tracking-input");
+    const resultBox = document.getElementById("baggage-tracking-result");
+    const idSpan = document.getElementById("baggage-tracking-id");
+    
+    if (!input.value.trim()) {
+      alert("Please enter a valid Bag Tag Number (e.g. AA123456)");
+      return;
+    }
+    
+    // Simulate API fetch delay
+    const oldText = input.nextElementSibling.innerText;
+    input.nextElementSibling.innerText = "TRACKING...";
+    
+    setTimeout(() => {
+      idSpan.innerText = input.value.toUpperCase();
+      resultBox.style.display = "block";
+      input.nextElementSibling.innerText = oldText;
+      
+      // Re-initialize any new lucide icons in the result block
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }, 800);
+  }
+
   // --- LIVE FLIGHT TRACKER ENGINE (AVIATIONSTACK API) ---
   async fetchLiveFlightStatus(flightIataInput) {
     const inputEl = document.getElementById("dash-flight-search-input");
