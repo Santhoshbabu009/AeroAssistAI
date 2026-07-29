@@ -1020,32 +1020,30 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
     resend_sender = os.environ.get("RESEND_SENDER_EMAIL", "onboarding@resend.dev").strip()
     email_sent = False
 
-    # BYPASS RESEND API: Resend free tier (onboarding@resend.dev) is silently blocked/quarantined by Gmail.
-    # We will force the backend to fall back to Direct SMTP via Gmail which guarantees inbox delivery.
-    # if resend_key:
-    #     resend_key = resend_key.strip()
-    #     print(f"[RESEND] Dispatching secure verification email from '{resend_sender}' to: {to_email}...")
-    #     import requests
-    #     try:
-    #         url = "https://api.resend.com/emails"
-    #         headers = {
-    #             "Authorization": f"Bearer {resend_key}",
-    #             "Content-Type": "application/json"
-    #         }
-    #         data = {
-    #             "from": f"AeroAssist Security <{resend_sender}>",
-    #             "to": to_email,
-    #             "subject": f"🔒 {otp} is your AeroAssist Verification Code",
-    #             "html": html_content
-    #         }
-    #         response = requests.post(url, json=data, headers=headers, timeout=5)
-    #         if response.status_code in [200, 201]:
-    #             print(f"[RESEND SUCCESS] Email successfully delivered to {to_email}!")
-    #             email_sent = True
-    #         else:
-    #             print(f"[RESEND ERROR] HTTP Status {response.status_code}: {response.text}")
-    #     except Exception as e_resend:
-    #         print(f"[RESEND EXCEPTION] HTTPS dispatch failed: {e_resend}")
+    if resend_key:
+        resend_key = resend_key.strip()
+        print(f"[RESEND] Dispatching secure verification email from '{resend_sender}' to: {to_email}...")
+        import requests
+        try:
+            url = "https://api.resend.com/emails"
+            headers = {
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "from": f"AeroAssist Security <{resend_sender}>",
+                "to": to_email,
+                "subject": f"🔒 {otp} is your AeroAssist Verification Code",
+                "html": html_content
+            }
+            response = requests.post(url, json=data, headers=headers, timeout=5)
+            if response.status_code in [200, 201]:
+                print(f"[RESEND SUCCESS] Email successfully delivered to {to_email}!")
+                email_sent = True
+            else:
+                print(f"[RESEND ERROR] HTTP Status {response.status_code}: {response.text}")
+        except Exception as e_resend:
+            print(f"[RESEND EXCEPTION] HTTPS dispatch failed: {e_resend}")
 
     if email_sent:
         return True, "Sent via Resend"
