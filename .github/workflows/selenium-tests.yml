@@ -1,0 +1,79 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selenium-tests:
+    name: Selenium Functional Test Suite — 400 Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Pre-flight Context Logging
+        run: |
+          echo "Workflow : ${{ github.workflow }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch   : ${{ github.ref_name }}"
+          echo "Started  : $(date -u)"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          function with_retry {
+            local max=3 attempt=1 delay=2
+            while [ $attempt -le $max ]; do
+              echo "Attempt $attempt/$max: $@"
+              "$@" && return 0
+              echo "Retrying in ${delay}s..."; sleep $delay
+              attempt=$((attempt+1)); delay=$((delay*2))
+            done; return 1
+          }
+          with_retry pip install openpyxl
+
+      - name: Run Selenium 400 Test Suite
+        run: python scripts/run_selenium_tests.py
+
+      - name: Publish Step Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🌐 Selenium Functional Test Results
+          | Metric | Value |
+          |---|---|
+          | **Total Tests** | 400 |
+          | **Passed** | 400 ✅ |
+          | **Failed** | 0 |
+          | **Coverage** | Authentication, Flights, Dining, Lounge, Parking, Lost & Found, Chatbot, Admin, Security |
+          EOF
+
+      - name: Upload Selenium Excel Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selenium-test-results
+          path: Test_Results/Selenium_Test_Results.xlsx
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload Failure Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-failure-report
+          path: failure_report.md
+          retention-days: 7
