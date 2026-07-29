@@ -1105,16 +1105,17 @@ class AeroAssistApp {
 
     if (res && res.status === "success") {
       this.currentUser = {
-        name: res.name || "Santhosh Babu",
+        name: res.name || email.split('@')[0],
         email: email,
-        mobile: res.mobile || "9876543210",
-        token: res.token || null
+        mobile: res.mobile || "",
+        token: res.token || null,
+        profile_photo: res.profile_photo || null
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
       localStorage.setItem("user_email", email);
       this.updateUserSessionUI();
-      // Sync all user data from server after login
-      this.fetchUserProfile();
+      // Fetch latest profile data from server (Supabase-first) to sync photo + details
+      await this.fetchUserProfile();
       this.fetchChatHistory();
       this.fetchMyBookings();
       this.showPage("dashboard");
@@ -1129,12 +1130,13 @@ class AeroAssistApp {
       const res = await this.apiCall(`/get-profile?email=${encodeURIComponent(this.currentUser.email)}`);
       if (res && res.status === "success") {
         if (res.name) this.currentUser.name = res.name;
-        if (res.mobile) this.currentUser.mobile = res.mobile;
-        if (res.profile_photo) this.currentUser.profile_photo = res.profile_photo;
+        if (res.mobile !== undefined) this.currentUser.mobile = res.mobile;
+        // Always sync photo from server (even if null - clear cached stale photo)
+        this.currentUser.profile_photo = res.profile_photo || null;
         localStorage.setItem("user_session", JSON.stringify(this.currentUser));
         this.updateUserSessionUI();
       }
-    } catch(e) {}
+    } catch(e) { console.warn("[PROFILE] Fetch failed:", e); }
   }
 
   updateUserSessionUI() {
@@ -1311,8 +1313,9 @@ class AeroAssistApp {
 
   // --- AI CHATBOT COPILOT ---
   async fetchChatHistory() {
-    const email = this.currentUser ? this.currentUser.email : (localStorage.getItem("user_email") || "santhoshbabusbk25@gmail.com");
-    if (!email) return;
+    // Only fetch chat history for authenticated users
+    if (!this.currentUser || !this.currentUser.email) return;
+    const email = this.currentUser.email;
     try {
       const res = await this.apiCall(`/chat-history?email=${encodeURIComponent(email)}`);
       if (res && res.status === "success" && Array.isArray(res.history) && res.history.length > 0) {
@@ -1322,7 +1325,7 @@ class AeroAssistApp {
         }));
         this.renderChatHistory();
       }
-    } catch(e) {}
+    } catch(e) { console.warn("[CHAT HISTORY] Fetch failed:", e); }
   }
 
   renderChatHistory() {

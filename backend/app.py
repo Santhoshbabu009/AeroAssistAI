@@ -1379,6 +1379,11 @@ def verify():
 @app.route('/api/login', methods=['POST'])
 @limiter.limit("5 per minute")
 def login():
+    """
+    Supabase-first login.
+    Always tries Supabase for authentication, falls back to SQLite.
+    Returns profile_photo so the client can display it immediately without an extra round-trip.
+    """
     data = request.json or {}
     email = data.get('email')
     password = data.get('password')
@@ -1392,25 +1397,33 @@ def login():
     password = password.strip()
     
     user = None
-    if USE_SQLITE:
-        user = db.get_user(email)
-    else:
+
+    # Step 1: Always try Supabase first
+    if supabase is not None:
         try:
-            response = supabase.table('users').select('name, password, mobile').ilike('email', email).execute()
-            user = response.data[0] if response.data else None
+            response = supabase.table('users').select('*').ilike('email', email).execute()
+            if response.data:
+                user = response.data[0]
         except Exception as e:
-            print("[FALLBACK] Supabase error in login:", str(e))
-            user = db.get_user(email)
-    
+            print("[LOGIN] Supabase error, falling back to SQLite:", str(e))
+
+    # Step 2: Fallback to SQLite if Supabase unavailable or user not found there
+    if not user:
+        user = db.get_user(email)
+
     print(f"[LOGIN] attempt for: '{email}' | DB match: {user is not None}")
     
     if user and check_password(user.get('password'), password):
         token = generate_token(email, role="user")
+        photo = user.get('profile_photo')
+        if photo and not photo.startswith('data:') and not photo.startswith('http'):
+            photo = f"data:image/jpeg;base64,{photo}"
         return jsonify({
             "status": "success", 
             "message": "Login validated securely.", 
             "name": user.get('name'),
             "mobile": user.get('mobile'),
+            "profile_photo": photo,
             "token": token
         })
         
@@ -1475,8 +1488,45 @@ def save_chat():
 
     return jsonify({"status": "success"})
 
+
+def fetch_user_table(table_name, email):
+    """
+    Supabase-first, SQLite-fallback unified reader.
+    Always tries Supabase first so all devices see the same data.
+    Falls back to SQLite if Supabase is unavailable.
+    """
+    email_norm = email.strip().lower()
+    # Try Supabase first (source of truth)
+    if supabase is not None:
+        try:
+            res = supabase.table(table_name).select('*').eq('user_email', email_norm).execute()
+            if res and res.data:
+                return res.data
+        except Exception as e:
+            print(f"[SUPABASE READ] {table_name} error:", str(e))
+    # Fallback to SQLite
+    method_map = {
+        'chat_history': lambda: db.get_chat_history(email_norm),
+        'flight_bookings': lambda: db.get_flight_bookings(email_norm),
+        'orders': lambda: db.get_orders(email_norm),
+        'lounge_bookings': lambda: db.get_lounge_bookings(email_norm),
+        'parking_bookings': lambda: db.get_parking_bookings(email_norm),
+        'lost_items': lambda: db.get_lost_items(email_norm),
+    }
+    if table_name in method_map:
+        try:
+            return method_map[table_name]()
+        except Exception as e:
+            print(f"[SQLITE READ] {table_name} error:", str(e))
+    return []
+
 @app.route('/api/chat-history', methods=['GET'])
 def get_chat_history():
+    """
+    Returns chat history for a user.
+    Supabase is the primary source – its data will overwrite any SQLite duplicates.
+    SQLite data is merged in only for messages not already present in Supabase.
+    """
     email = request.args.get('email')
     if not email:
         return jsonify({"status": "error", "message": "Email is required"}), 400
@@ -1485,26 +1535,9 @@ def get_chat_history():
     print(f"[CHAT HISTORY] Fetching history for: {email}")
 
     history = []
-    try:
-        conn = db.get_conn()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT email, user_type, session_id, message, is_user, created_at FROM chat_history WHERE LOWER(email) = ? ORDER BY id ASC",
-            (email,)
-        )
-        rows = cursor.fetchall()
-        for r in rows:
-            history.append({
-                "email": r["email"],
-                "user_type": r["user_type"],
-                "session_id": r["session_id"],
-                "message": r["message"],
-                "is_user": bool(r["is_user"]),
-                "created_at": str(r["created_at"])
-            })
-    except Exception as e:
-        print("[CHAT HISTORY] SQLite Fetch Error:", str(e))
+    supabase_loaded = False
 
+    # Step 1: Always try Supabase first
     if supabase is not None:
         try:
             res = supabase.table('chat_history')\
@@ -1512,9 +1545,8 @@ def get_chat_history():
                 .ilike('email', email)\
                 .order('id', desc=False)\
                 .execute()
-            existing_msgs = set(h["message"] for h in history)
-            for item in (res.data or []):
-                if item.get("message") not in existing_msgs:
+            if res and res.data:
+                for item in res.data:
                     history.append({
                         "email": item.get("email"),
                         "user_type": item.get("user_type"),
@@ -1523,29 +1555,69 @@ def get_chat_history():
                         "is_user": bool(item.get("is_user")),
                         "created_at": str(item.get("created_at"))
                     })
+                supabase_loaded = True
+                print(f"[CHAT HISTORY] Loaded {len(history)} messages from Supabase")
         except Exception as e:
             print("[CHAT HISTORY] Supabase Fetch Error:", str(e))
+
+    # Step 2: Merge SQLite records (catches any messages not yet synced to Supabase)
+    try:
+        conn = db.get_conn()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT email, user_type, session_id, message, is_user, created_at FROM chat_history WHERE LOWER(email) = ? ORDER BY id ASC",
+            (email,)
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        existing_msgs = set((h["message"], bool(h["is_user"])) for h in history)
+        for r in rows:
+            msg_key = (r["message"], bool(r["is_user"]))
+            if msg_key not in existing_msgs:
+                history.append({
+                    "email": r["email"],
+                    "user_type": r["user_type"],
+                    "session_id": r["session_id"],
+                    "message": r["message"],
+                    "is_user": bool(r["is_user"]),
+                    "created_at": str(r["created_at"])
+                })
+                existing_msgs.add(msg_key)
+        if not supabase_loaded:
+            print(f"[CHAT HISTORY] Loaded {len(history)} messages from SQLite (Supabase unavailable)")
+    except Exception as e:
+        print("[CHAT HISTORY] SQLite Fetch Error:", str(e))
 
     return jsonify({"status": "success", "history": history})
 
 @app.route('/api/get-profile', methods=['GET'])
 def get_profile():
+    """
+    Supabase-first profile fetch.
+    Always tries Supabase for the most up-to-date data
+    (e.g. profile photo changed on another device), then falls back to SQLite.
+    """
     email = (request.args.get('email') or '').strip().lower()
     if not email:
         return jsonify({"status": "error", "message": "email parameter is required"}), 400
 
     user = None
-    if USE_SQLITE:
-        user = db.get_user(email)
-    else:
+
+    # Step 1: Always try Supabase first (cross-device source of truth)
+    if supabase is not None:
         try:
             res = supabase.table('users').select('*').ilike('email', email).execute()
-            user = res.data[0] if res.data else None
-        except Exception:
-            user = db.get_user(email)
+            if res and res.data:
+                user = res.data[0]
+                print(f"[GET PROFILE] Loaded from Supabase for {email}")
+        except Exception as e:
+            print(f"[GET PROFILE] Supabase error, falling back to SQLite: {str(e)}")
 
+    # Step 2: Fallback to SQLite if Supabase didn't return data
     if not user:
         user = db.get_user(email)
+        if user:
+            print(f"[GET PROFILE] Loaded from SQLite for {email}")
 
     if user:
         photo = user.get('profile_photo')
