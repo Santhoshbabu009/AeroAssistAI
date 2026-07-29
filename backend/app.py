@@ -1046,7 +1046,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
             print(f"[RESEND EXCEPTION] HTTPS dispatch failed: {e_resend}")
 
     if email_sent:
-        return True
+        return True, "Sent via Resend"
 
     # SMTP Fallback (Direct SSL Port 465 for max speed and reliability)
     import smtplib
@@ -1057,8 +1057,9 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
     smtp_pass = os.environ.get("SMTP_SENDER_PASSWORD")
 
     if not smtp_email or not smtp_pass:
-        print("[SMTP ERROR] No SMTP credentials configured in environment variables. OTP delivery failed.")
-        return False
+        msg = "No SMTP credentials configured in environment variables."
+        print(f"[SMTP ERROR] {msg}")
+        return False, msg
 
     print(f"[SMTP] Attempting SMTP SSL delivery via '{smtp_email}' to: {to_email}...")
     try:
@@ -1076,10 +1077,11 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
         server.sendmail(smtp_email, to_email, msg.as_string())
         server.quit()
         print(f"[SMTP SUCCESS] Email successfully delivered via SMTP SSL to {to_email}!")
-        return True
+        return True, "Sent via SMTP SSL"
     except Exception as e_smtp:
-        print(f"[SMTP EXCEPTION] SMTP SSL delivery failed: {e_smtp}")
-        return False
+        err = f"SMTP SSL delivery failed: {str(e_smtp)}"
+        print(f"[SMTP EXCEPTION] {err}")
+        return False, err
 
 
 @app.route('/api/google-login', methods=['POST'])
@@ -1524,7 +1526,13 @@ def password_reset_request():
     
     # Custom message as per User Request
     message = "This is your OTP to change password. Please verify this code to securely update your account credentials."
-    send_verification_email(email, otp, name=user.get('name'), custom_message=message)
+    success, reason = send_verification_email(email, otp, name=user.get('name'), custom_message=message)
+    
+    if not success:
+        # Prevent the user from proceeding if the OTP failed to send
+        del otp_store[email + "_reset"]
+        return jsonify({"status": "error", "message": f"Email delivery failed: {reason}"}), 500
+        
     return jsonify({"status": "success", "message": "Verification code sent to email"})
 
 @app.route('/api/password-reset-confirm', methods=['POST'])

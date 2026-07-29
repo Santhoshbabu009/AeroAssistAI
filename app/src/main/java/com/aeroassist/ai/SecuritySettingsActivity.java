@@ -71,7 +71,18 @@ public class SecuritySettingsActivity extends BaseActivity {
                             startActivity(intent);
                         });
                     } else {
-                        runOnUiThread(() -> Toast.makeText(SecuritySettingsActivity.this, "Cannot reset Google Account password here", Toast.LENGTH_LONG).show());
+                        String errorMsg = "Cannot reset Google Account password here";
+                        try {
+                            String respBody = response.body().string();
+                            JSONObject errJson = new JSONObject(respBody);
+                            if (errJson.has("message")) {
+                                errorMsg = errJson.getString("message");
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        final String finalErrorMsg = errorMsg;
+                        runOnUiThread(() -> Toast.makeText(SecuritySettingsActivity.this, finalErrorMsg, Toast.LENGTH_LONG).show());
                     }
                 }
             });
