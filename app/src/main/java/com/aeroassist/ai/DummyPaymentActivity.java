@@ -83,8 +83,12 @@ public class DummyPaymentActivity extends BaseActivity {
         try {
             JSONObject payload = new JSONObject();
             
-            SharedPreferences prefs = getSharedPreferences("UserSession", MODE_PRIVATE);
-            String email = prefs.getString("user_email", "demo@aeroassist.ai");
+            SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+            String email = session.getString("email", session.getString("user_email", null));
+            if (email == null || email.isEmpty()) {
+                SharedPreferences userSession = getSharedPreferences("UserSession", MODE_PRIVATE);
+                email = userSession.getString("user_email", userSession.getString("email", "demo@aeroassist.ai"));
+            }
             payload.put("email", email);
 
             JSONObject flightDetails = new JSONObject(flightJson);

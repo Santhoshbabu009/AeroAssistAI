@@ -672,6 +672,14 @@ class AeroAssistApp {
       this.updateWalletDocs();
     } else if (pageId === "my-bookings") {
       this.fetchMyBookings();
+      if (this.myBookingsPollTimer) clearInterval(this.myBookingsPollTimer);
+      this.myBookingsPollTimer = setInterval(() => {
+        if (this.currentPage === "my-bookings") {
+          this.fetchMyBookings();
+        } else {
+          clearInterval(this.myBookingsPollTimer);
+        }
+      }, 8000);
     }
   }
 

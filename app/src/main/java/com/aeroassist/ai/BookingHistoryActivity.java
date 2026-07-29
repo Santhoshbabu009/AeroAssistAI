@@ -52,8 +52,22 @@ public class BookingHistoryActivity extends BaseActivity {
         bookingsRecyclerView = findViewById(R.id.bookingsRecyclerView);
         
         bookingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         fetchBookings();
+    }
+
+    private String getLoggedInEmail() {
+        SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+        String email = session.getString("email", session.getString("user_email", null));
+        if (email == null || email.isEmpty()) {
+            SharedPreferences userSession = getSharedPreferences("UserSession", MODE_PRIVATE);
+            email = userSession.getString("user_email", userSession.getString("email", "demo@aeroassist.ai"));
+        }
+        return email;
     }
 
     private List<JSONObject> buildDemoBookings() {
@@ -103,9 +117,7 @@ public class BookingHistoryActivity extends BaseActivity {
         progressBar.setVisibility(View.VISIBLE);
         emptyText.setVisibility(View.GONE);
 
-        SharedPreferences prefs = getSharedPreferences("UserSession", MODE_PRIVATE);
-        String email = prefs.getString("user_email", "demo@aeroassist.ai");
-
+        String email = getLoggedInEmail();
         String url = Constants.FLIGHT_BOOKINGS_ENDPOINT + "?email=" + email;
 
         Request request = new Request.Builder()

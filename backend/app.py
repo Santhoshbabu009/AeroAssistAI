@@ -813,7 +813,7 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         conn = self.get_conn()
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM flight_bookings WHERE user_email = ? ORDER BY id DESC", (user_email,))
+            cursor.execute("SELECT * FROM flight_bookings WHERE LOWER(user_email) = LOWER(?) ORDER BY id DESC", (user_email.strip(),))
             rows = cursor.fetchall()
             return [dict(row) for row in rows]
         finally:
@@ -2723,15 +2723,19 @@ def book_flight():
         "created_at": datetime.datetime.utcnow().isoformat()
     }
     
-    if USE_SQLITE:
+    # Always persist in Local SQLite as well for reliable cross-platform syncing
+    try:
         db.create_flight_booking(
             user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
             origin, destination, departure_date, flight_json, pax_json, amount, payment_method
         )
-    else:
+    except Exception as e:
+        print("[SQLITE SYNC ERROR]:", str(e))
+
+    if not USE_SQLITE and supabase is not None:
         try:
             supabase.table('flight_bookings').insert({
-                "user_email": user_email,
+                "user_email": user_email.lower(),
                 "booking_id": booking_id,
                 "pnr": pnr,
                 "payment_id": payment_id,
@@ -2749,11 +2753,7 @@ def book_flight():
                 "booking_status": "Confirmed"
             }).execute()
         except Exception as e:
-            print("[FALLBACK] Supabase flight_booking insert error:", str(e))
-            db.create_flight_booking(
-                user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
-                origin, destination, departure_date, flight_json, pax_json, amount, payment_method
-            )
+            print("[SUPABASE SYNC ERROR]:", str(e))
 
     return jsonify({
         "status": "success",
@@ -2763,27 +2763,29 @@ def book_flight():
 
 
 @app.route('/api/flights/bookings', methods=['GET'])
-def get_user_flight_bookings():
-    user_email = request.args.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai'
+    user_email = (request.args.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai').strip().lower()
     import json
     
-    if USE_SQLITE:
-        raw_bookings = db.get_flight_bookings(user_email)
-        bookings = []
-        for b in raw_bookings:
-            b_dict = dict(b)
-            try:
-                b_dict['flight_details'] = json.loads(b_dict['flight_details']) if isinstance(b_dict['flight_details'], str) else b_dict['flight_details']
-                b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
-            except Exception:
-                pass
-            bookings.append(b_dict)
-        return jsonify({"status": "success", "bookings": bookings})
-    else:
+    # Retrieve from local SQLite (always available)
+    raw_sqlite = db.get_flight_bookings(user_email)
+    bookings_map = {}
+
+    for b in raw_sqlite:
+        b_dict = dict(b)
         try:
-            res = supabase.table('flight_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
-            bookings = res.data or []
-            for b in bookings:
+            b_dict['flight_details'] = json.loads(b_dict['flight_details']) if isinstance(b_dict['flight_details'], str) else b_dict['flight_details']
+            b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
+        except Exception:
+            pass
+        key = b_dict.get('pnr') or b_dict.get('booking_id')
+        if key:
+            bookings_map[key] = b_dict
+
+    # Retrieve from Supabase if configured
+    if supabase is not None:
+        try:
+            res = supabase.table('flight_bookings').select('*').ilike('user_email', user_email).order('id', desc=True).execute()
+            for b in (res.data or []):
                 try:
                     if isinstance(b.get('flight_details'), str):
                         b['flight_details'] = json.loads(b['flight_details'])
@@ -2791,20 +2793,14 @@ def get_user_flight_bookings():
                         b['passenger_details'] = json.loads(b['passenger_details'])
                 except Exception:
                     pass
-            return jsonify({"status": "success", "bookings": bookings})
+                key = b.get('pnr') or b.get('booking_id')
+                if key:
+                    bookings_map[key] = b
         except Exception as e:
-            print("[FALLBACK] Supabase flight_bookings query error:", str(e))
-            raw_bookings = db.get_flight_bookings(user_email)
-            bookings = []
-            for b in raw_bookings:
-                b_dict = dict(b)
-                try:
-                    b_dict['flight_details'] = json.loads(b_dict['flight_details']) if isinstance(b_dict['flight_details'], str) else b_dict['flight_details']
-                    b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
-                except Exception:
-                    pass
-                bookings.append(b_dict)
-            return jsonify({"status": "success", "bookings": bookings})
+            print("[SUPABASE QUERY NOTICE]:", str(e))
+
+    combined = list(bookings_map.values())
+    return jsonify({"status": "success", "bookings": combined})
 
 
 @app.route('/api/flights/bookings/<id_or_pnr>', methods=['GET'])
