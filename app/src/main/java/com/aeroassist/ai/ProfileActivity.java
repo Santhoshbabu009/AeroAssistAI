@@ -170,68 +170,101 @@ public class ProfileActivity extends BaseActivity {
 
     private void fetchRemoteProfile() {
         if (email == null || email.isEmpty() || email.equalsIgnoreCase("Not available")) return;
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
         String url = Constants.GET_PROFILE_ENDPOINT + "?email=" + email;
         Request request = new Request.Builder().url(url).get().build();
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
-            public void onFailure(okhttp3.Call call, java.io.IOException e) {}
+            public void onFailure(okhttp3.Call call, java.io.IOException e) {
+                // Silent fail - local data still shown
+            }
 
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String body = response.body().string();
-                        JSONObject json = new JSONObject(body);
-                        if (json.optString("status").equals("success")) {
-                            String fetchedName = json.optString("name", name);
-                            String fetchedMobile = json.optString("mobile", mobile);
-                            String photo = json.optString("profile_photo", null);
-                            runOnUiThread(() -> {
-                                if (fetchedName != null && !fetchedName.isEmpty()) {
-                                    name = fetchedName;
-                                    nameText.setText(name);
-                                }
-                                if (fetchedMobile != null && !fetchedMobile.isEmpty()) {
-                                    mobile = fetchedMobile;
-                                    mobileText.setText(mobile);
-                                }
-                                if (photo != null && !photo.isEmpty() && !photo.equals("null")) {
-                                    try {
-                                        byte[] imageBytes = Base64.decode(photo.contains(",") ? photo.split(",")[1] : photo, Base64.DEFAULT);
-                                        Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                                        if (bitmap != null) {
-                                            profileImage.setImageBitmap(bitmap);
-                                        }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                    } catch (Exception e) { e.printStackTrace(); }
+                okhttp3.ResponseBody respBody = response.body();
+                if (respBody == null) return;
+                final String body;
+                try {
+                    body = respBody.string();
+                } finally {
+                    respBody.close();
                 }
+                if (!response.isSuccessful() || body.isEmpty()) return;
+                try {
+                    JSONObject json = new JSONObject(body);
+                    if (!json.optString("status").equals("success")) return;
+                    String fetchedName = json.optString("name", "");
+                    String fetchedMobile = json.optString("mobile", "");
+                    String photo = json.optString("profile_photo", "");
+                    if (photo.equals("null")) photo = "";
+                    final String finalPhoto = photo;
+                    runOnUiThread(() -> {
+                        if (!fetchedName.isEmpty()) {
+                            name = fetchedName;
+                            nameText.setText(name);
+                        }
+                        if (!fetchedMobile.isEmpty()) {
+                            mobile = fetchedMobile;
+                            mobileText.setText(mobile);
+                        }
+                        if (!finalPhoto.isEmpty()) {
+                            try {
+                                // Strip data URI prefix if present before decoding
+                                String base64Part = finalPhoto.contains(",") ? finalPhoto.split(",", 2)[1] : finalPhoto;
+                                byte[] imageBytes = android.util.Base64.decode(base64Part, android.util.Base64.DEFAULT);
+                                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                if (bitmap != null) {
+                                    profileImage.setImageBitmap(bitmap);
+                                    // Cache it locally
+                                    prefs.edit().putString("image_" + userEmail, base64Part).apply();
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                } catch (Exception e) { e.printStackTrace(); }
             }
         });
     }
 
     private void saveProfilePhotoToServer(String base64Image) {
-        OkHttpClient client = new OkHttpClient();
+        // Ensure base64Image has proper data URI prefix
+        final String photoData = base64Image.startsWith("data:") ? base64Image : "data:image/jpeg;base64," + base64Image;
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
         try {
             JSONObject json = new JSONObject();
             json.put("email", email);
             json.put("name", name);
             json.put("mobile", mobile);
-            json.put("profile_photo", base64Image);
+            json.put("profile_photo", photoData);
 
             RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json"));
             Request request = new Request.Builder().url(Constants.UPDATE_PROFILE_ENDPOINT).post(body).build();
             client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
-                public void onFailure(okhttp3.Call call, java.io.IOException e) {}
+                public void onFailure(okhttp3.Call call, java.io.IOException e) {
+                    runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Photo sync failed (network error)", Toast.LENGTH_SHORT).show());
+                }
 
                 @Override
-                public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {}
+                public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
+                    okhttp3.ResponseBody rb = response.body();
+                    if (rb != null) rb.close(); // Always close body
+                    runOnUiThread(() -> {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(ProfileActivity.this, "✅ Profile photo synced across all devices!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(ProfileActivity.this, "Photo upload error (server)", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             });
         } catch (Exception e) { e.printStackTrace(); }
     }

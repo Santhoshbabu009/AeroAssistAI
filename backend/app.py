@@ -1445,32 +1445,35 @@ def token_refresh():
 @app.route('/api/save-chat', methods=['POST'])
 def save_chat():
     data = request.json or {}
-    email = data.get('email')
-    user_type = data.get('user_type')
+    email = (data.get('email') or '').strip().lower()
+    user_type = data.get('user_type', 'Passenger')
     session_id = data.get('session_id')
     message = data.get('message')
     is_user = data.get('is_user', True)
 
-    if not email or not user_type or message is None:
-        return jsonify({"status": "error", "message": "email, user_type, and message are required"}), 400
+    if not email or message is None:
+        return jsonify({"status": "error", "message": "email and message are required"}), 400
 
-    if USE_SQLITE:
+    # DUAL WRITE: Always save to SQLite (local) for reliability
+    try:
         db.save_chat_message(email, user_type, session_id, message, is_user)
-        return jsonify({"status": "success"})
-    else:
+    except Exception as e:
+        print("[SAVE CHAT] SQLite error:", str(e))
+
+    # Also write to Supabase if available (for cross-device sync)
+    if supabase is not None:
         try:
             supabase.table('chat_history').insert({
                 'email': email,
                 'user_type': user_type,
-                'session_id': session_id,
+                'session_id': str(session_id) if session_id else None,
                 'message': message,
-                'is_user': is_user
+                'is_user': bool(is_user)
             }).execute()
-            return jsonify({"status": "success"})
         except Exception as e:
-            print("[FALLBACK] Supabase Save Error:", str(e))
-            db.save_chat_message(email, user_type, session_id, message, is_user)
-            return jsonify({"status": "success", "fallback": True})
+            print("[SAVE CHAT] Supabase write error (non-fatal):", str(e))
+
+    return jsonify({"status": "success"})
 
 @app.route('/api/chat-history', methods=['GET'])
 def get_chat_history():
@@ -1545,12 +1548,16 @@ def get_profile():
         user = db.get_user(email)
 
     if user:
+        photo = user.get('profile_photo')
+        # Ensure photo has proper data URI prefix for display
+        if photo and not photo.startswith('data:') and not photo.startswith('http'):
+            photo = f"data:image/jpeg;base64,{photo}"
         return jsonify({
             "status": "success",
             "email": user.get('email'),
             "name": user.get('name'),
             "mobile": user.get('mobile'),
-            "profile_photo": user.get('profile_photo')
+            "profile_photo": photo
         })
     else:
         return jsonify({
@@ -1564,7 +1571,7 @@ def get_profile():
 @app.route('/api/update-profile', methods=['POST'])
 def update_profile():
     data = request.json or {}
-    email = data.get('email')
+    email = (data.get('email') or '').strip().lower()
     name = data.get('name')
     mobile = data.get('mobile')
     profile_photo = data.get('profile_photo')
@@ -1572,23 +1579,33 @@ def update_profile():
     if not email:
         return jsonify({"status": "error", "message": "email is required"}), 400
 
-    email = email.strip().lower()
-
-    if USE_SQLITE:
-        db.update_profile(email, name, mobile, profile_photo)
+    # Normalize profile_photo: strip data URI prefix for DB storage, re-add when reading
+    if profile_photo and profile_photo.startswith('data:'):
+        # Store raw base64 only (strip data:image/...;base64, prefix)
+        try:
+            profile_photo_clean = profile_photo.split(',', 1)[1]
+        except Exception:
+            profile_photo_clean = profile_photo
     else:
+        profile_photo_clean = profile_photo
+
+    # DUAL WRITE: Always write to SQLite
+    try:
+        db.update_profile(email, name, mobile, profile_photo_clean)
+    except Exception as e:
+        print("[UPDATE PROFILE] SQLite error:", str(e))
+
+    # Also write to Supabase if available
+    if supabase is not None:
         try:
             update_dict = {}
             if name is not None: update_dict['name'] = name
             if mobile is not None: update_dict['mobile'] = mobile
-            if profile_photo is not None: update_dict['profile_photo'] = profile_photo
-
+            if profile_photo_clean is not None: update_dict['profile_photo'] = profile_photo_clean
             if update_dict:
                 supabase.table('users').update(update_dict).ilike('email', email).execute()
-            db.update_profile(email, name, mobile, profile_photo)
         except Exception as e:
-            print("[FALLBACK] Supabase update-profile error:", str(e))
-            db.update_profile(email, name, mobile, profile_photo)
+            print("[UPDATE PROFILE] Supabase write error (non-fatal):", str(e))
 
     return jsonify({"status": "success", "message": "Profile updated successfully"})
 

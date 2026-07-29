@@ -1111,7 +1111,12 @@ class AeroAssistApp {
         token: res.token || null
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+      localStorage.setItem("user_email", email);
       this.updateUserSessionUI();
+      // Sync all user data from server after login
+      this.fetchUserProfile();
+      this.fetchChatHistory();
+      this.fetchMyBookings();
       this.showPage("dashboard");
     } else {
       alert(res.message || "Invalid credentials.");
@@ -1357,6 +1362,9 @@ class AeroAssistApp {
     const email = this.currentUser ? this.currentUser.email : "visitor@aeroassist.com";
     const name = this.currentUser ? this.currentUser.name : "Santhosh Babu";
     
+    // Save user message to backend for cross-platform sync
+    this.saveChatMessage(email, msgText, true);
+
     // We send request to /chat endpoint in Flask
     try {
       const response = await fetch(`${this.API_BASE}/chat`, {
@@ -1379,11 +1387,33 @@ class AeroAssistApp {
       
       this.chatHistory.push({ isUser: false, text: reply });
       this.renderChatHistory();
+
+      // Save AI reply to backend for cross-platform sync
+      this.saveChatMessage(email, reply, false);
     } catch (e) {
       thinkingDiv.remove();
-      this.chatHistory.push({ isUser: false, text: "Server offline or unavailable. Please check backend API server status." });
+      const offlineMsg = "Server offline or unavailable. Please check backend API server status.";
+      this.chatHistory.push({ isUser: false, text: offlineMsg });
       this.renderChatHistory();
     }
+  }
+
+  // Save a single chat message to the backend for cross-platform sync
+  async saveChatMessage(email, message, isUser) {
+    if (!email || email === "visitor@aeroassist.com") return;
+    try {
+      await fetch(`${this.API_BASE}/save-chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          user_type: "Passenger",
+          session_id: this.chatSessionId,
+          message: message,
+          is_user: isUser
+        })
+      });
+    } catch(e) { /* silent fail - sync is best effort */ }
   }
 
   // --- SMART WALLET & DOCUMENT VIEWER ---
@@ -2607,42 +2637,20 @@ class AeroAssistApp {
 
     let resultList = Array.from(combinedMap.values());
 
-    // Default demo booking if no bookings exist yet
+    // Show empty state if no bookings found - do NOT show fake demo data
     if (resultList.length === 0) {
-      resultList = [
-        {
-          id: "AA8921",
-          pnr: "AA8921",
-          booking_id: "BK-892102",
-          ticket_number: "TKT-9920192",
-          payment_id: "PAY-8810239",
-          transaction_id: "TXN-7781920192",
-          booking_status: "Confirmed",
-          departure_date: "2026-08-01",
-          flight_details: {
-            airline: "Air India",
-            flight_number: "AI-432",
-            origin: "MAA",
-            origin_name: "Chennai (MAA)",
-            destination: "DEL",
-            destination_name: "New Delhi (DEL)",
-            date: "2026-08-01",
-            departure_time: "06:00 AM",
-            arrival_time: "08:15 AM",
-            duration: "2h 15m",
-            stops: "Non-stop",
-            cabinClass: "Economy",
-            baggage: "25 kg Check-in + 7 kg Hand Bag",
-            aircraft: "Airbus A320neo",
-            terminal: "Terminal 1"
-          },
-          passenger_details: [
-            { name: this.currentUser ? this.currentUser.name : "Santhosh Babu", age: "28", gender: "Male", seat: "12A" }
-          ]
-        }
-      ];
+      container.innerHTML = `
+        <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
+          <div style="font-size:3rem; margin-bottom:16px;">✈️</div>
+          <h3 style="color:var(--text-primary); margin-bottom:8px;">No Bookings Yet</h3>
+          <p style="margin-bottom:24px;">You haven't booked any flights yet. Start exploring!</p>
+          <button class="btn-primary" onclick="app.showPage('flights')" style="padding:12px 28px; border-radius:12px;">Book a Flight</button>
+        </div>
+      `;
+      return;
     }
 
+    // Render real bookings
     this.allMyBookings = resultList;
     this.renderMyBookings(resultList);
   }
