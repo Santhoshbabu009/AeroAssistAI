@@ -5,9 +5,9 @@ public class Constants {
     public static final String BACKEND_BASE_URL = "https://aeroassistai.onrender.com";
     public static final String API_V1_BASE = BACKEND_BASE_URL + "/api";
     
-    // API Keys
-    public static final String OLA_MAPS_API_KEY = "mjvbKLsjrbnfxQgWu6tF3080AbtWZdGIHds9vANS";
-    public static final String AVIATION_STACK_API_KEY = "322876eed5ec416a01fffd3e4429c29e";
+    // API Keys (Moved to environment variables/secrets to prevent Gitleaks failures)
+    public static final String OLA_MAPS_API_KEY = "ENTER_OLA_MAPS_API_KEY_HERE";
+    public static final String AVIATION_STACK_API_KEY = "ENTER_AVIATION_STACK_API_KEY_HERE";
     
     // API Endpoints
     public static final String CHAT_ENDPOINT = BACKEND_BASE_URL + "/chat";

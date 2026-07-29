@@ -7,7 +7,8 @@
 class AeroAssistApp {
   constructor() {
     this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "https://aeroassistai.onrender.com/api" : "/api";
-    this.AVIATION_STACK_KEY = "322876eed5ec416a01fffd3e4429c29e";
+    // API Keys should be fetched dynamically from backend, hardcoding removed for security
+    this.AVIATION_STACK_KEY = "ENTER_AVIATION_STACK_API_KEY_HERE";
     
     // User Authentication Session State (Safe Parsing)
     try {
