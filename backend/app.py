@@ -1036,7 +1036,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
                 "subject": f"🔒 {otp} is your AeroAssist Verification Code",
                 "html": html_content
             }
-            response = requests.post(url, json=data, headers=headers, timeout=12)
+            response = requests.post(url, json=data, headers=headers, timeout=5)
             if response.status_code in [200, 201]:
                 print(f"[RESEND SUCCESS] Email successfully delivered to {to_email}!")
                 email_sent = True
@@ -1048,7 +1048,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
     if email_sent:
         return True
 
-    # SMTP Fallback
+    # SMTP Fallback (Direct SSL Port 465 for max speed and reliability)
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
@@ -1060,7 +1060,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
         print("[SMTP ERROR] No SMTP credentials configured in environment variables. OTP delivery failed.")
         return False
 
-    print(f"[SMTP] Attempting SMTP fallback delivery via '{smtp_email}' to: {to_email}...")
+    print(f"[SMTP] Attempting SMTP SSL delivery via '{smtp_email}' to: {to_email}...")
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f"🔒 {otp} is your AeroAssist Verification Code"
@@ -1070,22 +1070,15 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
         part = MIMEText(html_content, 'html')
         msg.attach(part)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=25)
-            server.starttls()
-            server.login(smtp_email, smtp_pass)
-            server.sendmail(smtp_email, to_email, msg.as_string())
-            server.quit()
-        except Exception as e_tls:
-            print(f"[SMTP TLS 587 FAILED] Attempting SSL port 465 fallback: {e_tls}")
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=25)
-            server.login(smtp_email, smtp_pass)
-            server.sendmail(smtp_email, to_email, msg.as_string())
-            server.quit()
-        print(f"[SMTP SUCCESS] Email successfully delivered via SMTP to {to_email}!")
+        # Bypass Port 587 entirely. Direct SSL Port 465 is much faster on cloud networks.
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10)
+        server.login(smtp_email, smtp_pass)
+        server.sendmail(smtp_email, to_email, msg.as_string())
+        server.quit()
+        print(f"[SMTP SUCCESS] Email successfully delivered via SMTP SSL to {to_email}!")
         return True
     except Exception as e_smtp:
-        print(f"[SMTP EXCEPTION] SMTP delivery failed: {e_smtp}")
+        print(f"[SMTP EXCEPTION] SMTP SSL delivery failed: {e_smtp}")
         return False
 
 
