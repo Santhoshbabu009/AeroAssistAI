@@ -30,7 +30,7 @@ jobs:
 
       - name: Verify Live Deployed Backend Health (If Configured)
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+          BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           if [ -z "$BACKEND_URL" ]; then
             echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
@@ -42,7 +42,7 @@ jobs:
 
       - name: Run E2E Test Suite
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+          BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           python scripts/run_e2e.py
 

@@ -35,7 +35,7 @@ jobs:
 
       - name: Verify Deployed Backend URL Health (If Configured)
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+          BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           if [ -z "$BACKEND_URL" ]; then
             echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
@@ -65,7 +65,7 @@ jobs:
           DISABLE_RATE_LIMIT: "1"
           JWT_SECRET: "test-jwt-secret-aeroassist-2026"
           ADMIN_SECRET_KEY: "admin_aeroassist_2026"
-          BACKEND_URL: ${{ secrets.BACKEND_URL || secrets.API_BASE_URL }}
+          BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           python scripts/run_backend_tests.py
 
