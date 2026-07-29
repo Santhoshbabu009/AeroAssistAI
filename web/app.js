@@ -90,7 +90,7 @@ class AeroAssistApp {
     }
     
     this.setupCommandPalette();
-    this.setupInactivityListener();
+
     this.changeLanguage(this.currentLang);
     this.updateUserSessionUI();
     this.renderChatHistory();
@@ -124,55 +124,7 @@ class AeroAssistApp {
     }, 10000);
   }
 
-  // --- INACTIVITY AUTO-LOGOUT (30 MINUTES) ---
-  setupInactivityListener() {
-    this.inactivityTimeout = null;
-    this.INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in milliseconds
-    const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "click"];
-    events.forEach(evt => {
-      window.addEventListener(evt, () => this.resetInactivityTimer(), { passive: true });
-    });
-    // Do NOT start the timer here — only start it after a successful login
-  }
 
-  resetInactivityTimer() {
-    // Only run the timer if a user is actually logged in
-    if (!this.currentUser && !this.currentVendor) {
-      if (this.inactivityTimeout) {
-        clearTimeout(this.inactivityTimeout);
-        this.inactivityTimeout = null;
-      }
-      return;
-    }
-    if (this.inactivityTimeout) {
-      clearTimeout(this.inactivityTimeout);
-    }
-    this.inactivityTimeout = setTimeout(() => {
-      this.handleInactivityLogout();
-    }, this.INACTIVITY_LIMIT);
-  }
-
-  handleInactivityLogout() {
-    // Double-check user is still logged in before firing
-    if (!this.currentUser && !this.currentVendor) return;
-
-    if (this.currentUser) {
-      this.currentUser = null;
-      this.currentUserType = null;
-      localStorage.removeItem("user_session");
-      localStorage.removeItem("user_type");
-    }
-    if (this.currentVendor) {
-      this.currentVendor = null;
-      localStorage.removeItem("vendor_session");
-    }
-    localStorage.removeItem("token");
-    localStorage.removeItem("auth_token");
-    this.updateUserSessionUI();
-    this.updateSidebarRBAC();
-    this.showPage("user-type");
-    alert("You have been automatically logged out due to 30 minutes of inactivity.");
-  }
 
   // --- DUAL THEME ENGINE (LIGHT & DARK MODE) ---
   initTheme() {
@@ -1163,7 +1115,7 @@ class AeroAssistApp {
       emailLabel.innerText = "Sign In / Sign Up";
     }
     this.updateSidebarRBAC();
-    this.resetInactivityTimer();
+
   }
 
   // --- ROLE-BASED SIDEBAR ACCESS CONTROL (RBAC) ---
