@@ -1949,8 +1949,13 @@ class AeroAssistApp {
           ? ord.items.map(i => `${i.product_name || i.name || 'Item'} x${i.quantity || i.qty || 1}`).join(", ")
           : (ord.formatted_items || 'Meal Select');
         const st = (ord.status || 'Pending').toLowerCase();
+        // Normalize status for filter matching
+        const filterKey = st === 'pending' ? 'pending'
+          : (st === 'accepted' || st === 'preparing' || st === 'ready' || st === 'out for delivery') ? 'accepted'
+          : st === 'rejected' ? 'rejected'
+          : st === 'delivered' ? 'delivered' : 'all';
         return `
-        <div class="glass-card" style="margin-bottom:12px; padding:16px;">
+        <div class="order-card" data-status="${filterKey}" style="margin-bottom:12px; padding:16px; background:var(--glass-bg); border:var(--glass-border); border-radius:var(--radius-md);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h4 style="margin:0;">Order #${ord.id || ord.order_id} | Passenger: ${ord.user_email}</h4>
             <span class="status-badge ${st}">${ord.status}</span>
@@ -1959,21 +1964,21 @@ class AeroAssistApp {
           <p style="font-size:13px; margin-bottom:12px;"><strong>Items:</strong> ${itemStr} | <strong>Total:</strong> ₹${(ord.total_price || 0).toFixed(2)} [${ord.payment_method || 'COD'}]</p>
           <div style="display:flex; gap:10px;">
             ${st === 'pending' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Accepted')">Accept Order</button>
-              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Rejected')">Reject</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Accepted')">✅ Accept</button>
+              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Rejected')">❌ Reject</button>
             ` : ''}
             ${st === 'accepted' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Preparing')">Start Cooking</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Preparing')">🍳 Start Cooking</button>
             ` : ''}
             ${st === 'preparing' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">Mark Ready</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">✔ Mark Ready</button>
             ` : ''}
             ${st === 'ready' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">Send for Delivery</button>
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">🛵 Send for Delivery</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
             ` : ''}
             ${st === 'out for delivery' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">Deliver & Close</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
             ` : ''}
           </div>
         </div>
@@ -1988,7 +1993,7 @@ class AeroAssistApp {
       }
 
       container.innerHTML = bookings.map(b => `
-        <div class="glass-card" style="margin-bottom:12px; padding:16px;">
+        <div class="order-card" data-status="${b.status.toLowerCase() === 'pending' ? 'pending' : b.status.toLowerCase() === 'cancelled' ? 'rejected' : b.status.toLowerCase() === 'confirmed' ? 'accepted' : 'all'}" style="margin-bottom:12px; padding:16px; background:var(--glass-bg); border:var(--glass-border); border-radius:var(--radius-md);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h4 style="margin:0;">Pass #${b.id} | Passenger: ${b.email}</h4>
             <span class="status-badge ${b.status.toLowerCase()}">${b.status}</span>
@@ -1996,12 +2001,43 @@ class AeroAssistApp {
           <p style="font-size:13px; margin-bottom:12px;">Slot: ${b.date} at ${b.time} | Guests: ${b.guests}</p>
           <div style="display:flex; gap:10px;">
             ${b.status.toLowerCase() === 'pending' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">Confirm Slot</button>
-              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">Cancel Pass</button>
+              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">✅ Confirm Slot</button>
+              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">❌ Cancel Pass</button>
             ` : ''}
           </div>
         </div>
       `).join("");
+    }
+  }
+
+  // --- ORDER FILTER BY STATUS TAB ---
+  filterOrders(status) {
+    // Update active tab button
+    document.querySelectorAll('.order-filter-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`ofilter-${status}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Show/hide cards based on data-status
+    const cards = document.querySelectorAll('.order-card');
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const cardStatus = card.getAttribute('data-status');
+      const show = status === 'all' || cardStatus === status;
+      card.classList.toggle('hidden', !show);
+      if (show) visibleCount++;
+    });
+
+    // Show empty state message if nothing visible
+    const container = document.getElementById('vendor-queue-list');
+    const existingMsg = document.getElementById('filter-empty-msg');
+    if (existingMsg) existingMsg.remove();
+    if (visibleCount === 0 && container) {
+      const labels = { pending: 'Yet to Accept', accepted: 'Accepted', rejected: 'Rejected', delivered: 'Delivered', all: '' };
+      const msg = document.createElement('p');
+      msg.id = 'filter-empty-msg';
+      msg.style.cssText = 'text-align:center; padding:40px 0; color:var(--text-secondary); font-size:14px;';
+      msg.innerText = `No ${labels[status] || ''} orders found.`;
+      container.appendChild(msg);
     }
   }
 

@@ -847,7 +847,20 @@
         <!-- Tab Content: Queue -->
         <div id="vendor-tab-queue" class="tab-content active">
           <div class="glass-card">
-            <h3 id="queue-title">Reservations Queue</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+              <h3 id="queue-title">Reservations Queue</h3>
+              <button class="btn-secondary" style="width:auto; height:34px; padding:0 14px; font-size:12px;" onclick="app.fetchVendorQueue()"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh</button>
+            </div>
+
+            <!-- Order Status Filter Tabs -->
+            <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+              <button id="ofilter-pending" class="order-filter-btn active" onclick="app.filterOrders('pending')">🕐 Yet to Accept</button>
+              <button id="ofilter-accepted" class="order-filter-btn" onclick="app.filterOrders('accepted')">✅ Accepted</button>
+              <button id="ofilter-rejected" class="order-filter-btn" onclick="app.filterOrders('rejected')">❌ Rejected</button>
+              <button id="ofilter-delivered" class="order-filter-btn" onclick="app.filterOrders('delivered')">📦 Delivered</button>
+              <button id="ofilter-all" class="order-filter-btn" onclick="app.filterOrders('all')">📋 All Orders</button>
+            </div>
+
             <div id="vendor-queue-list">
               <!-- Incoming orders/bookings rendered in app.js -->
             </div>

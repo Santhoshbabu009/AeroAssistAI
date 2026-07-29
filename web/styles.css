@@ -954,3 +954,37 @@ tbody tr:hover td {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 }
+
+/* --- VENDOR ORDER FILTER TABS --- */
+.order-filter-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--easing);
+  white-space: nowrap;
+}
+.order-filter-btn:hover {
+  background: rgba(37,99,235,0.15);
+  border-color: rgba(37,99,235,0.4);
+  color: var(--text-primary);
+}
+.order-filter-btn.active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(37,99,235,0.35);
+}
+
+/* Order card hidden state for filtering */
+.order-card[data-status] {
+  transition: opacity 0.2s ease;
+}
+.order-card.hidden {
+  display: none !important;
+}
