@@ -2494,30 +2494,35 @@ class AeroAssistApp {
     if (!container) return;
     
     if (!bookings || bookings.length === 0) {
-      container.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">No matching bookings.</p>`;
+      container.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">No matching bookings found. Book a flight to see your tickets here!</p>`;
       return;
     }
 
     container.innerHTML = bookings.map(b => {
       const f = b.flight_details || {};
-      const statusClass = b.status === 'confirmed' ? 'accepted' : b.status === 'completed' ? 'delivered' : 'pending';
-      const pnr = b.pnr || b.id;
+      // Backend uses booking_status; fall back to status field
+      const rawStatus = (b.booking_status || b.status || 'Confirmed').toLowerCase();
+      const statusClass = rawStatus === 'confirmed' ? 'accepted' : rawStatus === 'completed' ? 'delivered' : 'pending';
+      const pnr = b.pnr || b.booking_id || b.id;
+      const paxList = Array.isArray(b.passenger_details) ? b.passenger_details : [];
+      const pax1 = paxList[0] || {};
       return `
         <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
             <h3 style="margin:0;">PNR: <span style="color:var(--accent-orange);">${pnr}</span></h3>
-            <span class="status-badge ${statusClass}">${(b.status || 'Confirmed').toUpperCase()}</span>
+            <span class="status-badge ${statusClass}">${rawStatus.toUpperCase()}</span>
           </div>
           
           <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; align-items:center;">
             <div>
-              <p style="margin:0; font-size:16px; font-weight:700;">${f.origin} ➔ ${f.destination}</p>
-              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.date} | ${f.airline} (${f.flight_number})</p>
-              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.departure_time} - ${f.arrival_time}</p>
+              <p style="margin:0; font-size:18px; font-weight:700;">${f.origin || '?'} ➔ ${f.destination || '?'}</p>
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.date || b.departure_date || ''} | ${f.airline || ''} (${f.flight_number || ''})</p>
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.departure_time || ''} - ${f.arrival_time || ''} &nbsp;|&nbsp; Seat: <strong style="color:var(--accent-cyan);">${pax1.seat || '-'}</strong></p>
+              ${pax1.name ? `<p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Passenger: ${pax1.name}</p>` : ''}
             </div>
             
             <div style="text-align:right;">
-              <button class="btn-primary" style="height:36px; font-size:13px; padding:0 16px;" onclick="app.viewETicket('${pnr}')">VIEW E-TICKET</button>
+              <button class="btn-primary" style="height:36px; font-size:13px; padding:0 16px;" onclick="app.viewETicket('${pnr}')">✈ VIEW E-TICKET</button>
             </div>
           </div>
         </div>
@@ -2540,17 +2545,20 @@ class AeroAssistApp {
     const status = this.currentBookingFilter || 'all';
 
     const filtered = this.allMyBookings.filter(b => {
-      const pnr = (b.pnr || b.id || "").toString().toLowerCase();
+      const pnr = (b.pnr || b.booking_id || b.id || "").toString().toLowerCase();
       const f = b.flight_details || {};
       const flightNum = (f.flight_number || "").toLowerCase();
+      const origin = (f.origin || "").toLowerCase();
+      const dest = (f.destination || "").toLowerCase();
       
       let passMatch = false;
       if (b.passenger_details && Array.isArray(b.passenger_details)) {
         passMatch = b.passenger_details.some(p => (p.name || "").toLowerCase().includes(query));
       }
 
-      const matchesQuery = pnr.includes(query) || flightNum.includes(query) || passMatch;
-      const matchesStatus = status === 'all' || (b.status || 'confirmed').toLowerCase() === status;
+      const matchesQuery = !query || pnr.includes(query) || flightNum.includes(query) || origin.includes(query) || dest.includes(query) || passMatch;
+      const rawStatus = (b.booking_status || b.status || 'confirmed').toLowerCase();
+      const matchesStatus = status === 'all' || rawStatus === status;
       
       return matchesQuery && matchesStatus;
     });
@@ -2562,26 +2570,44 @@ class AeroAssistApp {
     const res = await this.apiCall(`/flights/bookings/${pnr}`);
     if (res && res.status === "success") {
       const b = res.booking;
-      const f = b.flight_details;
-      const p1 = b.passenger_details[0];
+      const f = b.flight_details || {};
+      const paxList = Array.isArray(b.passenger_details) ? b.passenger_details : [];
+      const p1 = paxList[0] || {};
       
-      document.getElementById("eticket-airline").innerText = f.airline;
-      document.getElementById("eticket-flight-num").innerText = f.flight_number;
-      document.getElementById("eticket-pnr").innerText = b.pnr;
-      
-      document.getElementById("eticket-pax-name").innerText = p1.name;
-      document.getElementById("eticket-pax-seat").innerText = p1.seat;
-      document.getElementById("eticket-class").innerText = f.cabinClass || "Economy";
-      
-      document.getElementById("eticket-orig").innerText = f.origin;
-      document.getElementById("eticket-dest").innerText = f.destination;
-      document.getElementById("eticket-dep-time").innerText = `${f.date} ${f.departure_time}`;
-      document.getElementById("eticket-arr-time").innerText = f.arrival_time;
-      document.getElementById("eticket-gate").innerText = "TBD";
-      
+      // Map to correct HTML element IDs (tkt-* prefix)
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val || '-'; };
+
+      set('tkt-airline-name',  f.airline || 'Airline');
+      set('tkt-aircraft',      `${f.aircraft || 'Aircraft'} · ${f.cabinClass || f.cabin_class || 'Economy'}`);
+      set('tkt-pnr',           b.pnr || pnr);
+      set('tkt-status',        (b.booking_status || b.status || 'CONFIRMED').toUpperCase());
+
+      set('tkt-origin-code',   f.origin || '');
+      set('tkt-origin-name',   f.origin_name || f.origin || '');
+      set('tkt-dep-time',      f.departure_time || '');
+      set('tkt-dep-date',      f.date || b.departure_date || '');
+
+      set('tkt-dest-code',     f.destination || '');
+      set('tkt-dest-name',     f.destination_name || f.destination || '');
+      set('tkt-arr-time',      f.arrival_time || '');
+
+      set('tkt-duration',      f.duration || '');
+      set('tkt-stops',         f.stops || 'Non-stop');
+
+      set('tkt-passenger-name', p1.name || '');
+      set('tkt-flight-number',  f.flight_number || '');
+      set('tkt-seat-no',        p1.seat || '-');
+      set('tkt-terminal-gate',  f.terminal ? `${f.terminal} / Gate TBD` : 'TBD');
+      set('tkt-baggage',        f.baggage || '15 kg + 7 kg Hand');
+
+      set('tkt-booking-id',    b.booking_id || b.id || '-');
+      set('tkt-ticket-num',    b.ticket_number || '-');
+      set('tkt-payment-id',    b.payment_id || '-');
+      set('tkt-txn-id',        b.transaction_id || '-');
+
       this.openModal("eticket");
     } else {
-      alert("Could not load e-ticket.");
+      alert("Could not load e-ticket. Please try again.");
     }
   }
 

@@ -2196,44 +2196,6 @@ def get_lost_items():
     conn = db.get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM lost_items ORDER BY id DESC")
-
-# Flight bookings API endpoints
-@app.route('/api/flights/bookings', methods=['GET'])
-@limiter.limit("30 per minute")
-@token_required()
-def get_flight_bookings_route():
-    email = request.args.get('email')
-    if not email:
-        return jsonify({"status": "error", "message": "Missing email parameter"}), 400
-    # Use SQLite fallback if needed
-    if USE_SQLITE:
-        bookings = db.get_flight_bookings(email)
-    else:
-        try:
-            resp = supabase.table('flight_bookings').select('*').eq('user_email', email).order('id', desc=True).execute()
-            bookings = resp.data or []
-        except Exception as e:
-            print("[FALLBACK] Supabase flight bookings fetch error:", str(e))
-            bookings = db.get_flight_bookings(email)
-    return jsonify({"status": "success", "bookings": bookings})
-
-@app.route('/api/flights/bookings/<string:id_or_pnr>', methods=['GET'])
-@limiter.limit("30 per minute")
-@token_required()
-def get_flight_booking_detail(id_or_pnr):
-    # Try SQLite first
-    if USE_SQLITE:
-        booking = db.get_flight_booking_by_id_or_pnr(id_or_pnr)
-    else:
-        try:
-            resp = supabase.table('flight_bookings').select('*').or_(f"booking_id.eq.{id_or_pnr},pnr.eq.{id_or_pnr},ticket_number.eq.{id_or_pnr}").single().execute()
-            booking = resp.data
-        except Exception as e:
-            print("[FALLBACK] Supabase flight booking detail fetch error:", str(e))
-            booking = db.get_flight_booking_by_id_or_pnr(id_or_pnr)
-    if not booking:
-        return jsonify({"status": "error", "message": "Booking not found"}), 404
-    return jsonify({"status": "success", "booking": booking})
     rows = cursor.fetchall()
     conn.close()
     return jsonify({"status": "success", "items": [dict(row) for row in rows]})
