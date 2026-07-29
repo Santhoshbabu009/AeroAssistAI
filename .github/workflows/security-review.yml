@@ -14,8 +14,17 @@ jobs:
   security-audit:
     name: SAST, Secret Scanning & Vulnerability Review
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
+      - name: Pre-flight Context Logging
+        run: |
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Job: ${{ github.job }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Execution Start: $(date -u)"
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -24,9 +33,19 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Security Tools
+      - name: Install Security Tools with Retry
         run: |
-          pip install openpyxl bandit semgrep || true
+          function with_retry {
+            local max=3; local attempt=1; local delay=2
+            while [ $attempt -le $max ]; do
+              echo "Attempt $attempt of $max: $@"
+              if "$@"; then return 0; fi
+              echo "Failed. Retrying in ${delay}s..."
+              sleep $delay; attempt=$((attempt+1)); delay=$((delay*2))
+            done
+            return 1
+          }
+          with_retry pip install openpyxl bandit semgrep || true
 
       - name: Run Bandit SAST Scan
         run: |
@@ -63,7 +82,6 @@ jobs:
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           ### 🛡️ Security Audit Summary
-
           | Tool | Category | Status |
           |---|---|---|
           | **Gitleaks** | Secret Scanning | 🟢 0 Hardcoded Secrets |
@@ -80,3 +98,24 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
         if: always()
+
+      - name: Generate and Upload Failure Report
+        if: failure()
+        run: |
+          cat >> failure_report.md << 'EOF'
+          # 🚨 Workflow Failure Report
+          - **Workflow:** ${{ github.workflow }}
+          - **Job:** ${{ github.job }}
+          - **Branch:** ${{ github.ref_name }}
+          - **Commit:** ${{ github.sha }}
+          - **Action URL:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Root Cause:** A step in this job exited with a non-zero status code. Review the Action URL logs.
+          EOF
+          cat failure_report.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload Failure Artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-report-security-review
+          path: failure_report.md
+          retention-days: 7

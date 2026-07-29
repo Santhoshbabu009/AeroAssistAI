@@ -14,8 +14,17 @@ jobs:
   backend-verification:
     name: Unit, Integration & API Endpoint Verification
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
+      - name: Pre-flight Context Logging
+        run: |
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Job: ${{ github.job }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Execution Start: $(date -u)"
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -24,13 +33,23 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Dependencies
+      - name: Install Dependencies with Retry
         run: |
+          function with_retry {
+            local max=3; local attempt=1; local delay=2
+            while [ $attempt -le $max ]; do
+              echo "Attempt $attempt of $max: $@"
+              if "$@"; then return 0; fi
+              echo "Failed. Retrying in ${delay}s..."
+              sleep $delay; attempt=$((attempt+1)); delay=$((delay*2))
+            done
+            return 1
+          }
           python -m pip install --upgrade pip
           if [ -f "backend/requirements.txt" ]; then
-            pip install -r backend/requirements.txt
+            with_retry pip install -r backend/requirements.txt
           else
-            pip install flask flask-cors werkzeug pytest openpyxl pyjwt requests pytest-cov
+            with_retry pip install flask flask-cors werkzeug pytest openpyxl pyjwt requests pytest-cov
           fi
 
       - name: Verify Deployed Backend URL Health (If Configured)
@@ -38,24 +57,22 @@ jobs:
           BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           if [ -z "$BACKEND_URL" ]; then
-            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
-            echo "Skipping live endpoint verification; unit and integration test suites will execute independently."
+            echo "ℹ️ Backend URL not configured. Skipping live endpoint verification."
           else
             echo "Checking live deployed backend at: $BACKEND_URL"
             ONLINE=false
             for i in {1..10}; do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || echo "000")
+              STATUS=$(curl --retry 3 --retry-delay 2 --max-time 10 -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || echo "000")
               if [ "$STATUS" = "200" ]; then
                 echo "✅ Live backend is online and returned HTTP 200!"
                 ONLINE=true
                 break
               fi
               echo "Waiting for backend response... (attempt $i, status: $STATUS)"
-              sleep 2
+              sleep 5
             done
             if [ "$ONLINE" = "false" ]; then
-              echo "⚠️ Deployed backend at $BACKEND_URL did not return HTTP 200 within timeout."
-              echo "Skipping live verification gracefully."
+              echo "⚠️ Deployed backend did not return HTTP 200 within timeout."
             fi
           fi
 
@@ -73,7 +90,6 @@ jobs:
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           ### 🛠️ Backend Verification Results
-
           - **Framework:** Flask (Python 3.12)
           - **Test Suite Status:** 100% Passed (191 Unit & Integration Tests)
           - **API Coverage:** 100% Endpoints Verified
@@ -88,3 +104,24 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
         if: always()
+
+      - name: Generate and Upload Failure Report
+        if: failure()
+        run: |
+          cat >> failure_report.md << 'EOF'
+          # 🚨 Workflow Failure Report
+          - **Workflow:** ${{ github.workflow }}
+          - **Job:** ${{ github.job }}
+          - **Branch:** ${{ github.ref_name }}
+          - **Commit:** ${{ github.sha }}
+          - **Action URL:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Root Cause:** A step in this job exited with a non-zero status code. Review the Action URL logs.
+          EOF
+          cat failure_report.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload Failure Artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-report-backend
+          path: failure_report.md
+          retention-days: 7

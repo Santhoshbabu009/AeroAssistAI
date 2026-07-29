@@ -14,8 +14,17 @@ jobs:
   e2e-tests:
     name: Playwright & Selenium E2E Test Execution
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
+      - name: Pre-flight Context Logging
+        run: |
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Job: ${{ github.job }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Execution Start: $(date -u)"
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -24,20 +33,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Dependencies
+      - name: Install Dependencies with Retry
         run: |
-          pip install openpyxl requests pytest
+          function with_retry {
+            local max=3; local attempt=1; local delay=2
+            while [ $attempt -le $max ]; do
+              echo "Attempt $attempt of $max: $@"
+              if "$@"; then return 0; fi
+              echo "Failed. Retrying in ${delay}s..."
+              sleep $delay; attempt=$((attempt+1)); delay=$((delay*2))
+            done
+            return 1
+          }
+          with_retry pip install openpyxl requests pytest
 
       - name: Verify Live Deployed Backend Health (If Configured)
         env:
           BACKEND_URL: "https://aeroassistai.onrender.com"
         run: |
           if [ -z "$BACKEND_URL" ]; then
-            echo "ℹ️ GitHub Secret BACKEND_URL (or API_BASE_URL) is not configured in Secrets."
-            echo "Executing end-to-end scenario verification suite independently."
+            echo "ℹ️ GitHub Secret BACKEND_URL not configured. Executing independently."
           else
             echo "Pinging deployed backend URL: $BACKEND_URL"
-            curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || true
+            curl --retry 3 --retry-delay 2 --max-time 10 -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/health" || true
           fi
 
       - name: Run E2E Test Suite
@@ -50,7 +68,6 @@ jobs:
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           ### 🎭 End-to-End Testing Summary
-
           - **Scenarios Executed:** 5 Scenarios
           - **Pass Rate:** 100%
           - **Test Suites:** Playwright Web, Selenium Web, Appium Android
@@ -64,3 +81,24 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
         if: always()
+
+      - name: Generate and Upload Failure Report
+        if: failure()
+        run: |
+          cat >> failure_report.md << 'EOF'
+          # 🚨 Workflow Failure Report
+          - **Workflow:** ${{ github.workflow }}
+          - **Job:** ${{ github.job }}
+          - **Branch:** ${{ github.ref_name }}
+          - **Commit:** ${{ github.sha }}
+          - **Action URL:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Root Cause:** A step in this job exited with a non-zero status code. Review the Action URL logs.
+          EOF
+          cat failure_report.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload Failure Artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-report-e2e
+          path: failure_report.md
+          retention-days: 7
