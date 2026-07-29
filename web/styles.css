@@ -988,3 +988,134 @@ tbody tr:hover td {
 .order-card.hidden {
   display: none !important;
 }
+
+/* --- FLIGHT BOOKING & SEAT PICKER STYLES --- */
+.chip-btn {
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--easing);
+}
+.chip-btn:hover, .chip-btn.active {
+  background: var(--glass-bg-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.flight-result-card {
+  background: var(--glass-bg);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  transition: all 0.25s var(--easing);
+}
+.flight-result-card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+
+/* Seat map grid */
+.seat-map-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  max-width: 380px;
+  margin: 0 auto;
+  background: rgba(10, 20, 45, 0.6);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: var(--glass-border);
+}
+.seat-item {
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.seat-item:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--accent-primary);
+}
+.seat-item.selected {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.seat-item.occupied {
+  background: rgba(148, 163, 184, 0.1);
+  color: rgba(148, 163, 184, 0.4);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+.seat-aisle {
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+/* Bank / Wallet choice cards */
+.bank-choice-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--glass-bg-hover);
+  border: var(--glass-border);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.bank-choice-card:hover {
+  border-color: var(--accent-primary);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modal-eticket, #modal-eticket * {
+    visibility: visible;
+  }
+  #modal-eticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  #eticket-printable-content {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000 !important;
+  }
+}

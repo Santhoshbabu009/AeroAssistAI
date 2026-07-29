@@ -58,6 +58,11 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".BookingSearchActivity" android:exported="false"/>
         <activity android:name=".BookingHistoryActivity" android:exported="false"/>
+        <activity android:name=".FlightResultsActivity" android:exported="false"/>
+        <activity android:name=".SeatPassengerActivity" android:exported="false"/>
+        <activity android:name=".BookingReviewActivity" android:exported="false"/>
+        <activity android:name=".DummyPaymentActivity" android:exported="false"/>
+        <activity android:name=".ETicketActivity" android:exported="false"/>
         <activity android:name=".HelpDeskActivity" android:exported="false"/>
         <activity android:name=".FlightSearchHistoryActivity" android:exported="false"/>
         <activity android:name=".ServicesActivity" android:exported="false"/>

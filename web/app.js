@@ -670,6 +670,8 @@ class AeroAssistApp {
       this.fetchLounges();
     } else if (pageId === "wallet") {
       this.updateWalletDocs();
+    } else if (pageId === "my-bookings") {
+      this.fetchMyBookings();
     }
   }
 
@@ -2079,6 +2081,482 @@ class AeroAssistApp {
       body: JSON.stringify({ product_id: id })
     });
     if (res && res.status === "success") this.fetchVendorCatalog();
+  }
+
+  // --- FLIGHT BOOKING ENGINE ---
+  async searchFlights() {
+    const origin = document.getElementById("flight-search-orig")?.value || "DEL";
+    const dest = document.getElementById("flight-search-dest")?.value || "BOM";
+    const date = document.getElementById("flight-search-date")?.value || new Date().toISOString().split('T')[0];
+    const passengers = parseInt(document.getElementById("flight-search-passengers")?.value || "1");
+    const cabinClass = document.getElementById("flight-search-class")?.value || "Economy";
+
+    if (!date) {
+      alert("Please select a departure date.");
+      return;
+    }
+
+    const res = await this.apiCall(`/flights/search?origin=${origin}&destination=${dest}&date=${date}`);
+    if (res && res.status === "success") {
+      this.loadFlightResults(res.flights, passengers, cabinClass, date);
+    } else {
+      alert(res.message || "Failed to search flights.");
+    }
+  }
+
+  setQuickRoute(orig, dest) {
+    const origSelect = document.getElementById("flight-search-orig");
+    const destSelect = document.getElementById("flight-search-dest");
+    if (origSelect) origSelect.value = orig;
+    if (destSelect) destSelect.value = dest;
+    this.searchFlights();
+  }
+
+  loadFlightResults(flights, passengers, cabinClass, date) {
+    const container = document.getElementById("flight-results-container");
+    if (!container) return;
+
+    if (!flights || flights.length === 0) {
+      container.innerHTML = `<p style="text-align:center;">No flights found for this route.</p>`;
+    } else {
+      container.innerHTML = `
+        <h3 style="margin-bottom:16px;">Select your Departure Flight</h3>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          ${flights.map((f, i) => `
+            <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; padding:20px;">
+              <div style="display:flex; align-items:center; gap:16px;">
+                <img src="${f.airline_logo}" style="width:40px; height:40px; border-radius:50%; object-fit:contain; background:#fff;" alt="${f.airline}">
+                <div>
+                  <h4 style="margin:0; font-size:16px;">${f.airline}</h4>
+                  <p style="margin:0; font-size:12px; color:var(--text-secondary);">${f.flight_number}</p>
+                </div>
+              </div>
+              
+              <div style="text-align:center;">
+                <h3 style="margin:0;">${f.departure_time}</h3>
+                <p style="margin:0; font-size:12px; color:var(--text-secondary);">${f.origin}</p>
+              </div>
+              
+              <div style="text-align:center; position:relative; min-width:100px;">
+                <p style="margin:0; font-size:11px; color:var(--text-secondary);">${f.duration}</p>
+                <div style="height:1px; background:var(--glass-border); margin:4px 0; width:100%;"></div>
+                <p style="margin:0; font-size:11px; color:var(--text-secondary);">${f.stops}</p>
+              </div>
+              
+              <div style="text-align:center;">
+                <h3 style="margin:0;">${f.arrival_time}</h3>
+                <p style="margin:0; font-size:12px; color:var(--text-secondary);">${f.destination}</p>
+              </div>
+              
+              <div style="text-align:right;">
+                <h2 style="margin:0; color:var(--accent-orange); font-size:24px;">₹${f.base_fare.toLocaleString('en-IN')}</h2>
+                <button class="btn-primary" style="margin-top:8px;" onclick="app.selectFlight(${i})">SELECT FLIGHT</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    // Store flights for reference
+    this.currentFlights = flights;
+    this.bookingDraft = { passengers, cabinClass, date, seats: [], passengerDetails: [] };
+
+    document.querySelector(".flight-search-box").style.display = "none";
+    container.style.display = "block";
+  }
+
+  selectFlight(index) {
+    if (!this.currentUser) {
+      alert("Please Sign In first to book a flight!");
+      this.showPage("auth");
+      return;
+    }
+    this.bookingDraft.flight = this.currentFlights[index];
+    this.renderSeatMap();
+  }
+
+  renderSeatMap() {
+    const container = document.getElementById("flight-seat-passenger-container");
+    if (!container) return;
+
+    document.getElementById("flight-results-container").style.display = "none";
+    container.style.display = "block";
+
+    // Create a dummy seat map (6 columns, 10 rows for economy, fewer for business)
+    const rows = this.bookingDraft.cabinClass === "Economy" ? 10 : 5;
+    const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
+    
+    let seatGridHTML = `<div class="seat-map-grid" style="display:grid; grid-template-columns: repeat(7, 40px); gap:8px; justify-content:center; margin-top:20px;">`;
+    
+    for (let r = 1; r <= rows; r++) {
+      for (let c = 0; c < cols.length; c++) {
+        if (c === 3) {
+          // Aisle
+          seatGridHTML += `<div style="width:40px; height:40px;"></div>`;
+        }
+        const seatId = `${r}${cols[c]}`;
+        const isOccupied = Math.random() > 0.7; // Dummy 30% occupied
+        if (isOccupied) {
+          seatGridHTML += `<div class="seat-item occupied" style="width:40px; height:40px; border-radius:8px; background:rgba(255,255,255,0.1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:not-allowed;" title="Occupied">${seatId}</div>`;
+        } else {
+          seatGridHTML += `<div class="seat-item available" id="seat-${seatId}" style="width:40px; height:40px; border-radius:8px; background:rgba(0, 229, 255, 0.1); border:1px solid var(--accent-cyan); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" onclick="app.toggleSeatSelection('${seatId}')">${seatId}</div>`;
+        }
+      }
+    }
+    seatGridHTML += `</div>`;
+
+    container.innerHTML = `
+      <div class="glass-card" style="padding:24px;">
+        <h3 style="margin-bottom:8px;">Select Seats</h3>
+        <p style="font-size:13px; color:var(--text-secondary);">Please select ${this.bookingDraft.passengers} seat(s) for your journey.</p>
+        
+        <div style="display:flex; justify-content:center; gap:20px; margin-top:16px;">
+          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);border-radius:4px;"></div> <span style="font-size:12px;">Available</span></div>
+          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:var(--accent-cyan);border-radius:4px;"></div> <span style="font-size:12px;">Selected</span></div>
+          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:rgba(255,255,255,0.1);border-radius:4px;"></div> <span style="font-size:12px;">Occupied</span></div>
+        </div>
+
+        ${seatGridHTML}
+
+        <div style="text-align:right; margin-top:24px;">
+          <button class="btn-primary" onclick="app.continueToPassengerDetails()">CONTINUE</button>
+        </div>
+      </div>
+    `;
+  }
+
+  toggleSeatSelection(seatId) {
+    const seatEl = document.getElementById(`seat-${seatId}`);
+    if (!seatEl) return;
+
+    if (this.bookingDraft.seats.includes(seatId)) {
+      this.bookingDraft.seats = this.bookingDraft.seats.filter(id => id !== seatId);
+      seatEl.style.background = 'rgba(0, 229, 255, 0.1)';
+      seatEl.style.color = '#fff';
+    } else {
+      if (this.bookingDraft.seats.length >= this.bookingDraft.passengers) {
+        alert(`You can only select ${this.bookingDraft.passengers} seat(s).`);
+        return;
+      }
+      this.bookingDraft.seats.push(seatId);
+      seatEl.style.background = 'var(--accent-cyan)';
+      seatEl.style.color = '#000';
+    }
+  }
+
+  continueToPassengerDetails() {
+    if (this.bookingDraft.seats.length !== this.bookingDraft.passengers) {
+      alert(`Please select ${this.bookingDraft.passengers} seat(s) before continuing.`);
+      return;
+    }
+
+    const container = document.getElementById("flight-seat-passenger-container");
+    
+    let paxFormsHTML = ``;
+    for (let i = 0; i < this.bookingDraft.passengers; i++) {
+      paxFormsHTML += `
+        <div style="margin-bottom:16px; padding:16px; border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+          <h4 style="margin-top:0; margin-bottom:12px;">Passenger ${i+1} (Seat: ${this.bookingDraft.seats[i]})</h4>
+          <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div class="form-group" style="flex:1; min-width:200px;">
+              <label>Full Name</label>
+              <input type="text" id="pax-${i}-name" placeholder="As on Govt ID" value="${i===0 ? this.currentUser.name : ''}">
+            </div>
+            <div class="form-group" style="flex:1; min-width:150px;">
+              <label>Age</label>
+              <input type="number" id="pax-${i}-age" placeholder="Age" min="1" max="120" value="${i===0 ? '30' : ''}">
+            </div>
+            <div class="form-group" style="flex:1; min-width:150px;">
+              <label>Gender</label>
+              <select id="pax-${i}-gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="glass-card" style="padding:24px;">
+        <h3 style="margin-bottom:16px;">Passenger Details</h3>
+        ${paxFormsHTML}
+        
+        <div class="form-group" style="margin-top:16px;">
+          <label>Contact Email</label>
+          <input type="email" id="booking-contact-email" value="${this.currentUser.email}" readonly>
+        </div>
+        <div class="form-group">
+          <label>Contact Mobile</label>
+          <input type="text" id="booking-contact-mobile" value="${this.currentUser.mobile || ''}" placeholder="10-digit Mobile">
+        </div>
+
+        <div style="text-align:right; margin-top:24px;">
+          <button class="btn-primary" onclick="app.reviewBooking()">REVIEW BOOKING</button>
+        </div>
+      </div>
+    `;
+  }
+
+  reviewBooking() {
+    this.bookingDraft.passengerDetails = [];
+    for (let i = 0; i < this.bookingDraft.passengers; i++) {
+      const name = document.getElementById(`pax-${i}-name`)?.value.trim();
+      const age = document.getElementById(`pax-${i}-age`)?.value.trim();
+      const gender = document.getElementById(`pax-${i}-gender`)?.value;
+      
+      if (!name || !age) {
+        alert(`Please complete details for Passenger ${i+1}`);
+        return;
+      }
+      this.bookingDraft.passengerDetails.push({ name, age, gender, seat: this.bookingDraft.seats[i] });
+    }
+
+    const contactMobile = document.getElementById("booking-contact-mobile")?.value.trim();
+    if (!contactMobile) {
+      alert("Please enter a contact mobile number.");
+      return;
+    }
+    this.bookingDraft.contactMobile = contactMobile;
+
+    document.getElementById("flight-seat-passenger-container").style.display = "none";
+    const container = document.getElementById("flight-review-container");
+    container.style.display = "block";
+
+    const f = this.bookingDraft.flight;
+    const taxes = 850 * this.bookingDraft.passengers;
+    const totalFare = (f.base_fare * this.bookingDraft.passengers) + taxes;
+    this.bookingDraft.totalFare = totalFare;
+
+    container.innerHTML = `
+      <div class="glass-card" style="padding:24px;">
+        <h3 style="margin-bottom:16px;">Review Your Booking</h3>
+        
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--glass-border);">
+          <div>
+            <h4 style="margin:0; font-size:18px; color:var(--accent-orange);">${f.origin} ➔ ${f.destination}</h4>
+            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:14px;">${this.bookingDraft.date} | ${f.airline} (${f.flight_number})</p>
+            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:14px;">${f.departure_time} - ${f.arrival_time} (${f.duration})</p>
+          </div>
+          <div style="text-align:right;">
+            <p style="margin:0; font-size:14px;">Cabin: <strong>${this.bookingDraft.cabinClass}</strong></p>
+            <p style="margin:4px 0 0 0; font-size:14px;">Baggage: <strong>${f.baggage}</strong></p>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom:12px;">Passenger Info</h4>
+        <div style="margin-bottom:24px;">
+          ${this.bookingDraft.passengerDetails.map(p => `
+            <p style="margin:4px 0; font-size:14px;">• ${p.name} (${p.gender}, ${p.age}) - Seat: <strong style="color:var(--accent-cyan);">${p.seat}</strong></p>
+          `).join('')}
+        </div>
+
+        <h4 style="margin-bottom:12px;">Fare Breakdown</h4>
+        <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:var(--radius-md);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Base Fare (${this.bookingDraft.passengers} x ₹${f.base_fare.toLocaleString('en-IN')})</span>
+            <span>₹${(f.base_fare * this.bookingDraft.passengers).toLocaleString('en-IN')}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+            <span>Taxes & Fees</span>
+            <span>₹${taxes.toLocaleString('en-IN')}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+            <strong style="font-size:18px;">Total Amount</strong>
+            <strong style="font-size:18px; color:var(--accent-orange);">₹${totalFare.toLocaleString('en-IN')}</strong>
+          </div>
+        </div>
+
+        <div style="text-align:right; margin-top:24px;">
+          <button class="btn-primary" onclick="app.openPaymentModal()">PROCEED TO PAYMENT</button>
+        </div>
+      </div>
+    `;
+  }
+
+  openPaymentModal() {
+    const totalEl = document.getElementById("payment-total-amt");
+    if (totalEl) totalEl.innerText = `₹${this.bookingDraft.totalFare.toLocaleString('en-IN')}`;
+    this.openModal("flight-payment");
+    this.switchPayTab("upi");
+  }
+
+  switchPayTab(tabId) {
+    document.querySelectorAll('#modal-flight-payment .order-filter-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`paytab-${tabId}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const forms = ['upi', 'card', 'debit', 'netbank', 'wallet'];
+    forms.forEach(f => {
+      const el = document.getElementById(`payform-${f}`);
+      if (el) el.style.display = "none";
+    });
+
+    const activeForm = document.getElementById(`payform-${tabId}`);
+    if (activeForm) activeForm.style.display = "block";
+    
+    this.selectedPaymentMethod = tabId;
+  }
+
+  async executeDummyPayment() {
+    const btn = document.getElementById("btn-submit-pay");
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner" style="display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation:spin 1s linear infinite;"></span> Processing...`;
+    btn.disabled = true;
+
+    const payload = {
+      email: this.currentUser.email,
+      flight_details: {
+        ...this.bookingDraft.flight,
+        date: this.bookingDraft.date,
+        cabinClass: this.bookingDraft.cabinClass
+      },
+      passenger_details: this.bookingDraft.passengerDetails,
+      payment_method: this.selectedPaymentMethod || "card",
+      total_fare: this.bookingDraft.totalFare
+    };
+
+    try {
+      const res = await this.apiCall("/flights/book", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      if (res && res.status === "success") {
+        setTimeout(() => {
+          this.closeModal("flight-payment");
+          alert("Payment Successful! Your flight ticket is confirmed.");
+          
+          document.getElementById("flight-review-container").style.display = "none";
+          document.querySelector(".flight-search-box").style.display = "block";
+          
+          this.showPage('my-bookings');
+        }, 1500);
+      } else {
+        alert(res.message || "Payment Failed.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    } catch(err) {
+      alert("Payment processing error.");
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  }
+
+  async fetchMyBookings() {
+    if (!this.currentUser) return;
+    const res = await this.apiCall(`/flights/bookings?email=${this.currentUser.email}`);
+    
+    const container = document.getElementById("my-bookings-list-container");
+    if (!container) return;
+
+    if (!res || !res.bookings || res.bookings.length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">No flight bookings found.</p>`;
+      return;
+    }
+
+    this.allMyBookings = res.bookings;
+    this.renderMyBookings(res.bookings);
+  }
+
+  renderMyBookings(bookings) {
+    const container = document.getElementById("my-bookings-list-container");
+    if (!container) return;
+    
+    if (!bookings || bookings.length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">No matching bookings.</p>`;
+      return;
+    }
+
+    container.innerHTML = bookings.map(b => {
+      const f = b.flight_details || {};
+      const statusClass = b.status === 'confirmed' ? 'accepted' : b.status === 'completed' ? 'delivered' : 'pending';
+      const pnr = b.pnr || b.id;
+      return `
+        <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin:0;">PNR: <span style="color:var(--accent-orange);">${pnr}</span></h3>
+            <span class="status-badge ${statusClass}">${(b.status || 'Confirmed').toUpperCase()}</span>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; align-items:center;">
+            <div>
+              <p style="margin:0; font-size:16px; font-weight:700;">${f.origin} ➔ ${f.destination}</p>
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.date} | ${f.airline} (${f.flight_number})</p>
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.departure_time} - ${f.arrival_time}</p>
+            </div>
+            
+            <div style="text-align:right;">
+              <button class="btn-primary" style="height:36px; font-size:13px; padding:0 16px;" onclick="app.viewETicket('${pnr}')">VIEW E-TICKET</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  setBookingFilter(status) {
+    document.querySelectorAll('#view-my-bookings .order-filter-btn').forEach(btn => btn.classList.remove('active'));
+    const btn = document.getElementById(`bfilter-${status}`);
+    if (btn) btn.classList.add('active');
+    
+    this.currentBookingFilter = status;
+    this.filterMyBookings();
+  }
+
+  filterMyBookings() {
+    if (!this.allMyBookings) return;
+    const query = (document.getElementById("my-bookings-search-input")?.value || "").toLowerCase();
+    const status = this.currentBookingFilter || 'all';
+
+    const filtered = this.allMyBookings.filter(b => {
+      const pnr = (b.pnr || b.id || "").toString().toLowerCase();
+      const f = b.flight_details || {};
+      const flightNum = (f.flight_number || "").toLowerCase();
+      
+      let passMatch = false;
+      if (b.passenger_details && Array.isArray(b.passenger_details)) {
+        passMatch = b.passenger_details.some(p => (p.name || "").toLowerCase().includes(query));
+      }
+
+      const matchesQuery = pnr.includes(query) || flightNum.includes(query) || passMatch;
+      const matchesStatus = status === 'all' || (b.status || 'confirmed').toLowerCase() === status;
+      
+      return matchesQuery && matchesStatus;
+    });
+
+    this.renderMyBookings(filtered);
+  }
+
+  async viewETicket(pnr) {
+    const res = await this.apiCall(`/flights/bookings/${pnr}`);
+    if (res && res.status === "success") {
+      const b = res.booking;
+      const f = b.flight_details;
+      const p1 = b.passenger_details[0];
+      
+      document.getElementById("eticket-airline").innerText = f.airline;
+      document.getElementById("eticket-flight-num").innerText = f.flight_number;
+      document.getElementById("eticket-pnr").innerText = b.pnr;
+      
+      document.getElementById("eticket-pax-name").innerText = p1.name;
+      document.getElementById("eticket-pax-seat").innerText = p1.seat;
+      document.getElementById("eticket-class").innerText = f.cabinClass || "Economy";
+      
+      document.getElementById("eticket-orig").innerText = f.origin;
+      document.getElementById("eticket-dest").innerText = f.destination;
+      document.getElementById("eticket-dep-time").innerText = `${f.date} ${f.departure_time}`;
+      document.getElementById("eticket-arr-time").innerText = f.arrival_time;
+      document.getElementById("eticket-gate").innerText = "TBD";
+      
+      this.openModal("eticket");
+    } else {
+      alert("Could not load e-ticket.");
+    }
   }
 
   // --- ADMIN PORTAL CONSOLE CONTEXTS ---

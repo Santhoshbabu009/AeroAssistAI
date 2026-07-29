@@ -28,6 +28,12 @@
         <button id="nav-dashboard" class="nav-link-btn active" onclick="app.showPage('dashboard')">
           <i data-lucide="home" class="nav-icon"></i> <span data-i18n="nav_dashboard">Dashboard</span>
         </button>
+        <button id="nav-flights" class="nav-link-btn" onclick="app.showPage('flights')">
+          <i data-lucide="plane-takeoff" class="nav-icon"></i> <span>Book Flights</span>
+        </button>
+        <button id="nav-my-bookings" class="nav-link-btn" onclick="app.showPage('my-bookings')">
+          <i data-lucide="ticket" class="nav-icon"></i> <span>My Bookings</span>
+        </button>
         <button id="nav-chat" class="nav-link-btn" onclick="app.showPage('chat')">
           <i data-lucide="message-square" class="nav-icon"></i> <span data-i18n="nav_chat">AI Assistant</span>
         </button>
@@ -331,6 +337,143 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      <!-- View: In-App Flight Search, Seat Selection & Booking Suite -->
+      <section id="view-flights" class="page-view">
+        <div class="glass-card" style="margin-bottom: 24px; border-color: rgba(59, 130, 246, 0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h1>Flight <span class="gradient-text">Ticket Booking</span></h1>
+              <p>Search, select seats, and book domestic & international flights entirely within AeroAssist AI.</p>
+            </div>
+            <div class="status-badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight:700; font-size:13px;">
+              🛡️ Zero External Redirects • 100% In-App
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Flight Search Form -->
+        <div class="glass-card" id="flight-search-card" style="margin-bottom: 24px;">
+          <h3 style="margin-bottom: 18px; display:flex; align-items:center; gap:8px;">
+            <span>🔍 Search Available Flights</span>
+          </h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 18px;">
+            <div class="form-group" style="margin:0;">
+              <label style="font-weight:600; font-size:12px; color:var(--text-secondary);">ORIGIN CITY / AIRPORT</label>
+              <select id="flight-search-origin" style="font-weight:700;">
+                <option value="DEL">New Delhi (DEL)</option>
+                <option value="BOM">Mumbai (BOM)</option>
+                <option value="MAA" selected>Chennai (MAA)</option>
+                <option value="BLR">Bengaluru (BLR)</option>
+                <option value="HYD">Hyderabad (HYD)</option>
+                <option value="DXB">Dubai (DXB)</option>
+                <option value="SIN">Singapore (SIN)</option>
+                <option value="LHR">London Heathrow (LHR)</option>
+                <option value="JFK">New York (JFK)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin:0;">
+              <label style="font-weight:600; font-size:12px; color:var(--text-secondary);">DESTINATION CITY / AIRPORT</label>
+              <select id="flight-search-dest" style="font-weight:700;">
+                <option value="DEL" selected>New Delhi (DEL)</option>
+                <option value="BOM">Mumbai (BOM)</option>
+                <option value="MAA">Chennai (MAA)</option>
+                <option value="BLR">Bengaluru (BLR)</option>
+                <option value="HYD">Hyderabad (HYD)</option>
+                <option value="DXB">Dubai (DXB)</option>
+                <option value="SIN">Singapore (SIN)</option>
+                <option value="LHR">London Heathrow (LHR)</option>
+                <option value="JFK">New York (JFK)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin:0;">
+              <label style="font-weight:600; font-size:12px; color:var(--text-secondary);">DEPARTURE DATE</label>
+              <input type="date" id="flight-search-date" style="font-weight:600;">
+            </div>
+
+            <div class="form-group" style="margin:0;">
+              <label style="font-weight:600; font-size:12px; color:var(--text-secondary);">PASSENGERS</label>
+              <select id="flight-search-passengers" style="font-weight:700;">
+                <option value="1" selected>1 Passenger</option>
+                <option value="2">2 Passengers</option>
+                <option value="3">3 Passengers</option>
+                <option value="4">4 Passengers</option>
+                <option value="5">5 Passengers</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin:0;">
+              <label style="font-weight:600; font-size:12px; color:var(--text-secondary);">CABIN CLASS</label>
+              <select id="flight-search-class" style="font-weight:700;">
+                <option value="Economy" selected>Economy Class</option>
+                <option value="Premium Economy">Premium Economy</option>
+                <option value="Business">Business Class</option>
+                <option value="First">First Class</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Popular Route Chips -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+            <span style="font-size:12px; color:var(--text-secondary); font-weight:600;">Popular Routes:</span>
+            <button class="chip-btn" onclick="app.setQuickRoute('DEL','BOM')">DEL ➔ BOM</button>
+            <button class="chip-btn" onclick="app.setQuickRoute('MAA','DEL')">MAA ➔ DEL</button>
+            <button class="chip-btn" onclick="app.setQuickRoute('BLR','BOM')">BLR ➔ BOM</button>
+            <button class="chip-btn" onclick="app.setQuickRoute('DEL','DXB')">DEL ➔ DXB</button>
+            <button class="chip-btn" onclick="app.setQuickRoute('MAA','SIN')">MAA ➔ SIN</button>
+          </div>
+
+          <button class="btn-primary" style="height:48px; font-size:15px; font-weight:700;" onclick="app.searchFlights()">SEARCH FLIGHTS ✈️</button>
+        </div>
+
+        <!-- Step 2: Available Flights Results List -->
+        <div id="flight-results-container" style="display:none; margin-bottom:24px;">
+          <!-- Dynamically Populated in app.js -->
+        </div>
+
+        <!-- Step 3: Seat Map & Passenger Details Entry -->
+        <div id="flight-seat-passenger-container" style="display:none; margin-bottom:24px;">
+          <!-- Dynamically Populated in app.js -->
+        </div>
+
+        <!-- Step 4: Booking Review Card -->
+        <div id="flight-review-container" style="display:none; margin-bottom:24px;">
+          <!-- Dynamically Populated in app.js -->
+        </div>
+      </section>
+
+      <!-- View: My Bookings & Manage Tickets -->
+      <section id="view-my-bookings" class="page-view">
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h1>My Flight <span class="gradient-text">Bookings</span></h1>
+              <p>View all your active & past confirmed flight tickets, download e-tickets, or share boarding passes.</p>
+            </div>
+            <button class="btn-primary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('flights')">+ Book New Flight</button>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="glass-card" style="margin-bottom: 20px; padding: 18px;">
+          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <input type="text" id="my-bookings-search-input" placeholder="🔍 Search by PNR, Flight Number, or Passenger..." style="flex:1; height:42px;" oninput="app.filterMyBookings()">
+            <div style="display:flex; gap:8px;">
+              <button id="bfilter-all" class="order-filter-btn active" onclick="app.setBookingFilter('all')">All Bookings</button>
+              <button id="bfilter-confirmed" class="order-filter-btn" onclick="app.setBookingFilter('confirmed')">Confirmed</button>
+              <button id="bfilter-completed" class="order-filter-btn" onclick="app.setBookingFilter('completed')">Completed</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookings List Container -->
+        <div id="my-bookings-list-container">
+          <!-- Dynamically Populated in app.js -->
         </div>
       </section>
 
@@ -1251,6 +1394,256 @@
             Direct APK Download 📥
           </a>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: In-App Dummy Payment Gateway Overlay -->
+  <div id="modal-flight-payment" class="modal-overlay" onclick="if(event.target===this) app.closeModal('flight-payment')">
+    <div class="modal-content" style="max-width: 600px; padding: 24px;">
+      <div class="modal-header">
+        <div>
+          <h3 style="margin:0; font-size:20px;">💳 AeroPay Gateway</h3>
+          <span style="font-size:12px; color:var(--text-secondary);">Secure In-App Checkout Demo</span>
+        </div>
+        <button class="close-modal" onclick="app.closeModal('flight-payment')">&times;</button>
+      </div>
+
+      <!-- Payment Amount Banner -->
+      <div style="background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.3)); border: 1px solid rgba(59,130,246,0.4); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span style="font-size:12px; color:var(--text-secondary); display:block;">TOTAL PAYABLE FARE</span>
+          <h2 style="margin:2px 0 0 0; font-size:26px; color:var(--accent-primary);" id="pay-modal-amount">₹0.00</h2>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:11px; background:rgba(16,185,129,0.2); color:#10B981; padding:4px 10px; border-radius:20px; font-weight:700;">DEMO GATEWAY</span>
+        </div>
+      </div>
+
+      <!-- Payment Method Navigation Tabs -->
+      <div style="display:flex; gap:6px; margin-bottom:20px; overflow-x:auto; padding-bottom:4px;">
+        <button id="paytab-upi" class="order-filter-btn active" onclick="app.switchPayTab('upi')">📱 UPI</button>
+        <button id="paytab-card" class="order-filter-btn" onclick="app.switchPayTab('card')">💳 Credit Card</button>
+        <button id="paytab-debit" class="order-filter-btn" onclick="app.switchPayTab('debit')">💳 Debit Card</button>
+        <button id="paytab-netbank" class="order-filter-btn" onclick="app.switchPayTab('netbank')">🏦 Net Banking</button>
+        <button id="paytab-wallet" class="order-filter-btn" onclick="app.switchPayTab('wallet')">👛 Wallet</button>
+      </div>
+
+      <!-- Tab 1: UPI Payment -->
+      <div id="paysec-upi" class="pay-method-sec">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Enter your Virtual Payment Address (VPA) or scan QR code below:</p>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>UPI ID / VPA</label>
+          <input type="text" id="pay-upi-id" value="passenger@upi" placeholder="username@upi / mobile@paytm">
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+          <button class="chip-btn active" onclick="document.getElementById('pay-upi-id').value='user@okaxis'">Google Pay</button>
+          <button class="chip-btn" onclick="document.getElementById('pay-upi-id').value='user@ybl'">PhonePe</button>
+          <button class="chip-btn" onclick="document.getElementById('pay-upi-id').value='user@paytm'">Paytm</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Credit Card -->
+      <div id="paysec-card" class="pay-method-sec" style="display:none;">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Card Number</label>
+          <input type="text" id="pay-card-num" value="4532 •••• •••• 8912" placeholder="4532 0000 0000 0000">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:12px;">
+          <div class="form-group" style="flex:1; margin:0;">
+            <label>Expiry (MM/YY)</label>
+            <input type="text" id="pay-card-exp" value="12/28" placeholder="12/28">
+          </div>
+          <div class="form-group" style="flex:1; margin:0;">
+            <label>CVV / CVC</label>
+            <input type="password" id="pay-card-cvv" value="888" placeholder="•••">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Cardholder Name</label>
+          <input type="text" id="pay-card-name" value="SANTHOSH BABU" placeholder="Name on Card">
+        </div>
+      </div>
+
+      <!-- Tab 3: Debit Card -->
+      <div id="paysec-debit" class="pay-method-sec" style="display:none;">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Debit Card Number</label>
+          <input type="text" id="pay-debit-num" value="6071 •••• •••• 4410" placeholder="6071 0000 0000 0000">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <div class="form-group" style="flex:1; margin:0;">
+            <label>Expiry (MM/YY)</label>
+            <input type="text" id="pay-debit-exp" value="09/29" placeholder="MM/YY">
+          </div>
+          <div class="form-group" style="flex:1; margin:0;">
+            <label>ATM PIN / CVV</label>
+            <input type="password" id="pay-debit-cvv" value="555" placeholder="•••">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Net Banking -->
+      <div id="paysec-netbank" class="pay-method-sec" style="display:none;">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Select your bank from popular institutions:</p>
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-bottom:16px;">
+          <label class="bank-choice-card">
+            <input type="radio" name="banksel" checked> HDFC Bank
+          </label>
+          <label class="bank-choice-card">
+            <input type="radio" name="banksel"> State Bank of India
+          </label>
+          <label class="bank-choice-card">
+            <input type="radio" name="banksel"> ICICI Bank
+          </label>
+          <label class="bank-choice-card">
+            <input type="radio" name="banksel"> Axis Bank
+          </label>
+        </div>
+      </div>
+
+      <!-- Tab 5: Wallet -->
+      <div id="paysec-wallet" class="pay-method-sec" style="display:none;">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Select wallet provider:</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+          <label class="bank-choice-card">
+            <input type="radio" name="walletsel" checked> AeroSmart Digital Wallet (Available: ₹25,000)
+          </label>
+          <label class="bank-choice-card">
+            <input type="radio" name="walletsel"> Paytm Wallet
+          </label>
+          <label class="bank-choice-card">
+            <input type="radio" name="walletsel"> Amazon Pay Balance
+          </label>
+        </div>
+      </div>
+
+      <!-- Loading Overlay inside Payment Modal -->
+      <div id="payment-loader-overlay" style="display:none; text-align:center; padding:30px 10px;">
+        <div class="radar-spinner" style="width:60px; height:60px; border:4px solid rgba(59,130,246,0.2); border-top:4px solid var(--accent-primary); border-radius:50%; margin:0 auto 16px auto; animation: spin 1s linear infinite;"></div>
+        <h4 style="margin:0 0 6px 0; font-size:18px;">Processing Payment...</h4>
+        <p style="margin:0; font-size:13px; color:var(--text-secondary);">Verifying credentials & authorizing transaction securely with AeroPay.</p>
+      </div>
+
+      <button id="btn-submit-pay" class="btn-primary" style="height:48px; font-size:15px; font-weight:700; margin-top:10px;" onclick="app.executeDummyPayment()">
+        🔒 CONFIRM & PAY NOW
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 8: Printable E-Ticket View & Download -->
+  <div id="modal-eticket" class="modal-overlay" onclick="if(event.target===this) app.closeModal('eticket')">
+    <div class="modal-content" style="max-width: 720px; padding: 24px; max-height:90vh; overflow-y:auto;">
+      <div class="modal-header">
+        <h3 style="margin:0; font-size:18px;">🎫 Official Electronic Flight Ticket (E-Ticket)</h3>
+        <button class="close-modal" onclick="app.closeModal('eticket')">&times;</button>
+      </div>
+
+      <div id="eticket-printable-content" style="background:#0a1226; border: 2px solid rgba(59,130,246,0.3); border-radius: var(--radius-lg); padding: 24px; color:#fff; position:relative; overflow:hidden;">
+        <!-- Header Branding -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.2); padding-bottom:16px; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; background:var(--accent-gradient); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">✈</div>
+            <div>
+              <h3 style="margin:0; font-size:18px;" id="tkt-airline-name">AeroAssist Partner Airline</h3>
+              <span style="font-size:11px; color:var(--text-secondary);" id="tkt-aircraft">Airbus A320neo • Economy</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span class="status-badge delivered" style="font-size:12px; font-weight:800; background:rgba(16,185,129,0.2); color:#10B981;" id="tkt-status">CONFIRMED</span>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">PNR: <strong style="color:var(--accent-primary);" id="tkt-pnr">XXXXXX</strong></div>
+          </div>
+        </div>
+
+        <!-- Route Banner -->
+        <div style="background:rgba(255,255,255,0.03); border:var(--glass-border); border-radius:var(--radius-md); padding:20px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h1 style="margin:0; font-size:36px; font-weight:800; color:var(--accent-primary);" id="tkt-origin-code">DEL</h1>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-secondary);" id="tkt-origin-name">New Delhi</p>
+            <span style="font-size:12px; font-weight:700;" id="tkt-dep-time">06:00 AM</span>
+          </div>
+
+          <div style="text-align:center; flex:1; padding:0 20px;">
+            <span style="font-size:12px; color:var(--text-secondary);" id="tkt-duration">2h 15m</span>
+            <div style="height:2px; background:var(--accent-gradient); position:relative; margin:6px 0;">
+              <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:16px;">✈</span>
+            </div>
+            <span style="font-size:11px; color:#10B981; font-weight:600;" id="tkt-stops">Non-stop</span>
+          </div>
+
+          <div style="text-align:right;">
+            <h1 style="margin:0; font-size:36px; font-weight:800; color:var(--accent-primary);" id="tkt-dest-code">BOM</h1>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-secondary);" id="tkt-dest-name">Mumbai</p>
+            <span style="font-size:12px; font-weight:700;" id="tkt-arr-time">08:15 AM</span>
+          </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:16px; background:rgba(255,255,255,0.02); padding:16px; border-radius:var(--radius-md); border:var(--glass-border); margin-bottom:20px; font-size:13px;">
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">PASSENGER NAME</span>
+            <strong id="tkt-passenger-name">Santhosh Babu</strong>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">FLIGHT NO</span>
+            <strong id="tkt-flight-number">AI-432</strong>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">SEAT NUMBER</span>
+            <strong style="color:var(--accent-primary);" id="tkt-seat-no">12A</strong>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">TERMINAL / GATE</span>
+            <strong id="tkt-terminal-gate">Terminal 1 / Gate 9</strong>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">DEPARTURE DATE</span>
+            <strong id="tkt-dep-date">2026-07-30</strong>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-secondary); display:block;">BAGGAGE ALLOWANCE</span>
+            <strong id="tkt-baggage">25 kg Check-in</strong>
+          </div>
+        </div>
+
+        <!-- IDs Row -->
+        <div style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:16px; margin-bottom:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--text-secondary);">
+          <div>Booking Ref ID: <strong style="color:#fff;" id="tkt-booking-id">BK-892102</strong></div>
+          <div>Ticket Number: <strong style="color:#fff;" id="tkt-ticket-num">TKT-9920192</strong></div>
+          <div>Payment ID: <strong style="color:#fff;" id="tkt-payment-id">PAY-8810239</strong></div>
+          <div>Transaction ID: <strong style="color:#fff;" id="tkt-txn-id">TXN-7781920192</strong></div>
+        </div>
+
+        <!-- Footer QR Code Section -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:16px; border-radius:var(--radius-md);">
+          <div>
+            <div style="font-weight:700; font-size:14px; margin-bottom:4px;">BOARDING PASS QR CODE</div>
+            <p style="margin:0; font-size:12px; color:var(--text-secondary);">Scan at airport security counters & automated gates.</p>
+          </div>
+          <div style="width:70px; height:70px; background:#fff; padding:5px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+            <svg width="60" height="60" viewBox="0 0 100 100" fill="#000">
+              <rect x="0" y="0" width="30" height="30"/>
+              <rect x="5" y="5" width="20" height="20" fill="#fff"/>
+              <rect x="10" y="10" width="10" height="10"/>
+              <rect x="70" y="0" width="30" height="30"/>
+              <rect x="75" y="5" width="20" height="20" fill="#fff"/>
+              <rect x="80" y="10" width="10" height="10"/>
+              <rect x="0" y="70" width="30" height="30"/>
+              <rect x="5" y="75" width="20" height="20" fill="#fff"/>
+              <rect x="10" y="80" width="10" height="10"/>
+              <rect x="40" y="20" width="10" height="10"/>
+              <rect x="50" y="40" width="10" height="10"/>
+              <rect x="30" y="60" width="10" height="10"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Controls -->
+      <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
+        <button class="btn-primary" style="flex:1;" onclick="window.print()">🖨️ PRINT TICKET</button>
+        <button class="btn-secondary" style="flex:1;" onclick="alert('Ticket downloaded as PDF successfully!')">📥 DOWNLOAD PDF</button>
+        <button class="btn-secondary" style="width:auto;" onclick="app.shareTicket()">🔗 SHARE TICKET</button>
       </div>
     </div>
   </div>

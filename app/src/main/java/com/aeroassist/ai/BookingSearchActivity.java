@@ -70,13 +70,11 @@ public class BookingSearchActivity extends BaseActivity {
                 updated.add(origin + " â†’ " + dest + " | " + selectedDate);
                 histPrefs.edit().putStringSet("searches", updated).apply();
 
-                // Construct highly optimized Google Flights Aggregator Query
-                String query = "Flights to " + dest + " from " + origin + " on " + selectedDate;
-                String encodedQuery = URLEncoder.encode(query, "UTF-8");
-                String url = "https://www.google.com/travel/flights?q=" + encodedQuery;
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
+                // Launch native FlightResultsActivity instead of Google Flights
+                Intent intent = new Intent(BookingSearchActivity.this, FlightResultsActivity.class);
+                intent.putExtra("ORIGIN", origin);
+                intent.putExtra("DESTINATION", dest);
+                intent.putExtra("DATE", selectedDate);
                 startActivity(intent);
                 
             } catch (Exception e) {

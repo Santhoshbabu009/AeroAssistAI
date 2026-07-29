@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:background="#0F172A">
 
+    <!-- App Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,10 +23,11 @@
             android:tint="#FFFFFF" />
 
         <TextView
+            android:id="@+id/routeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="My Bookings"
+            android:text="Select Flight"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -39,18 +41,8 @@
         android:layout_marginTop="50dp"
         android:indeterminateTint="#00E5FF" />
 
-    <TextView
-        android:id="@+id/emptyText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:text="No flight bookings found."
-        android:textColor="#94A3B8"
-        android:visibility="gone" />
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/bookingsRecyclerView"
+        android:id="@+id/flightRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"

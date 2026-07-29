@@ -266,6 +266,30 @@ class LocalSQLiteDB:
             )
         """)
 
+        # flight_bookings table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS flight_bookings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_email TEXT NOT NULL,
+                booking_id TEXT NOT NULL UNIQUE,
+                pnr TEXT NOT NULL,
+                payment_id TEXT NOT NULL,
+                transaction_id TEXT NOT NULL,
+                ticket_number TEXT NOT NULL,
+                invoice_number TEXT NOT NULL,
+                origin TEXT NOT NULL,
+                destination TEXT NOT NULL,
+                departure_date TEXT NOT NULL,
+                flight_details TEXT NOT NULL,
+                passenger_details TEXT NOT NULL,
+                amount REAL NOT NULL,
+                payment_method TEXT NOT NULL,
+                payment_status TEXT DEFAULT 'Demo Success',
+                booking_status TEXT DEFAULT 'Confirmed',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         # lost_items table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS lost_items (
@@ -761,6 +785,47 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
             cursor.execute("SELECT * FROM parking_bookings WHERE user_email = ? ORDER BY id DESC", (user_email,))
             rows = cursor.fetchall()
             return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    # Flight Bookings operations
+    def create_flight_booking(self, user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number, origin, destination, departure_date, flight_details, passenger_details, amount, payment_method):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO flight_bookings (
+                    user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
+                    origin, destination, departure_date, flight_details, passenger_details, amount, payment_method,
+                    payment_status, booking_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Demo Success', 'Confirmed')
+            """, (user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
+                  origin, destination, departure_date, str(flight_details), str(passenger_details), amount, payment_method))
+            conn.commit()
+            last_id = cursor.lastrowid
+            cursor.execute("SELECT * FROM flight_bookings WHERE id = ?", (last_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def get_flight_bookings(self, user_email):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM flight_bookings WHERE user_email = ? ORDER BY id DESC", (user_email,))
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    def get_flight_booking_by_id_or_pnr(self, id_or_pnr):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM flight_bookings WHERE booking_id = ? OR pnr = ? OR ticket_number = ?", (id_or_pnr, id_or_pnr, id_or_pnr))
+            row = cursor.fetchone()
+            return dict(row) if row else None
         finally:
             conn.close()
 
@@ -2521,6 +2586,268 @@ def manage_vendor_products():
             print("[FALLBACK] Supabase product delete error:", str(e))
             db.delete_product(product_id)
             return jsonify({"status": "success", "message": "Product deleted successfully"})
+
+# --- IN-APP FLIGHT BOOKING & PAYMENT ENGINE ENDPOINTS ---
+AIRLINES_DATA = [
+    {"name": "Air India", "code": "AI", "logo": "✈️", "color": "#E11B22"},
+    {"name": "IndiGo", "code": "6E", "logo": "💙", "color": "#002B7F"},
+    {"name": "Vistara", "code": "UK", "logo": "✨", "color": "#4A154B"},
+    {"name": "Emirates", "code": "EK", "logo": "👑", "color": "#D71921"},
+    {"name": "Singapore Airlines", "code": "SQ", "logo": "🌟", "color": "#00205B"},
+    {"name": "Qatar Airways", "code": "QR", "logo": "🇶🇦", "color": "#5C0632"},
+    {"name": "SpiceJet", "code": "SG", "logo": "🌶️", "color": "#FF6F00"}
+]
+
+AIRPORTS_MAPPING = {
+    "DEL": "New Delhi (DEL)",
+    "BOM": "Mumbai (BOM)",
+    "MAA": "Chennai (MAA)",
+    "BLR": "Bengaluru (BLR)",
+    "HYD": "Hyderabad (HYD)",
+    "DXB": "Dubai (DXB)",
+    "SIN": "Singapore (SIN)",
+    "LHR": "London Heathrow (LHR)",
+    "JFK": "New York (JFK)"
+}
+
+@app.route('/api/flights/search', methods=['GET'])
+def search_flights():
+    origin = (request.args.get('origin') or 'DEL').upper().strip()
+    destination = (request.args.get('destination') or 'BOM').upper().strip()
+    date_str = request.args.get('date') or datetime.date.today().strftime('%Y-%m-%d')
+    passengers = int(request.args.get('passengers') or 1)
+    cabin_class = request.args.get('cabin_class') or 'Economy'
+    
+    # Generate realistic dynamic demo flight schedule based on origin-destination hash seed
+    flights = []
+    base_seed = sum(ord(c) for c in origin + destination + date_str)
+    
+    schedules = [
+        {"dep": "06:00", "arr": "08:15", "duration": "2h 15m", "stops": "Non-stop", "base_price": 4500},
+        {"dep": "09:30", "arr": "11:45", "duration": "2h 15m", "stops": "Non-stop", "base_price": 5200},
+        {"dep": "13:15", "arr": "15:40", "duration": "2h 25m", "stops": "Non-stop", "base_price": 4800},
+        {"dep": "17:45", "arr": "20:05", "duration": "2h 20m", "stops": "Non-stop", "base_price": 6100},
+        {"dep": "21:10", "arr": "23:30", "duration": "2h 20m", "stops": "Non-stop", "base_price": 3990},
+        {"dep": "11:00", "arr": "16:30", "duration": "5h 30m", "stops": "1 Stop (HYD)", "base_price": 7500}
+    ]
+
+    for idx, sch in enumerate(schedules):
+        airline = AIRLINES_DATA[(base_seed + idx) % len(AIRLINES_DATA)]
+        flight_num = f"{airline['code']}-{(base_seed * (idx + 1)) % 900 + 100}"
+        multiplier = 1.0 if cabin_class == 'Economy' else 1.8 if cabin_class == 'Premium Economy' else 2.8
+        price_per_pax = int(sch['base_price'] * multiplier)
+        total_fare = price_per_pax * passengers
+        
+        flights.append({
+            "id": f"FL-{flight_num}-{date_str}",
+            "flight_number": flight_num,
+            "airline": airline["name"],
+            "airline_code": airline["code"],
+            "airline_logo": airline["logo"],
+            "airline_color": airline["color"],
+            "origin": origin,
+            "origin_name": AIRPORTS_MAPPING.get(origin, f"Airport ({origin})"),
+            "destination": destination,
+            "destination_name": AIRPORTS_MAPPING.get(destination, f"Airport ({destination})"),
+            "departure_date": date_str,
+            "departure_time": sch["dep"],
+            "arrival_time": sch["arr"],
+            "duration": sch["duration"],
+            "stops": sch["stops"],
+            "cabin_class": cabin_class,
+            "passengers": passengers,
+            "price_per_pax": price_per_pax,
+            "total_fare": total_fare,
+            "baggage": "25 kg Check-in + 7 kg Hand Bag",
+            "aircraft": "Airbus A320neo" if idx % 2 == 0 else "Boeing 787 Dreamliner",
+            "terminal": f"Terminal {1 if idx % 2 == 0 else 2}",
+            "gate": f"Gate {random.randint(1, 30)}"
+        })
+
+    return jsonify({
+        "status": "success",
+        "origin": origin,
+        "destination": destination,
+        "date": date_str,
+        "passengers": passengers,
+        "cabin_class": cabin_class,
+        "count": len(flights),
+        "flights": flights
+    })
+
+
+@app.route('/api/flights/book', methods=['POST'])
+def book_flight():
+    data = request.json or {}
+    user_email = data.get('user_email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai'
+    
+    flight_details = data.get('flight_details') or {}
+    passenger_details = data.get('passenger_details') or []
+    amount = float(data.get('amount') or flight_details.get('total_fare') or 0.0)
+    payment_method = data.get('payment_method') or 'UPI'
+    
+    # Generate unique realistic demo identifiers
+    rnd_suffix = "".join(random.choices("0123456789", k=6))
+    booking_id = f"BK-{rnd_suffix}"
+    pnr = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=6))
+    payment_id = f"PAY-{"".join(random.choices('0123456789', k=8))}"
+    transaction_id = f"TXN-{"".join(random.choices('0123456789', k=10))}"
+    ticket_number = f"TKT-{"".join(random.choices('0123456789', k=10))}"
+    invoice_number = f"INV-2026-{"".join(random.choices('0123456789', k=5))}"
+    
+    origin = flight_details.get('origin', 'DEL')
+    destination = flight_details.get('destination', 'BOM')
+    departure_date = flight_details.get('departure_date', datetime.date.today().strftime('%Y-%m-%d'))
+    
+    import json
+    flight_json = json.dumps(flight_details)
+    pax_json = json.dumps(passenger_details)
+    
+    booking_record = {
+        "user_email": user_email,
+        "booking_id": booking_id,
+        "pnr": pnr,
+        "payment_id": payment_id,
+        "transaction_id": transaction_id,
+        "ticket_number": ticket_number,
+        "invoice_number": invoice_number,
+        "origin": origin,
+        "destination": destination,
+        "departure_date": departure_date,
+        "flight_details": flight_details,
+        "passenger_details": passenger_details,
+        "amount": amount,
+        "payment_method": payment_method,
+        "payment_status": "Demo Success",
+        "booking_status": "Confirmed",
+        "created_at": datetime.datetime.utcnow().isoformat()
+    }
+    
+    if USE_SQLITE:
+        db.create_flight_booking(
+            user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
+            origin, destination, departure_date, flight_json, pax_json, amount, payment_method
+        )
+    else:
+        try:
+            supabase.table('flight_bookings').insert({
+                "user_email": user_email,
+                "booking_id": booking_id,
+                "pnr": pnr,
+                "payment_id": payment_id,
+                "transaction_id": transaction_id,
+                "ticket_number": ticket_number,
+                "invoice_number": invoice_number,
+                "origin": origin,
+                "destination": destination,
+                "departure_date": departure_date,
+                "flight_details": flight_json,
+                "passenger_details": pax_json,
+                "amount": amount,
+                "payment_method": payment_method,
+                "payment_status": "Demo Success",
+                "booking_status": "Confirmed"
+            }).execute()
+        except Exception as e:
+            print("[FALLBACK] Supabase flight_booking insert error:", str(e))
+            db.create_flight_booking(
+                user_email, booking_id, pnr, payment_id, transaction_id, ticket_number, invoice_number,
+                origin, destination, departure_date, flight_json, pax_json, amount, payment_method
+            )
+
+    return jsonify({
+        "status": "success",
+        "message": "Flight booked successfully",
+        "booking": booking_record
+    }), 201
+
+
+@app.route('/api/flights/bookings', methods=['GET'])
+def get_user_flight_bookings():
+    user_email = request.args.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai'
+    import json
+    
+    if USE_SQLITE:
+        raw_bookings = db.get_flight_bookings(user_email)
+        bookings = []
+        for b in raw_bookings:
+            b_dict = dict(b)
+            try:
+                b_dict['flight_details'] = json.loads(b_dict['flight_details']) if isinstance(b_dict['flight_details'], str) else b_dict['flight_details']
+                b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
+            except Exception:
+                pass
+            bookings.append(b_dict)
+        return jsonify({"status": "success", "bookings": bookings})
+    else:
+        try:
+            res = supabase.table('flight_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            bookings = res.data or []
+            for b in bookings:
+                try:
+                    if isinstance(b.get('flight_details'), str):
+                        b['flight_details'] = json.loads(b['flight_details'])
+                    if isinstance(b.get('passenger_details'), str):
+                        b['passenger_details'] = json.loads(b['passenger_details'])
+                except Exception:
+                    pass
+            return jsonify({"status": "success", "bookings": bookings})
+        except Exception as e:
+            print("[FALLBACK] Supabase flight_bookings query error:", str(e))
+            raw_bookings = db.get_flight_bookings(user_email)
+            bookings = []
+            for b in raw_bookings:
+                b_dict = dict(b)
+                try:
+                    b_dict['flight_details'] = json.loads(b_dict['flight_details']) if isinstance(b_dict['flight_details'], str) else b_dict['flight_details']
+                    b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
+                except Exception:
+                    pass
+                bookings.append(b_dict)
+            return jsonify({"status": "success", "bookings": bookings})
+
+
+@app.route('/api/flights/bookings/<id_or_pnr>', methods=['GET'])
+def get_flight_booking_detail(id_or_pnr):
+    import json
+    if USE_SQLITE:
+        booking = db.get_flight_booking_by_id_or_pnr(id_or_pnr)
+        if not booking:
+            return jsonify({"status": "error", "message": "Booking not found"}), 404
+        try:
+            booking['flight_details'] = json.loads(booking['flight_details']) if isinstance(booking['flight_details'], str) else booking['flight_details']
+            booking['passenger_details'] = json.loads(booking['passenger_details']) if isinstance(booking['passenger_details'], str) else booking['passenger_details']
+        except Exception:
+            pass
+        return jsonify({"status": "success", "booking": booking})
+    else:
+        try:
+            res = supabase.table('flight_bookings').select('*').or_(f"booking_id.eq.{id_or_pnr},pnr.eq.{id_or_pnr},ticket_number.eq.{id_or_pnr}").limit(1).execute()
+            if not res.data:
+                booking = db.get_flight_booking_by_id_or_pnr(id_or_pnr)
+            else:
+                booking = res.data[0]
+            if not booking:
+                return jsonify({"status": "error", "message": "Booking not found"}), 404
+            try:
+                if isinstance(booking.get('flight_details'), str):
+                    booking['flight_details'] = json.loads(booking['flight_details'])
+                if isinstance(booking.get('passenger_details'), str):
+                    booking['passenger_details'] = json.loads(booking['passenger_details'])
+            except Exception:
+                pass
+            return jsonify({"status": "success", "booking": booking})
+        except Exception as e:
+            print("[FALLBACK] Supabase flight_booking detail query error:", str(e))
+            booking = db.get_flight_booking_by_id_or_pnr(id_or_pnr)
+            if not booking:
+                return jsonify({"status": "error", "message": "Booking not found"}), 404
+            try:
+                booking['flight_details'] = json.loads(booking['flight_details']) if isinstance(booking['flight_details'], str) else booking['flight_details']
+                booking['passenger_details'] = json.loads(booking['passenger_details']) if isinstance(booking['passenger_details'], str) else booking['passenger_details']
+            except Exception:
+                pass
+            return jsonify({"status": "success", "booking": booking})
 
 
 @app.errorhandler(429)
