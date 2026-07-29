@@ -1903,87 +1903,73 @@ def place_order():
             total_price = 0.0
             print("[POST /api/orders] Failed to calculate total_price:", str(e))
 
-    if USE_SQLITE:
-        print("[POST /api/orders] Running in SQLite Mode. Placing order...")
-        order = db.place_order(user_email, vendor_id, terminal, gate, total_price, items, payment_method)
-        if order:
-            print("[POST /api/orders] SQLite order created successfully. ID:", order['id'])
-            return jsonify({"status": "success", "message": "Order placed successfully", "order_id": order['id'], "order": order})
-        return jsonify({"status": "error", "message": "Failed to create order"}), 500
-
+    # Always persist in Local SQLite as well for reliable cross-platform syncing
+    sqlite_order = None
     try:
-        print("[POST /api/orders] Connecting to Supabase to insert order...")
-        order_resp = supabase.table('orders').insert({
-            'user_email': user_email,
-            'vendor_id': vendor_id,
-            'terminal': terminal,
-            'gate': gate,
-            'status': 'Pending',
-            'total_price': total_price,
-            'payment_method': payment_method
-        }).execute()
-        
-        if not order_resp.data:
-            print("[POST /api/orders] Supabase insertion returned empty data response.")
-            return jsonify({"status": "error", "message": "Failed to create order"}), 500
-            
-        order_id = order_resp.data[0]['id']
-        print(f"[POST /api/orders] Supabase order created successfully. ID: {order_id}")
-        
-        order_items_data = []
-        for item in items:
-            p_id = item.get('product_id')
-            qty = item.get('quantity') or item.get('qty') or 1
-            try:
-                qty = int(qty)
-            except Exception:
-                qty = 1
-            price = item.get('price', 0.0)
-            
-            p_name = item.get('product_name') or item.get('name') or item.get('productName')
-            if not p_name and p_id:
-                try:
-                    p_resp = supabase.table('products').select('name').eq('id', p_id).execute()
-                    if p_resp.data:
-                        p_name = p_resp.data[0]['name']
-                        print(f"[POST /api/orders] Resolved missing product name for ID {p_id}: {p_name}")
-                except Exception as lookup_err:
-                    print(f"[POST /api/orders] Error looking up product name for ID {p_id}:", str(lookup_err))
-            
-            if not p_name:
-                p_name = "Unknown Item"
-                
-            order_items_data.append({
-                'order_id': order_id,
-                'product_id': p_id,
-                'quantity': qty,
-                'price': price,
-                'product_name': p_name
-            })
-            
-        if order_items_data:
-            print("[POST /api/orders] Inserting order items to Supabase...")
-            items_resp = supabase.table('order_items').insert(order_items_data).execute()
-            print("[POST /api/orders] Supabase order items inserted successfully:", items_resp.data)
-            
-        return jsonify({
-            "status": "success", 
-            "message": "Order placed successfully", 
-            "order_id": order_id,
-            "order": order_resp.data[0]
-        })
+        sqlite_order = db.place_order(user_email, vendor_id, terminal, gate, total_price, items, payment_method)
     except Exception as e:
-        print("[FALLBACK] Supabase place order error:", str(e))
+        print("[SQLITE SYNC ERROR]:", str(e))
+
+    if not USE_SQLITE and supabase is not None:
         try:
-            print("[POST /api/orders] Executing local SQLite database fallback insertion...")
-            order = db.place_order(user_email, vendor_id, terminal, gate, total_price, items, payment_method)
-            if order:
-                print("[POST /api/orders] SQLite fallback order created successfully. ID:", order['id'])
-                return jsonify({"status": "success", "message": "Order placed successfully", "order_id": order['id'], "order": order})
-            return jsonify({"status": "error", "message": "Failed to create order in local database fallback."}), 500
-        except Exception as sqlite_err:
-            print("[SQLITE FALLBACK ERROR] place_order failed:", str(sqlite_err))
-            return jsonify({"status": "error", "message": f"Local database error: {str(sqlite_err)}"}), 500
+            order_resp = supabase.table('orders').insert({
+                'user_email': user_email,
+                'vendor_id': vendor_id,
+                'terminal': terminal,
+                'gate': gate,
+                'status': 'Pending',
+                'total_price': total_price,
+                'payment_method': payment_method
+            }).execute()
+            
+            if order_resp.data:
+                order_id = order_resp.data[0]['id']
+                
+                order_items_data = []
+                for item in items:
+                    p_id = item.get('product_id')
+                    qty = item.get('quantity') or item.get('qty') or 1
+                    try:
+                        qty = int(qty)
+                    except Exception:
+                        qty = 1
+                    price = item.get('price', 0.0)
+                    
+                    p_name = item.get('product_name') or item.get('name') or item.get('productName')
+                    if not p_name and p_id:
+                        try:
+                            p_resp = supabase.table('products').select('name').eq('id', p_id).execute()
+                            if p_resp.data:
+                                p_name = p_resp.data[0]['name']
+                        except Exception:
+                            pass
+                    
+                    if not p_name:
+                        p_name = "Unknown Item"
+                        
+                    order_items_data.append({
+                        'order_id': order_id,
+                        'product_id': p_id,
+                        'quantity': qty,
+                        'price': price,
+                        'product_name': p_name
+                    })
+                    
+                if order_items_data:
+                    supabase.table('order_items').insert(order_items_data).execute()
+                    
+                return jsonify({
+                    "status": "success", 
+                    "message": "Order placed successfully", 
+                    "order_id": order_id,
+                    "order": order_resp.data[0]
+                })
+        except Exception as e:
+            print("[SUPABASE SYNC ERROR]:", str(e))
+
+    if sqlite_order:
+        return jsonify({"status": "success", "message": "Order placed successfully", "order_id": sqlite_order['id'], "order": sqlite_order})
+    return jsonify({"status": "error", "message": "Failed to create order"}), 500
 @app.route('/api/orders/history', methods=['GET'])
 @app.route('/api/orders', methods=['GET'])
 @token_required()
@@ -1997,34 +1983,49 @@ def order_history():
     if request.user_email != user_email and request.user_role != 'admin':
         return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
         
-    if USE_SQLITE:
-        return jsonify({"status": "success", "orders": db.get_orders(user_email)})
-    try:
-        orders_resp = supabase.table('orders').select('*').eq('user_email', user_email).order('id', desc=True).execute()
-        orders = orders_resp.data or []
-        if orders:
-            order_ids = [order['id'] for order in orders]
-            vendor_ids = list(set([order['vendor_id'] for order in orders if order.get('vendor_id')]))
-            
-            vendors_by_id = {}
-            if vendor_ids:
-                v_resp = supabase.table('vendors').select('id,name').in_('id', vendor_ids).execute()
-                for v in (v_resp.data or []):
-                    vendors_by_id[v['id']] = v['name']
-                    
-            items_by_order = {}
-            items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
-            for item in (items_resp.data or []):
-                oid = item.get('order_id')
-                items_by_order.setdefault(oid, []).append(item)
+    raw_sqlite = db.get_orders(user_email)
+    seen_keys = set()
+    combined = []
+
+    if supabase is not None:
+        try:
+            orders_resp = supabase.table('orders').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            orders = orders_resp.data or []
+            if orders:
+                order_ids = [order['id'] for order in orders]
+                vendor_ids = list(set([order['vendor_id'] for order in orders if order.get('vendor_id')]))
                 
-            for order in orders:
-                order['vendor_name'] = vendors_by_id.get(order.get('vendor_id'), "Unknown Restaurant")
-                order['items'] = items_by_order.get(order['id'], [])
-        return jsonify({"status": "success", "orders": orders})
-    except Exception as e:
-        print("[FALLBACK] Supabase order history fetch error:", str(e))
-        return jsonify({"status": "success", "orders": db.get_orders(user_email)})
+                vendors_by_id = {}
+                if vendor_ids:
+                    v_resp = supabase.table('vendors').select('id,name').in_('id', vendor_ids).execute()
+                    for v in (v_resp.data or []):
+                        vendors_by_id[v['id']] = v['name']
+                        
+                items_by_order = {}
+                items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
+                for item in (items_resp.data or []):
+                    oid = item.get('order_id')
+                    items_by_order.setdefault(oid, []).append(item)
+                    
+                for order in orders:
+                    order['vendor_name'] = vendors_by_id.get(order.get('vendor_id'), "Unknown Restaurant")
+                    order['items'] = items_by_order.get(order['id'], [])
+                    
+                    key = f"{order.get('vendor_id')}_{order.get('total_price')}_{str(order.get('created_at'))[:16]}"
+                    seen_keys.add(key)
+                    combined.append(order)
+        except Exception as e:
+            print("[SUPABASE QUERY NOTICE]:", str(e))
+
+    for o in raw_sqlite:
+        key = f"{o.get('vendor_id')}_{o.get('total_price')}_{str(o.get('created_at'))[:16]}"
+        if key not in seen_keys:
+            seen_keys.add(key)
+            combined.append(dict(o))
+            
+    # Sort combined by created_at desc
+    combined.sort(key=lambda x: str(x.get('created_at', '')), reverse=True)
+    return jsonify({"status": "success", "orders": combined})
 
 @app.route('/api/orders/<int:order_id>', methods=['GET'])
 @token_required()
@@ -2108,31 +2109,31 @@ def book_lounge():
     if not user_email or not vendor_id or not booking_date or not booking_time:
         return jsonify({"status": "error", "message": "Missing required booking fields"}), 400
 
-    if USE_SQLITE:
-        booking = db.book_lounge(user_email, vendor_id, booking_date, booking_time, slots)
-        if booking:
-            return jsonify({"status": "success", "message": "Lounge booked successfully", "booking": booking})
-        return jsonify({"status": "error", "message": "Failed to create booking"}), 500
+    # Dual-persistence logic
+    sqlite_booking = None
     try:
-        booking_resp = supabase.table('lounge_bookings').insert({
-            'user_email': user_email,
-            'vendor_id': vendor_id,
-            'booking_date': booking_date,
-            'booking_time': booking_time,
-            'slots': slots,
-            'status': 'Pending'
-        }).execute()
-        return jsonify({"status": "success", "message": "Lounge booked successfully", "booking": booking_resp.data[0]})
+        sqlite_booking = db.book_lounge(user_email, vendor_id, booking_date, booking_time, slots)
     except Exception as e:
-        print("[FALLBACK] Supabase lounge booking error:", str(e))
+        print("[SQLITE SYNC ERROR]:", str(e))
+
+    if not USE_SQLITE and supabase is not None:
         try:
-            booking = db.book_lounge(user_email, vendor_id, booking_date, booking_time, slots)
-            if booking:
-                return jsonify({"status": "success", "message": "Lounge booked successfully", "booking": booking})
-            return jsonify({"status": "error", "message": "Failed to create booking in local database fallback."}), 500
-        except Exception as sqlite_err:
-            print("[SQLITE FALLBACK ERROR] book_lounge failed:", str(sqlite_err))
-            return jsonify({"status": "error", "message": f"Local database error: {str(sqlite_err)}"}), 500
+            booking_resp = supabase.table('lounge_bookings').insert({
+                'user_email': user_email,
+                'vendor_id': vendor_id,
+                'booking_date': booking_date,
+                'booking_time': booking_time,
+                'slots': slots,
+                'status': 'Pending'
+            }).execute()
+            if booking_resp.data:
+                return jsonify({"status": "success", "message": "Lounge booked successfully", "booking": booking_resp.data[0]})
+        except Exception as e:
+            print("[SUPABASE SYNC ERROR]:", str(e))
+            
+    if sqlite_booking:
+        return jsonify({"status": "success", "message": "Lounge booked successfully", "booking": sqlite_booking})
+    return jsonify({"status": "error", "message": "Failed to create booking"}), 500
 
 @app.route('/api/lounge_bookings/history', methods=['GET'])
 @app.route('/api/bookings', methods=['GET'])
@@ -2140,26 +2141,40 @@ def lounge_booking_history():
     user_email = request.args.get('user_email') or request.args.get('email')
     if not user_email:
         return jsonify({"status": "error", "message": "Missing user_email parameter"}), 400
-    if USE_SQLITE:
-        return jsonify({"status": "success", "bookings": db.get_bookings(user_email)})
-    try:
-        bookings_resp = supabase.table('lounge_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
-        bookings = bookings_resp.data or []
-        for booking in bookings:
-            v_resp = supabase.table('vendors').select('name', 'terminal', 'gate', 'image_url').eq('id', booking['vendor_id']).execute()
-            if v_resp.data:
-                booking['vendor_name'] = v_resp.data[0]['name']
-                booking['terminal'] = v_resp.data[0]['terminal']
-                booking['gate'] = v_resp.data[0]['gate']
-                booking['image_url'] = v_resp.data[0]['image_url']
-            else:
-                booking['vendor_name'] = "Unknown Lounge"
-                booking['terminal'] = "-"
-                booking['gate'] = "-"
-        return jsonify({"status": "success", "bookings": bookings})
-    except Exception as e:
-        print("[FALLBACK] Supabase booking history fetch error:", str(e))
-        return jsonify({"status": "success", "bookings": db.get_bookings(user_email)})
+    raw_sqlite = db.get_bookings(user_email)
+    seen_keys = set()
+    combined = []
+
+    if supabase is not None:
+        try:
+            bookings_resp = supabase.table('lounge_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            bookings = bookings_resp.data or []
+            for booking in bookings:
+                v_resp = supabase.table('vendors').select('name', 'terminal', 'gate', 'image_url').eq('id', booking['vendor_id']).execute()
+                if v_resp.data:
+                    booking['vendor_name'] = v_resp.data[0]['name']
+                    booking['terminal'] = v_resp.data[0]['terminal']
+                    booking['gate'] = v_resp.data[0]['gate']
+                    booking['image_url'] = v_resp.data[0]['image_url']
+                else:
+                    booking['vendor_name'] = "Unknown Lounge"
+                    booking['terminal'] = "-"
+                    booking['gate'] = "-"
+                
+                key = f"{booking.get('vendor_id')}_{booking.get('booking_date')}_{booking.get('booking_time')}_{str(booking.get('created_at'))[:16]}"
+                seen_keys.add(key)
+                combined.append(booking)
+        except Exception as e:
+            print("[SUPABASE QUERY NOTICE]:", str(e))
+
+    for b in raw_sqlite:
+        key = f"{b.get('vendor_id')}_{b.get('booking_date')}_{b.get('booking_time')}_{str(b.get('created_at'))[:16]}"
+        if key not in seen_keys:
+            seen_keys.add(key)
+            combined.append(dict(b))
+            
+    combined.sort(key=lambda x: str(x.get('created_at', '')), reverse=True)
+    return jsonify({"status": "success", "bookings": combined})
 
 # --- PARKING BOOKING SYSTEM ENDPOINTS ---
 
@@ -2176,9 +2191,30 @@ def book_parking():
     if not user_email or not zone or hours is None or not plate_number or total_price is None:
         return jsonify({"status": "error", "message": "Missing required parking booking fields"}), 400
 
-    booking = db.book_parking(user_email, zone, hours, plate_number, payment_method, total_price)
-    if booking:
-        return jsonify({"status": "success", "message": "Parking booked successfully", "booking": booking})
+    sqlite_booking = None
+    try:
+        sqlite_booking = db.book_parking(user_email, zone, hours, plate_number, payment_method, total_price)
+    except Exception as e:
+        print("[SQLITE SYNC ERROR]:", str(e))
+        
+    if not USE_SQLITE and supabase is not None:
+        try:
+            booking_resp = supabase.table('parking_bookings').insert({
+                'user_email': user_email,
+                'zone': zone,
+                'hours': hours,
+                'plate_number': plate_number,
+                'payment_method': payment_method,
+                'total_price': total_price,
+                'status': 'Pending'
+            }).execute()
+            if booking_resp.data:
+                return jsonify({"status": "success", "message": "Parking booked successfully", "booking": booking_resp.data[0]})
+        except Exception as e:
+            print("[SUPABASE SYNC ERROR]:", str(e))
+
+    if sqlite_booking:
+        return jsonify({"status": "success", "message": "Parking booked successfully", "booking": sqlite_booking})
     return jsonify({"status": "error", "message": "Failed to book parking"}), 500
 
 @app.route('/api/parking-bookings/history', methods=['GET'])
@@ -2186,8 +2222,28 @@ def parking_booking_history():
     user_email = request.args.get('user_email') or request.args.get('email')
     if not user_email:
         return jsonify({"status": "error", "message": "Missing user_email parameter"}), 400
-    bookings = db.get_parking_bookings(user_email)
-    return jsonify({"status": "success", "bookings": bookings})
+    raw_sqlite = db.get_parking_bookings(user_email)
+    seen_keys = set()
+    combined = []
+    
+    if supabase is not None:
+        try:
+            bookings_resp = supabase.table('parking_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            for booking in (bookings_resp.data or []):
+                key = f"{booking.get('zone')}_{booking.get('plate_number')}_{str(booking.get('created_at'))[:16]}"
+                seen_keys.add(key)
+                combined.append(booking)
+        except Exception as e:
+            print("[SUPABASE QUERY NOTICE]:", str(e))
+            
+    for b in raw_sqlite:
+        key = f"{b.get('zone')}_{b.get('plate_number')}_{str(b.get('created_at'))[:16]}"
+        if key not in seen_keys:
+            seen_keys.add(key)
+            combined.append(dict(b))
+            
+    combined.sort(key=lambda x: str(x.get('created_at', '')), reverse=True)
+    return jsonify({"status": "success", "bookings": combined})
 
 # --- LOST AND FOUND ENDPOINTS ---
 
@@ -2763,6 +2819,7 @@ def book_flight():
 
 
 @app.route('/api/flights/bookings', methods=['GET'])
+def get_flight_bookings():
     user_email = (request.args.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai').strip().lower()
     import json
     
