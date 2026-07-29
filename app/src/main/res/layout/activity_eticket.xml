@@ -8,8 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="24dp">
+        android:paddingBottom="32dp">
 
+        <!-- Top Navigation Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="E-Ticket"
+                android:text="Official E-Ticket Pass"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -41,104 +42,80 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="40dp"
             android:indeterminateTint="#00E5FF" />
 
+        <!-- E-Ticket Main Glass Card Container -->
         <LinearLayout
             android:id="@+id/ticketContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="20dp"
             android:layout_margin="16dp"
             android:background="@drawable/glass_card_bg"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BOARDING PASS"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"
-                android:textSize="22sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp" />
-
-            <!-- PNR -->
+            <!-- Card Header: Airline, Status, PNR -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="PNR"
-                    android:textColor="#94A3B8" />
-                <TextView
-                    android:id="@+id/eticketPnr"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FF9800"
-                    android:textStyle="bold"
-                    android:textSize="18sp" />
-            </LinearLayout>
 
-            <!-- Route -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
+
                     <TextView
-                        android:id="@+id/eticketOrig"
+                        android:id="@+id/tktAirlineName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Air India"
                         android:textColor="#FFFFFF"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textSize="18sp" />
+
                     <TextView
+                        android:id="@+id/tktAircraft"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Origin"
+                        android:text="Airbus A320neo • Economy"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="➔"
-                    android:textColor="#94A3B8"
-                    android:textSize="24sp"
-                    android:layout_gravity="center"
-                    android:layout_marginHorizontal="16dp" />
+                    android:orientation="vertical"
+                    android:gravity="end">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:orientation="vertical">
                     <TextView
-                        android:id="@+id/eticketDest"
+                        android:id="@+id/tktStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#FFFFFF"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:text="CONFIRMED"
+                        android:textColor="#10B981"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:background="#1A10B981"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp" />
+
                     <TextView
+                        android:id="@+id/tktPnr"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Destination"
-                        android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:text="PNR: AA8921"
+                        android:textColor="#00E5FF"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -148,12 +125,133 @@
                 android:background="#334155"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Pax & Seat -->
+            <!-- Route Info Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <!-- Origin -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tktOrigCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MAA"
+                        android:textColor="#00E5FF"
+                        android:textSize="32sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tktOrigName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chennai"
+                        android:textColor="#94A3B8"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tktDepTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="06:00 AM"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Duration & Stops -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tktDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2h 15m"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✈ ──────── ✈"
+                        android:textColor="#00E5FF"
+                        android:textSize="14sp"
+                        android:layout_marginVertical="4dp" />
+
+                    <TextView
+                        android:id="@+id/tktStops"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Non-stop"
+                        android:textColor="#10B981"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Destination -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tktDestCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DEL"
+                        android:textColor="#00E5FF"
+                        android:textSize="32sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tktDestName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Delhi"
+                        android:textColor="#94A3B8"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tktArrTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="08:15 AM"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#334155"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Grid 1: Passenger Name & Flight Number -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -162,45 +260,96 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Passenger"
+                        android:text="PASSENGER NAME"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                     <TextView
-                        android:id="@+id/eticketPaxName"
+                        android:id="@+id/tktPaxName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Seat"
+                        android:text="FLIGHT NO"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                     <TextView
-                        android:id="@+id/eticketSeat"
+                        android:id="@+id/tktFlightNum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Grid 2: Seat & Terminal/Gate -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SEAT NUMBER"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                    <TextView
+                        android:id="@+id/tktSeatNo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#00E5FF"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TERMINAL / GATE"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                    <TextView
+                        android:id="@+id/tktTerminalGate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Flight & Date -->
+            <!-- Grid 3: Departure Date & Baggage Allowance -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="16dp">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -209,57 +358,164 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Flight"
+                        android:text="DEPARTURE DATE"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                     <TextView
-                        android:id="@+id/eticketFlight"
+                        android:id="@+id/tktDepDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#E2E8F0"
-                        android:textSize="14sp" />
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Departure"
+                        android:text="BAGGAGE ALLOWANCE"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                     <TextView
-                        android:id="@+id/eticketDep"
+                        android:id="@+id/tktBaggage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#E2E8F0"
-                        android:textSize="14sp" />
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
-            
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#334155"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Dummy Barcode/QR area -->
+            <!-- References Grid -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Booking Ref ID"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tktBookingId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Ticket Number"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tktTicketNum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Payment ID"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tktPaymentId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Transaction ID"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tktTxnId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Barcode Display Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
                 android:background="#FFFFFF"
                 android:gravity="center"
+                android:padding="8dp"
                 android:orientation="vertical">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="|||| ||| ||||||| ||| |||"
+                    android:text="||| | ||||| ||| |||| | ||| |||||||"
                     android:textColor="#000000"
                     android:textSize="32sp"
+                    android:letterSpacing="0.2"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tktBarcodeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AA8921 - BOARDING PASS"
+                    android:textColor="#333333"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
             </LinearLayout>
 
         </LinearLayout>

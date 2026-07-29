@@ -7,7 +7,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -55,6 +54,13 @@ public class ETicketActivity extends BaseActivity {
         fetchETicket();
     }
 
+    private void setTextSafe(int id, String text) {
+        TextView tv = findViewById(id);
+        if (tv != null) {
+            tv.setText(text != null && !text.isEmpty() ? text : "-");
+        }
+    }
+
     private void renderETicketUI(JSONObject booking) {
         try {
             JSONObject flight = booking.optJSONObject("flight_details");
@@ -63,26 +69,43 @@ public class ETicketActivity extends BaseActivity {
             JSONArray paxArray = booking.optJSONArray("passenger_details");
             JSONObject pax = (paxArray != null && paxArray.length() > 0) ? paxArray.getJSONObject(0) : new JSONObject();
 
-            TextView eticketPnr = findViewById(R.id.eticketPnr);
-            eticketPnr.setText(booking.optString("pnr", pnr));
+            String displayPnr = booking.optString("pnr", pnr);
+            String status = booking.optString("booking_status", booking.optString("status", "Confirmed")).toUpperCase();
 
-            TextView eticketOrig = findViewById(R.id.eticketOrig);
-            eticketOrig.setText(flight.optString("origin", "MAA"));
+            setTextSafe(R.id.tktAirlineName, flight.optString("airline", "Air India"));
+            setTextSafe(R.id.tktAircraft, flight.optString("aircraft", "Airbus A320neo") + " • " + flight.optString("cabinClass", "Economy"));
+            setTextSafe(R.id.tktPnr, "PNR: " + displayPnr);
+            setTextSafe(R.id.tktStatus, status);
 
-            TextView eticketDest = findViewById(R.id.eticketDest);
-            eticketDest.setText(flight.optString("destination", "DEL"));
+            setTextSafe(R.id.tktOrigCode, flight.optString("origin", "MAA"));
+            setTextSafe(R.id.tktOrigName, flight.optString("origin_name", flight.optString("origin", "Chennai")));
+            setTextSafe(R.id.tktDepTime, flight.optString("departure_time", "06:00 AM"));
 
-            TextView eticketPaxName = findViewById(R.id.eticketPaxName);
-            eticketPaxName.setText(pax.optString("name", "Santhosh Babu"));
+            setTextSafe(R.id.tktDuration, flight.optString("duration", "2h 15m"));
+            setTextSafe(R.id.tktStops, flight.optString("stops", "Non-stop"));
 
-            TextView eticketSeat = findViewById(R.id.eticketSeat);
-            eticketSeat.setText(pax.optString("seat", "12A"));
+            setTextSafe(R.id.tktDestCode, flight.optString("destination", "DEL"));
+            setTextSafe(R.id.tktDestName, flight.optString("destination_name", flight.optString("destination", "New Delhi")));
+            setTextSafe(R.id.tktArrTime, flight.optString("arrival_time", "08:15 AM"));
 
-            TextView eticketFlight = findViewById(R.id.eticketFlight);
-            eticketFlight.setText(flight.optString("airline", "Air India") + " " + flight.optString("flight_number", "AI-432"));
+            setTextSafe(R.id.tktPaxName, pax.optString("name", "Santhosh Babu"));
+            setTextSafe(R.id.tktFlightNum, flight.optString("flight_number", "AI-432"));
+            setTextSafe(R.id.tktSeatNo, pax.optString("seat", "12A"));
 
-            TextView eticketDep = findViewById(R.id.eticketDep);
-            eticketDep.setText(flight.optString("date", "2026-08-01") + " " + flight.optString("departure_time", "06:00 AM"));
+            String term = flight.optString("terminal", "Terminal 1");
+            setTextSafe(R.id.tktTerminalGate, term + " / Gate 9");
+
+            String depDate = flight.optString("date", booking.optString("departure_date", "2026-08-01"));
+            setTextSafe(R.id.tktDepDate, depDate);
+
+            setTextSafe(R.id.tktBaggage, flight.optString("baggage", "25 kg Check-in + 7 kg Hand"));
+
+            setTextSafe(R.id.tktBookingId, booking.optString("booking_id", "BK-892102"));
+            setTextSafe(R.id.tktTicketNum, booking.optString("ticket_number", "TKT-9920192"));
+            setTextSafe(R.id.tktPaymentId, booking.optString("payment_id", "PAY-8810239"));
+            setTextSafe(R.id.tktTxnId, booking.optString("transaction_id", "TXN-7781920192"));
+
+            setTextSafe(R.id.tktBarcodeText, displayPnr + " - BOARDING PASS");
 
             ticketContainer.setVisibility(View.VISIBLE);
         } catch (Exception e) {
@@ -95,14 +118,29 @@ public class ETicketActivity extends BaseActivity {
         try {
             JSONObject booking = new JSONObject();
             booking.put("pnr", pnr);
+            booking.put("booking_id", "BK-892102");
+            booking.put("ticket_number", "TKT-9920192");
+            booking.put("payment_id", "PAY-8810239");
+            booking.put("transaction_id", "TXN-7781920192");
+            booking.put("booking_status", "Confirmed");
+            booking.put("departure_date", "2026-08-01");
 
             JSONObject flight = new JSONObject();
             flight.put("airline", "Air India");
             flight.put("flight_number", "AI-432");
             flight.put("origin", "MAA");
+            flight.put("origin_name", "Chennai");
             flight.put("destination", "DEL");
+            flight.put("destination_name", "New Delhi");
             flight.put("date", "2026-08-01");
             flight.put("departure_time", "06:00 AM");
+            flight.put("arrival_time", "08:15 AM");
+            flight.put("duration", "2h 15m");
+            flight.put("stops", "Non-stop");
+            flight.put("cabinClass", "Economy");
+            flight.put("aircraft", "Airbus A320neo");
+            flight.put("terminal", "Terminal 1");
+            flight.put("baggage", "25 kg Check-in + 7 kg Hand Bag");
 
             JSONObject pax = new JSONObject();
             pax.put("name", "Santhosh Babu");
