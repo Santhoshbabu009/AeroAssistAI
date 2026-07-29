@@ -204,13 +204,27 @@
           </div>
 
           <!-- Verification OTP Form -->
-          <div id="auth-verify-fields" style="display: none;">
-            <p style="font-size:13px; text-align:center; margin-bottom:16px; color:var(--status-pending-text);">OTP Verification code dispatched to your email!</p>
-            <div class="form-group">
-              <label>Enter 4-Digit Verification Code</label>
-              <input type="text" id="auth-verify-otp" placeholder="e.g. 1234" style="text-align:center; font-size:24px; font-weight:800; letter-spacing:8px;">
+          <div id="auth-verify-fields" style="display: none; position: relative; overflow: hidden; border-radius: var(--radius-md); padding: 32px 24px; text-align: center;">
+            
+            <!-- Mobile App Background Injection -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('flight.jpg') center center/cover; opacity: 0.15; z-index: 0; pointer-events: none;"></div>
+            
+            <div style="position: relative; z-index: 1;">
+              <div style="font-size: 32px; margin-bottom: 8px;">✈️</div>
+              <h3 style="margin-bottom: 8px;">Verification Required</h3>
+              <p style="font-size:13px; margin-bottom:24px; color:var(--text-secondary);">Please enter the 6-digit code sent to your email.</p>
+              
+              <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 32px;" id="web-otp-container">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-1" oninput="app.focusNextOtp(this, 1)" onkeydown="app.handleOtpBackspace(event, 1)">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-2" oninput="app.focusNextOtp(this, 2)" onkeydown="app.handleOtpBackspace(event, 2)">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-3" oninput="app.focusNextOtp(this, 3)" onkeydown="app.handleOtpBackspace(event, 3)">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-4" oninput="app.focusNextOtp(this, 4)" onkeydown="app.handleOtpBackspace(event, 4)">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-5" oninput="app.focusNextOtp(this, 5)" onkeydown="app.handleOtpBackspace(event, 5)">
+                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-6" oninput="app.focusNextOtp(this, 6)" onkeydown="app.handleOtpBackspace(event, 6)">
+              </div>
+              
+              <button class="btn-primary" style="width: 100%;" onclick="app.submitUserVerification()">VERIFY OTP</button>
             </div>
-            <button class="btn-primary" onclick="app.submitUserVerification()">VERIFY & SIGN IN</button>
           </div>
         </div>
       </section>

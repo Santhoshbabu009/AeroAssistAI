@@ -583,6 +583,28 @@ textarea {
   resize: vertical;
 }
 
+/* --- OTP BOXES (MOBILE PARITY) --- */
+.web-otp-box {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  color: var(--text-primary);
+  padding: 0;
+  transition: all 0.2s var(--easing);
+}
+
+.web-otp-box:focus {
+  background: var(--glass-bg-hover);
+  border: var(--glass-border-focus);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px var(--accent-glow);
+}
+
 /* --- GRIDS & TABLES SYSTEM --- */
 .grid-container {
   display: grid;

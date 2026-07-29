@@ -858,11 +858,28 @@ class AeroAssistApp {
     }
   }
 
+  // --- OTP UI HANDLERS ---
+  focusNextOtp(currentInput, index) {
+    if (currentInput.value.length === 1 && index < 6) {
+      document.getElementById(`auth-otp-${index + 1}`).focus();
+    }
+  }
+
+  handleOtpBackspace(event, index) {
+    if (event.key === 'Backspace' && event.target.value === '' && index > 1) {
+      document.getElementById(`auth-otp-${index - 1}`).focus();
+    }
+  }
+
   async submitUserVerification() {
-    const otp = document.getElementById("auth-verify-otp").value.trim();
+    let otp = "";
+    for(let i=1; i<=6; i++) {
+      const box = document.getElementById(`auth-otp-${i}`);
+      if(box) otp += box.value;
+    }
     
-    if (!otp) {
-      alert("Please enter the verification code!");
+    if (otp.length < 6) {
+      alert("Please enter the full 6-digit verification code!");
       return;
     }
 
