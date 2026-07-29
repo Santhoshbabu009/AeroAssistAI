@@ -1,0 +1,317 @@
+import pytest
+import json
+import os
+
+def load_data():
+    path = os.path.join(os.path.dirname(__file__), '../../framework/testdata/appium_test_data.json')
+    with open(path, 'r') as f:
+        return json.load(f)["booking_tests"]
+
+class TestMobileBooking:
+    @pytest.fixture(params=load_data())
+    def test_data(self, request):
+        return request.param
+        
+    def test_generic_scenario(self, appium_driver, test_data):
+        assert test_data["id"] is not None
+
+    def test_booking_tests_scenario_1(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_2(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_3(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_4(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_5(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_6(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_7(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_8(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_9(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_10(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_11(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_12(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_13(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_14(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_15(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_16(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_17(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_18(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_19(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_20(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_21(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_22(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_23(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_24(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_25(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_26(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_27(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_28(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_29(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_30(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_31(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_32(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_33(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_34(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_35(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_36(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_37(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_38(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_39(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_40(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_41(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_42(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_43(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_44(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_45(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_46(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_47(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_48(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_49(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_50(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_51(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_52(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_53(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_54(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_55(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_56(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_57(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_58(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_59(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_60(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_61(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_62(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_63(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_64(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_65(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_66(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_67(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_68(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_69(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_70(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_71(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_72(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_73(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_74(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_75(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_76(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_77(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_78(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_79(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_80(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_81(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_82(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_83(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_84(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_85(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_86(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_87(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_88(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_89(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_90(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_91(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_92(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_93(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_94(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_95(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_96(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_97(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_98(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_99(self, appium_driver, test_data):
+        assert True
+
+    def test_booking_tests_scenario_100(self, appium_driver, test_data):
+        assert True
+

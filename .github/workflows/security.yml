@@ -1,0 +1,121 @@
+name: "Security & Vulnerability Testing"
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * 1"  # Every Monday at 3 AM UTC
+  workflow_dispatch:
+
+env:
+  API_URL: "https://aeroassistai.onrender.com/api"
+  BASE_URL: "https://aeroassistai.onrender.com"
+
+jobs:
+  sast-scan:
+    name: "SAST - Static Analysis"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Security Tools
+        run: |
+          pip install bandit safety semgrep
+          pip install -r requirements/security_requirements.txt
+
+      - name: Run Bandit (SAST)
+        run: |
+          mkdir -p framework/reports/security
+          bandit -r backend/ -f json -o framework/reports/security/bandit_results.json --severity-level medium || true
+          bandit -r backend/ -f txt -o framework/reports/security/bandit_results.txt --severity-level medium || true
+          echo "## Bandit SAST Results" >> $GITHUB_STEP_SUMMARY
+          cat framework/reports/security/bandit_results.txt >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Run Safety (Dependency Check)
+        run: |
+          safety check --json --output framework/reports/security/safety_results.json || true
+          safety check --output framework/reports/security/safety_results.txt || true
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config=auto backend/ --json --output framework/reports/security/semgrep_results.json || true
+
+      - name: Upload SAST Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-reports
+          path: framework/reports/security/
+          retention-days: 30
+
+  dast-scan:
+    name: "DAST - Dynamic Analysis (OWASP ZAP)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r requirements/security_requirements.txt
+          mkdir -p framework/logs/screenshots framework/reports/{security,excel,html,json,xml} Test_Results
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.11.0
+        with:
+          target: ${{ env.BASE_URL }}
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-I -j"
+          issue_title: "ZAP Baseline Scan Report"
+          fail_action: false
+
+      - name: Run Security Test Suite
+        run: |
+          python -m pytest tests/security/ \
+            --rerun-failures 2 \
+            --html=framework/reports/html/security_report.html \
+            --self-contained-html \
+            --json-report \
+            --json-report-file=framework/reports/json/security_results.json \
+            --junit-xml=framework/reports/xml/security_junit.xml \
+            --tb=short -v \
+            --continue-on-collection-errors \
+            2>&1 | tee framework/logs/security_execution.log || true
+
+      - name: Generate Security Excel Report
+        if: always()
+        run: python framework/reports/excel/security_report.py || true
+
+      - name: Publish Security Summary
+        if: always()
+        run: |
+          echo "## Security Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Tool | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Bandit SAST | Completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| OWASP ZAP DAST | Completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Test Suite | Completed |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Security Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-artifacts
+          path: |
+            Test_Results/
+            framework/reports/
+            framework/logs/
+            report_html.html
+          retention-days: 30

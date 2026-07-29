@@ -1,0 +1,129 @@
+name: "Selenium E2E Automation"
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: "Browser to run tests on"
+        required: false
+        default: "chrome"
+        type: choice
+        options: [chrome, firefox, edge]
+      environment:
+        description: "Target environment"
+        required: false
+        default: "staging"
+
+env:
+  BASE_URL: "https://aeroassistai.onrender.com"
+  API_URL: "https://aeroassistai.onrender.com/api"
+  BROWSER: ${{ github.event.inputs.browser || 'chrome' }}
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+  BUILD_VERSION: ${{ github.sha }}
+  HEADLESS: "true"
+  MAX_RETRIES: "3"
+
+jobs:
+  selenium-tests:
+    name: "Selenium E2E on ${{ matrix.browser }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Cache Python Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-selenium-${{ hashFiles('requirements/selenium_requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-selenium-
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+
+      - name: Install Firefox
+        uses: browser-actions/setup-firefox@latest
+        if: matrix.browser == 'firefox'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/selenium_requirements.txt
+
+      - name: Create Required Directories
+        run: |
+          mkdir -p framework/logs/screenshots
+          mkdir -p framework/logs/videos
+          mkdir -p framework/reports/excel
+          mkdir -p framework/reports/html
+          mkdir -p framework/reports/json
+          mkdir -p framework/reports/xml
+          mkdir -p Test_Results
+
+      - name: Run Selenium Tests (Parallel)
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          python -m pytest tests/selenium/ \
+            -n auto \
+            --rerun-failures 3 \
+            --rerun-delay 5 \
+            --html=framework/reports/html/selenium_report_${{ matrix.browser }}.html \
+            --self-contained-html \
+            --json-report \
+            --json-report-file=framework/reports/json/selenium_results_${{ matrix.browser }}.json \
+            --junit-xml=framework/reports/xml/selenium_junit_${{ matrix.browser }}.xml \
+            --tb=short \
+            -v \
+            --continue-on-collection-errors \
+            -o "junit_family=xunit2" \
+            2>&1 | tee framework/logs/selenium_execution_${{ matrix.browser }}.log || true
+
+      - name: Generate Enterprise Excel Report
+        if: always()
+        run: |
+          python selenium-tests/generate_enterprise_report.py \
+            --input framework/reports/json/selenium_results_${{ matrix.browser }}.json \
+            --output Test_Results/Selenium_Enterprise_Dashboard_${{ matrix.browser }}.xlsx \
+            --browser ${{ matrix.browser }} \
+            --build ${{ github.sha }} \
+            || python selenium-tests/generate_enterprise_report.py
+
+      - name: Publish Job Summary
+        if: always()
+        run: |
+          echo "## Selenium Test Results - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Browser | ${{ matrix.browser }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ env.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selenium-artifacts-${{ matrix.browser }}
+          path: |
+            Test_Results/
+            framework/reports/
+            framework/logs/
+            framework/logs/screenshots/
+          retention-days: 30

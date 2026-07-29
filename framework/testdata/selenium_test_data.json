@@ -1,0 +1,31 @@
+{
+  "auth_tests": [
+    {"id": "auth_01", "description": "valid login", "email": "testuser@aeroassist.com", "password": "Test@1234", "expected_result": "success", "test_type": "positive"},
+    {"id": "auth_02", "description": "invalid email format", "email": "testuser_at_aeroassist.com", "password": "Test@1234", "expected_result": "error", "test_type": "negative"},
+    {"id": "auth_03", "description": "wrong password", "email": "testuser@aeroassist.com", "password": "WrongPassword", "expected_result": "error", "test_type": "negative"},
+    {"id": "auth_04", "description": "empty email field", "email": "", "password": "Test@1234", "expected_result": "error", "test_type": "negative"},
+    {"id": "auth_05", "description": "empty password field", "email": "testuser@aeroassist.com", "password": "", "expected_result": "error", "test_type": "negative"},
+    {"id": "auth_06", "description": "sql injection in email", "email": "' OR '1'='1", "password": "Test@1234", "expected_result": "error", "test_type": "security"},
+    {"id": "auth_07", "description": "xss in email", "email": "<script>alert('xss')</script>", "password": "Test@1234", "expected_result": "error", "test_type": "security"}
+  ],
+  "registration_tests": [
+    {"id": "reg_01", "name": "Test User", "email": "newuser@test.com", "password": "Password@123", "mobile": "1234567890", "expected_result": "success"},
+    {"id": "reg_02", "name": "Test User", "email": "testuser@aeroassist.com", "password": "Password@123", "mobile": "1234567890", "expected_result": "error"}
+  ],
+  "dashboard_tests": [
+    {"id": "dash_01", "page": "dashboard", "expected_element": "view-dashboard", "description": "Dashboard main load"},
+    {"id": "dash_02", "page": "flights", "expected_element": "view-flights", "description": "Flights tab load"}
+  ],
+  "flight_search_tests": [
+    {"id": "fs_01", "origin": "JFK", "destination": "LHR", "date_offset": 5, "passengers": 1, "expected_results_min": 1, "description": "Valid flight search"}
+  ],
+  "booking_tests": [
+    {"id": "bk_01", "passenger_name": "John Doe", "age": 30, "seat_preference": "1A", "payment_method": "credit", "expected_outcome": "success", "description": "Standard booking"}
+  ],
+  "ui_component_tests": [
+    {"id": "ui_01", "component": "theme_toggle", "action": "click", "expected": "dark_mode_applied", "description": "Theme toggle switches to dark mode"}
+  ],
+  "negative_tests": [
+    {"id": "neg_01", "action": "submit_empty_booking", "input": {}, "expected_error": "Required fields missing", "description": "Empty booking submission"}
+  ]
+}

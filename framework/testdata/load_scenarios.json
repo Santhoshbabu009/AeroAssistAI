@@ -1,0 +1,31 @@
+{
+  "user_load_profiles": [
+    {"id": "smoke_test", "scenario_name": "Smoke Test", "vus": 5, "duration": "30s", "ramp_up": "0s", "endpoints": ["/api/login"], "expected_p95_ms": 2000, "expected_error_rate": 0.05},
+    {"id": "load_test_10", "scenario_name": "Load Test 10 VUs", "vus": 10, "duration": "3m", "ramp_up": "30s", "endpoints": ["/api/login", "/api/search_flights"], "expected_p95_ms": 2000, "expected_error_rate": 0.05},
+    {"id": "load_test_50", "scenario_name": "Load Test 50 VUs", "vus": 50, "duration": "5m", "ramp_up": "1m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight"], "expected_p95_ms": 3000, "expected_error_rate": 0.05},
+    {"id": "load_test_100", "scenario_name": "Load Test 100 VUs", "vus": 100, "duration": "10m", "ramp_up": "2m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight", "/api/send_chat_message"], "expected_p95_ms": 4000, "expected_error_rate": 0.05},
+    {"id": "load_test_250", "scenario_name": "Load Test 250 VUs", "vus": 250, "duration": "15m", "ramp_up": "3m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight", "/api/send_chat_message"], "expected_p95_ms": 5000, "expected_error_rate": 0.10},
+    {"id": "load_test_500", "scenario_name": "Load Test 500 VUs", "vus": 500, "duration": "20m", "ramp_up": "5m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight", "/api/send_chat_message"], "expected_p95_ms": 5000, "expected_error_rate": 0.10},
+    {"id": "load_test_1000", "scenario_name": "Load Test 1000 VUs", "vus": 1000, "duration": "30m", "ramp_up": "10m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight", "/api/send_chat_message"], "expected_p95_ms": 6000, "expected_error_rate": 0.15},
+    {"id": "load_test_5000", "scenario_name": "Load Test 5000 VUs", "vus": 5000, "duration": "60m", "ramp_up": "20m", "endpoints": ["/api/login", "/api/search_flights", "/api/book_flight", "/api/send_chat_message"], "expected_p95_ms": 10000, "expected_error_rate": 0.20}
+  ],
+  "endpoints_to_test": [
+    {"endpoint": "/api/login", "method": "POST", "expected_response_time": 500, "test_payload": {"username": "testuser", "password": "password"}},
+    {"endpoint": "/api/register", "method": "POST", "expected_response_time": 800, "test_payload": {"username": "testuser_new", "password": "password", "email": "test@test.com"}},
+    {"endpoint": "/api/search_flights", "method": "POST", "expected_response_time": 1000, "test_payload": {"origin": "JFK", "destination": "LHR", "date": "2024-12-01"}},
+    {"endpoint": "/api/book_flight", "method": "POST", "expected_response_time": 1500, "test_payload": {"flight_id": "FL123", "passenger_name": "John Doe", "passenger_email": "john@doe.com"}},
+    {"endpoint": "/api/get_user_flight_bookings", "method": "GET", "expected_response_time": 800, "test_payload": {}},
+    {"endpoint": "/api/send_chat_message", "method": "POST", "expected_response_time": 1200, "test_payload": {"message": "Hello, bot", "context": {}}},
+    {"endpoint": "/api/get_restaurants", "method": "GET", "expected_response_time": 800, "test_payload": {}},
+    {"endpoint": "/api/book_lounge", "method": "POST", "expected_response_time": 1500, "test_payload": {"lounge_id": "L1", "date": "2024-12-01", "time": "10:00"}}
+  ],
+  "stress_profiles": [
+    {"id": "stress_test_gradual", "scenario_name": "Gradual Stress Test", "start_vus": 0, "max_vus": 1000, "ramp_up_duration": "10m", "hold_duration": "5m", "ramp_down_duration": "5m"}
+  ],
+  "spike_profiles": [
+    {"id": "spike_test_sudden", "scenario_name": "Sudden Spike Test", "base_vus": 10, "spike_vus": 500, "base_duration": "1m", "spike_duration": "30s"}
+  ],
+  "soak_profiles": [
+    {"id": "soak_test_sustained", "scenario_name": "Sustained Soak Test", "vus": 50, "duration": "4h"}
+  ]
+}

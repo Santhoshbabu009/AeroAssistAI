@@ -1,0 +1,142 @@
+name: "Load & Performance Testing (k6)"
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * 0"  # Every Sunday at 2 AM UTC
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Load scenario to run"
+        required: false
+        default: "load"
+        type: choice
+        options: [smoke, load, stress, spike, soak]
+      vus:
+        description: "Max virtual users (overrides scenario default)"
+        required: false
+        default: ""
+
+env:
+  BASE_URL: "https://aeroassistai.onrender.com"
+  API_URL: "https://aeroassistai.onrender.com/api"
+  K6_SCENARIO: ${{ github.event.inputs.scenario || 'load' }}
+
+jobs:
+  load-test:
+    name: "k6 Load Test - ${{ matrix.scenario }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [smoke, load, stress, spike]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6 -y
+          k6 version
+
+      - name: Install Python Dependencies
+        run: |
+          pip install pandas openpyxl xlsxwriter
+          mkdir -p framework/reports/{load,excel,html,json} framework/logs Test_Results
+
+      - name: Run k6 ${{ matrix.scenario }} Test
+        run: |
+          SCRIPT_MAP='{"smoke": "tests/load/k6_load_test.js", "load": "tests/load/k6_load_test.js", "stress": "tests/load/k6_stress_test.js", "spike": "tests/load/k6_spike_test.js", "soak": "tests/load/k6_soak_test.js"}'
+          SCRIPT=$(echo $SCRIPT_MAP | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('${{ matrix.scenario }}', 'tests/load/k6_load_test.js'))")
+          k6 run \
+            --out json=framework/reports/json/k6_results_${{ matrix.scenario }}.json \
+            --out csv=framework/reports/load/k6_results_${{ matrix.scenario }}.csv \
+            --summary-export=framework/reports/json/k6_summary_${{ matrix.scenario }}.json \
+            -e BASE_URL=${{ env.BASE_URL }} \
+            -e API_URL=${{ env.API_URL }} \
+            -e CI_MODE=true \
+            $SCRIPT \
+            2>&1 | tee framework/logs/k6_execution_${{ matrix.scenario }}.log || true
+
+      - name: Generate Load Excel Report
+        if: always()
+        run: |
+          python tests/load/generate_load_report.py \
+            --scenario ${{ matrix.scenario }} \
+            --input framework/reports/json/k6_summary_${{ matrix.scenario }}.json \
+            --output Test_Results/Load_Report_${{ matrix.scenario }}.xlsx \
+            || python tests/load/generate_load_report.py
+
+      - name: Publish Load Summary
+        if: always()
+        run: |
+          echo "## k6 Load Test Results - ${{ matrix.scenario }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Scenario | ${{ matrix.scenario }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | ${{ env.BASE_URL }} |" >> $GITHUB_STEP_SUMMARY
+          if [ -f framework/reports/json/k6_summary_${{ matrix.scenario }}.json ]; then
+            p95=$(python3 -c "import json; d=json.load(open('framework/reports/json/k6_summary_${{ matrix.scenario }}.json')); print(round(d.get('metrics',{}).get('http_req_duration',{}).get('values',{}).get('p(95)',0),2))" 2>/dev/null || echo "N/A")
+            errrate=$(python3 -c "import json; d=json.load(open('framework/reports/json/k6_summary_${{ matrix.scenario }}.json')); print(round(d.get('metrics',{}).get('http_req_failed',{}).get('values',{}).get('rate',0)*100,2))" 2>/dev/null || echo "N/A")
+            echo "| P95 Response Time | ${p95}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "| Error Rate | ${errrate}% |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Load Test Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: load-artifacts-${{ matrix.scenario }}
+          path: |
+            Test_Results/
+            framework/reports/
+            framework/logs/
+          retention-days: 30
+
+  master-report:
+    name: "Generate Master Report"
+    runs-on: ubuntu-latest
+    needs: [load-test]
+    if: always()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Dependencies
+        run: |
+          pip install pandas openpyxl xlsxwriter
+
+      - name: Download All Load Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: load-artifacts-*
+          merge-multiple: true
+          path: downloaded-artifacts/
+
+      - name: Generate Master Load Dashboard
+        run: |
+          mkdir -p Test_Results
+          python selenium-tests/generate_enterprise_report.py \
+            --output Test_Results/Master_Load_Dashboard.xlsx || true
+
+      - name: Upload Master Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: master-load-report
+          path: Test_Results/
+          retention-days: 60

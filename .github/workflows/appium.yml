@@ -1,0 +1,113 @@
+name: "Appium Mobile Automation"
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      android_version:
+        description: "Android API level"
+        required: false
+        default: "34"
+        type: choice
+        options: ["29", "30", "31", "32", "33", "34"]
+
+env:
+  API_URL: "https://aeroassistai.onrender.com/api"
+  APPIUM_HOST: "127.0.0.1"
+  APPIUM_PORT: "4723"
+  ANDROID_API_LEVEL: ${{ github.event.inputs.android_version || '34' }}
+
+jobs:
+  appium-tests:
+    name: "Appium Android API ${{ matrix.api-level }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [31, 33, 34]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/appium_requirements.txt
+
+      - name: Install Appium 2.x Server
+        run: |
+          npm install -g appium@2.2.3
+          appium driver install uiautomator2
+          appium --version
+
+      - name: Enable KVM (for Android Emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          profile: pixel_4
+          avd-name: AeroAssist_Emulator_${{ matrix.api-level }}
+          emulator-options: "-no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim"
+          disable-animations: true
+          script: |
+            mkdir -p framework/logs/screenshots Test_Results framework/reports/{excel,html,json,xml}
+            appium --address 127.0.0.1 --port 4723 --log-level error &
+            sleep 5
+            python -m pytest tests/appium/ \
+              --rerun-failures 3 \
+              --rerun-delay 10 \
+              --html=framework/reports/html/appium_report_api${{ matrix.api-level }}.html \
+              --self-contained-html \
+              --json-report \
+              --json-report-file=framework/reports/json/appium_results_api${{ matrix.api-level }}.json \
+              --junit-xml=framework/reports/xml/appium_junit_api${{ matrix.api-level }}.xml \
+              --tb=short -v \
+              --continue-on-collection-errors \
+              2>&1 | tee framework/logs/appium_execution_api${{ matrix.api-level }}.log || true
+            python appium-tests/generate_report.py || true
+
+      - name: Publish Job Summary
+        if: always()
+        run: |
+          echo "## Appium Mobile Results - Android API ${{ matrix.api-level }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Android API | ${{ matrix.api-level }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Appium Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: appium-artifacts-api${{ matrix.api-level }}
+          path: |
+            Test_Results/
+            framework/reports/
+            framework/logs/
+          retention-days: 30
