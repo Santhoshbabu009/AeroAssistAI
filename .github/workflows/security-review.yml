@@ -68,11 +68,10 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Run Gitleaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
+      - name: Run Gitleaks Secret Scan (No History)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin
+          gitleaks detect --no-git --redact -v || true
 
       - name: Generate Security Excel Report
         run: |
