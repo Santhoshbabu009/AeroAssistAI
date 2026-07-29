@@ -5,92 +5,80 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* --- COLOR SYSTEM & DUAL THEMES --- */
+/* --- COLOR SYSTEM & PREMIUM DESIGN TOKENS --- */
 :root {
-  /* Default Dark Mode (Obsidian & Cobalt) */
-  --bg-color: #020617;
-  --bg-gradient: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 70%);
-  --sidebar-bg: rgba(15, 23, 42, 0.75);
-  --header-bg: rgba(15, 23, 42, 0.7);
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-bg-hover: rgba(30, 41, 59, 0.7);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --glass-border-focus: 1px solid rgba(59, 130, 246, 0.6);
-  --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05);
-  --modal-overlay-bg: rgba(2, 6, 23, 0.82);
+  /* Apple/Stripe Light Mode Aesthetics */
+  --bg-color: #FAFBFC;
+  --bg-gradient: linear-gradient(180deg, #FAFBFC 0%, #F3F4F6 100%);
+  --sidebar-bg: rgba(255, 255, 255, 0.85);
+  --header-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg: #FFFFFF;
+  --glass-bg-hover: #F8FAFC;
+  --glass-border: 1px solid #E5E7EB;
+  --glass-border-focus: 1px solid rgba(37, 99, 235, 0.5);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --modal-overlay-bg: rgba(15, 23, 42, 0.4);
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
   
-  --accent-primary: #3B82F6;
-  --accent-secondary: #8B5CF6;
+  --accent-primary: #2563EB;
+  --accent-secondary: #7C3AED;
   --accent-cyan: #06B6D4;
   --accent-gradient: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
   --accent-gradient-hover: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
-  --accent-glow: rgba(59, 130, 246, 0.35);
+  --accent-glow: rgba(37, 99, 235, 0.2);
 
-  --status-pending-bg: rgba(245, 158, 11, 0.12);
-  --status-pending-border: rgba(245, 158, 11, 0.3);
-  --status-pending-text: #FBBF24;
+  --status-pending-bg: rgba(245, 158, 11, 0.1);
+  --status-pending-border: rgba(245, 158, 11, 0.2);
+  --status-pending-text: #F59E0B;
 
-  --status-accepted-bg: rgba(16, 185, 129, 0.12);
-  --status-accepted-border: rgba(16, 185, 129, 0.3);
-  --status-accepted-text: #34D399;
+  --status-accepted-bg: rgba(16, 185, 129, 0.1);
+  --status-accepted-border: rgba(16, 185, 129, 0.2);
+  --status-accepted-text: #10B981;
 
-  --status-delivered-bg: rgba(6, 182, 212, 0.12);
-  --status-delivered-border: rgba(6, 182, 212, 0.3);
-  --status-delivered-text: #22D3EE;
+  --status-delivered-bg: rgba(6, 182, 212, 0.1);
+  --status-delivered-border: rgba(6, 182, 212, 0.2);
+  --status-delivered-text: #06B6D4;
 
-  --status-cancelled-bg: rgba(239, 68, 68, 0.12);
-  --status-cancelled-border: rgba(239, 68, 68, 0.3);
-  --status-cancelled-text: #F87171;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.1);
+  --status-cancelled-border: rgba(239, 68, 68, 0.2);
+  --status-cancelled-text: #EF4444;
 
-  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* Strict Border Radius Specifications */
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-md: 16px; /* Buttons & Inputs */
+  --radius-lg: 24px; /* Cards */
+  --radius-xl: 28px; /* Dialogs */
+  --radius-nav: 20px; /* Navigation */
   --radius-full: 9999px;
 
   --easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Light Theme Overrides */
-[data-theme="light"] {
-  --bg-color: #F8FAFC;
-  --bg-gradient: radial-gradient(circle at 50% -20%, #e0e7ff 0%, #f8fafc 70%);
-  --sidebar-bg: rgba(255, 255, 255, 0.85);
-  --header-bg: rgba(255, 255, 255, 0.8);
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-bg-hover: rgba(241, 245, 249, 0.9);
-  --glass-border: 1px solid rgba(15, 23, 42, 0.08);
-  --glass-border-focus: 1px solid rgba(37, 99, 235, 0.5);
-  --card-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.05);
-  --modal-overlay-bg: rgba(15, 23, 42, 0.4);
+/* Dark Theme Overrides (Linear Inspired) */
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --bg-gradient: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1) 0%, #000000 60%);
+  --sidebar-bg: rgba(0, 0, 0, 0.8);
+  --header-bg: rgba(0, 0, 0, 0.8);
+  --glass-bg: #0A0A0A;
+  --glass-bg-hover: #171717;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-border-focus: 1px solid rgba(59, 130, 246, 0.5);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.6);
 
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
-
-  --accent-primary: #2563EB;
-  --accent-secondary: #7C3AED;
-  --accent-glow: rgba(37, 99, 235, 0.2);
-
-  --status-pending-bg: #FEF3C7;
-  --status-pending-text: #D97706;
-
-  --status-accepted-bg: #D1FAE5;
-  --status-accepted-text: #059669;
-
-  --status-delivered-bg: #CFFAFE;
-  --status-delivered-text: #0891B2;
-
-  --status-cancelled-bg: #FEE2E2;
-  --status-cancelled-text: #DC2626;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
 }
 
 /* --- BASE STYLES & RESET --- */
@@ -629,6 +617,11 @@ th {
   letter-spacing: 0.05em;
   color: var(--text-muted);
   border-bottom: var(--glass-border);
+  position: sticky;
+  top: 0;
+  background: var(--glass-bg);
+  z-index: 10;
+  backdrop-filter: blur(12px);
 }
 
 td {
@@ -881,7 +874,7 @@ tbody tr:hover td {
 
 /* Skeleton Loading utility */
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 25%, rgba(148, 163, 184, 0.2) 50%, rgba(148, 163, 184, 0.1) 75%);
   background-size: 400px 100%;
   animation: skeletonShimmer 1.5s infinite;
   border-radius: var(--radius-sm);

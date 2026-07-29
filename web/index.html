@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="styles.css">
   <!-- Google Identity Services (GIS) Official OAuth SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Premium SVG Icon Engine (Lucide) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
@@ -24,28 +26,29 @@
 
       <nav class="sidebar-nav">
         <button id="nav-dashboard" class="nav-link-btn active" onclick="app.showPage('dashboard')">
-          <span class="nav-icon">🏠</span> <span data-i18n="nav_dashboard">Dashboard</span>
+          <i data-lucide="home" class="nav-icon"></i> <span data-i18n="nav_dashboard">Dashboard</span>
         </button>
         <button id="nav-chat" class="nav-link-btn" onclick="app.showPage('chat')">
-          <span class="nav-icon">💬</span> <span data-i18n="nav_chat">AI Assistant</span>
+          <i data-lucide="message-square" class="nav-icon"></i> <span data-i18n="nav_chat">AI Assistant</span>
         </button>
         <button id="nav-dining" class="nav-link-btn" onclick="app.showPage('dining')">
-          <span class="nav-icon">🍔</span> <span data-i18n="nav_dining">Dining & Eats</span>
+          <i data-lucide="utensils" class="nav-icon"></i> <span data-i18n="nav_dining">Dining & Eats</span>
         </button>
         <button id="nav-lounges" class="nav-link-btn" onclick="app.showPage('lounges')">
-          <span class="nav-icon">🛋️</span> <span data-i18n="nav_lounges">Lounges</span>
+          <i data-lucide="sofa" class="nav-icon"></i> <span data-i18n="nav_lounges">Lounges</span>
         </button>
         <button id="nav-wallet" class="nav-link-btn" onclick="app.showPage('wallet')">
-          <span class="nav-icon">💳</span> <span data-i18n="nav_wallet">Smart Wallet</span>
+          <i data-lucide="wallet" class="nav-icon"></i> <span data-i18n="nav_wallet">Smart Wallet</span>
         </button>
         <button id="nav-utilities" class="nav-link-btn" onclick="app.showPage('utilities')">
-          <span class="nav-icon">🗺️</span> <span data-i18n="nav_utilities">Travel Utilities</span>
+          <i data-lucide="map" class="nav-icon"></i> <span data-i18n="nav_utilities">Travel Utilities</span>
         </button>
         <button id="nav-quiz" class="nav-link-btn" onclick="app.showPage('quiz')">
-          <span class="nav-icon">🏆</span> <span data-i18n="nav_quiz">Quiz & Rewards</span>
+          <i data-lucide="award" class="nav-icon"></i> <span data-i18n="nav_quiz">Quiz & Rewards</span>
         </button>
-        <button id="nav-vendor" class="nav-link-btn" style="display: none;" onclick="app.openVendorPortal()">
-          <span class="nav-icon">🔐</span> <span data-i18n="nav_vendor">Vendor Portal</span>
+        <div style="flex:1;"></div>
+        <button id="nav-vendor" class="nav-link-btn" style="margin-top:auto;" onclick="app.showPage('vendor')">
+          <i data-lucide="shield" class="nav-icon"></i> <span data-i18n="nav_vendor">Vendor Portal</span>
         </button>
       </nav>
 

@@ -65,7 +65,16 @@ class AeroAssistApp {
   }
 
   init() {
+    this.updateClock();
+    setInterval(() => this.updateClock(), 1000);
     this.initTheme();
+    this.initCartSidebar();
+    
+    // Initialize Lucide Icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+    
     this.setupCommandPalette();
     this.setupInactivityListener();
     this.changeLanguage(this.currentLang);
