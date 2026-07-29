@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/str_please_enter_the_4_digit_code_"
+            android:text="Please enter the 6-digit code sent to your email"
             android:textColor="#B3FFFFFF"
             android:textSize="14sp"
             android:gravity="center"
@@ -53,6 +53,8 @@
             <EditText style="@style/OtpBox" android:id="@+id/otp2" />
             <EditText style="@style/OtpBox" android:id="@+id/otp3" />
             <EditText style="@style/OtpBox" android:id="@+id/otp4" />
+            <EditText style="@style/OtpBox" android:id="@+id/otp5" />
+            <EditText style="@style/OtpBox" android:id="@+id/otp6" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
