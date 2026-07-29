@@ -136,6 +136,8 @@ public class ProfileActivity extends BaseActivity {
             }
         }
 
+        fetchRemoteProfile();
+
         // ✅ CLICK TO SELECT IMAGE
         profileImage.setOnClickListener(v -> openGallery());
 
@@ -164,6 +166,74 @@ public class ProfileActivity extends BaseActivity {
                 return false;
             }
         });
+    }
+
+    private void fetchRemoteProfile() {
+        if (email == null || email.isEmpty() || email.equalsIgnoreCase("Not available")) return;
+        OkHttpClient client = new OkHttpClient();
+        String url = Constants.GET_PROFILE_ENDPOINT + "?email=" + email;
+        Request request = new Request.Builder().url(url).get().build();
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, java.io.IOException e) {}
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String body = response.body().string();
+                        JSONObject json = new JSONObject(body);
+                        if (json.optString("status").equals("success")) {
+                            String fetchedName = json.optString("name", name);
+                            String fetchedMobile = json.optString("mobile", mobile);
+                            String photo = json.optString("profile_photo", null);
+                            runOnUiThread(() -> {
+                                if (fetchedName != null && !fetchedName.isEmpty()) {
+                                    name = fetchedName;
+                                    nameText.setText(name);
+                                }
+                                if (fetchedMobile != null && !fetchedMobile.isEmpty()) {
+                                    mobile = fetchedMobile;
+                                    mobileText.setText(mobile);
+                                }
+                                if (photo != null && !photo.isEmpty() && !photo.equals("null")) {
+                                    try {
+                                        byte[] imageBytes = Base64.decode(photo.contains(",") ? photo.split(",")[1] : photo, Base64.DEFAULT);
+                                        Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                        if (bitmap != null) {
+                                            profileImage.setImageBitmap(bitmap);
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    } catch (Exception e) { e.printStackTrace(); }
+                }
+            }
+        });
+    }
+
+    private void saveProfilePhotoToServer(String base64Image) {
+        OkHttpClient client = new OkHttpClient();
+        try {
+            JSONObject json = new JSONObject();
+            json.put("email", email);
+            json.put("name", name);
+            json.put("mobile", mobile);
+            json.put("profile_photo", base64Image);
+
+            RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json"));
+            Request request = new Request.Builder().url(Constants.UPDATE_PROFILE_ENDPOINT).post(body).build();
+            client.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, java.io.IOException e) {}
+
+                @Override
+                public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {}
+            });
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     @Override
@@ -203,6 +273,8 @@ public class ProfileActivity extends BaseActivity {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("image_" + userEmail, encodedImage);
                 editor.apply();
+
+                saveProfilePhotoToServer(encodedImage);
 
                 Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show();
 

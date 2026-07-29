@@ -90,6 +90,7 @@ public class DummyPaymentActivity extends BaseActivity {
                 email = userSession.getString("user_email", userSession.getString("email", "demo@aeroassist.ai"));
             }
             payload.put("email", email);
+            payload.put("user_email", email);
 
             JSONObject flightDetails = new JSONObject(flightJson);
             flightDetails.put("date", date);

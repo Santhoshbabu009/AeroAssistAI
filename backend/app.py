@@ -166,9 +166,15 @@ class LocalSQLiteDB:
                 email TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 password TEXT NOT NULL,
-                mobile TEXT
+                mobile TEXT,
+                profile_photo TEXT
             )
         """)
+        cursor.execute("PRAGMA table_info(users)")
+        u_cols = [row['name'] for row in cursor.fetchall()]
+        if 'profile_photo' not in u_cols:
+            cursor.execute("ALTER TABLE users ADD COLUMN profile_photo TEXT DEFAULT NULL")
+            conn.commit()
         
         # vendors table
         cursor.execute("""
@@ -447,12 +453,16 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         finally:
             conn.close()
 
-    def update_profile(self, email, name, mobile):
+    def update_profile(self, email, name, mobile, profile_photo=None):
         conn = self.get_conn()
         try:
             cursor = conn.cursor()
-            cursor.execute("UPDATE users SET name = ?, mobile = ? WHERE LOWER(email) = ?",
-                           (name, mobile, email.lower()))
+            if profile_photo is not None:
+                cursor.execute("UPDATE users SET name = ?, mobile = ?, profile_photo = ? WHERE LOWER(email) = ?",
+                               (name, mobile, profile_photo, email.lower()))
+            else:
+                cursor.execute("UPDATE users SET name = ?, mobile = ? WHERE LOWER(email) = ?",
+                               (name, mobile, email.lower()))
             conn.commit()
         finally:
             conn.close()
@@ -1463,91 +1473,122 @@ def save_chat():
             return jsonify({"status": "success", "fallback": True})
 
 @app.route('/api/chat-history', methods=['GET'])
-@token_required()
 def get_chat_history():
     email = request.args.get('email')
     if not email:
         return jsonify({"status": "error", "message": "Email is required"}), 400
 
     email = email.strip().lower()
-    if request.user_email != email and request.user_role != 'admin':
-        return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
-
     print(f"[CHAT HISTORY] Fetching history for: {email}")
 
-    if USE_SQLITE:
-        try:
-            conn = db.get_conn()
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT email, user_type, session_id, message, is_user, created_at FROM chat_history WHERE email = ? ORDER BY id ASC",
-                (email,)
-            )
-            rows = cursor.fetchall()
-            history = []
-            for r in rows:
-                history.append({
-                    "email": r["email"],
-                    "user_type": r["user_type"],
-                    "session_id": r["session_id"],
-                    "message": r["message"],
-                    "is_user": bool(r["is_user"]),
-                    "created_at": r["created_at"]
-                })
-            print(f"[CHAT HISTORY] Successfully fetched {len(history)} messages from local SQLite")
-            return jsonify({"status": "success", "history": history})
-        except Exception as e:
-            print("[CHAT HISTORY] SQLite Fetch Error:", str(e))
-            return jsonify({"status": "error", "message": str(e)}), 500
-    else:
+    history = []
+    try:
+        conn = db.get_conn()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT email, user_type, session_id, message, is_user, created_at FROM chat_history WHERE LOWER(email) = ? ORDER BY id ASC",
+            (email,)
+        )
+        rows = cursor.fetchall()
+        for r in rows:
+            history.append({
+                "email": r["email"],
+                "user_type": r["user_type"],
+                "session_id": r["session_id"],
+                "message": r["message"],
+                "is_user": bool(r["is_user"]),
+                "created_at": str(r["created_at"])
+            })
+    except Exception as e:
+        print("[CHAT HISTORY] SQLite Fetch Error:", str(e))
+
+    if supabase is not None:
         try:
             res = supabase.table('chat_history')\
                 .select('*')\
-                .ilike('email', email.lower())\
+                .ilike('email', email)\
                 .order('id', desc=False)\
                 .execute()
-            history = []
-            for item in res.data:
-                history.append({
-                    "email": item.get("email"),
-                    "user_type": item.get("user_type"),
-                    "session_id": item.get("session_id"),
-                    "message": item.get("message"),
-                    "is_user": item.get("is_user"),
-                    "created_at": item.get("created_at")
-                })
-            print(f"[CHAT HISTORY] Successfully fetched {len(history)} messages from Supabase")
-            return jsonify({"status": "success", "history": history})
+            existing_msgs = set(h["message"] for h in history)
+            for item in (res.data or []):
+                if item.get("message") not in existing_msgs:
+                    history.append({
+                        "email": item.get("email"),
+                        "user_type": item.get("user_type"),
+                        "session_id": item.get("session_id"),
+                        "message": item.get("message"),
+                        "is_user": bool(item.get("is_user")),
+                        "created_at": str(item.get("created_at"))
+                    })
         except Exception as e:
             print("[CHAT HISTORY] Supabase Fetch Error:", str(e))
-            return jsonify({"status": "error", "message": str(e)}), 500
+
+    return jsonify({"status": "success", "history": history})
+
+@app.route('/api/get-profile', methods=['GET'])
+def get_profile():
+    email = (request.args.get('email') or '').strip().lower()
+    if not email:
+        return jsonify({"status": "error", "message": "email parameter is required"}), 400
+
+    user = None
+    if USE_SQLITE:
+        user = db.get_user(email)
+    else:
+        try:
+            res = supabase.table('users').select('*').ilike('email', email).execute()
+            user = res.data[0] if res.data else None
+        except Exception:
+            user = db.get_user(email)
+
+    if not user:
+        user = db.get_user(email)
+
+    if user:
+        return jsonify({
+            "status": "success",
+            "email": user.get('email'),
+            "name": user.get('name'),
+            "mobile": user.get('mobile'),
+            "profile_photo": user.get('profile_photo')
+        })
+    else:
+        return jsonify({
+            "status": "success",
+            "email": email,
+            "name": email.split('@')[0].capitalize(),
+            "mobile": "",
+            "profile_photo": None
+        })
 
 @app.route('/api/update-profile', methods=['POST'])
-@token_required()
 def update_profile():
     data = request.json or {}
     email = data.get('email')
     name = data.get('name')
     mobile = data.get('mobile')
+    profile_photo = data.get('profile_photo')
 
     if not email:
         return jsonify({"status": "error", "message": "email is required"}), 400
 
     email = email.strip().lower()
-    if request.user_email != email and request.user_role != 'admin':
-        return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
 
     if USE_SQLITE:
-        db.update_profile(email, name, mobile)
+        db.update_profile(email, name, mobile, profile_photo)
     else:
         try:
-            supabase.table('users').update({
-                'name': name,
-                'mobile': mobile
-                }).ilike('email', email.lower()).execute()
+            update_dict = {}
+            if name is not None: update_dict['name'] = name
+            if mobile is not None: update_dict['mobile'] = mobile
+            if profile_photo is not None: update_dict['profile_photo'] = profile_photo
+
+            if update_dict:
+                supabase.table('users').update(update_dict).ilike('email', email).execute()
+            db.update_profile(email, name, mobile, profile_photo)
         except Exception as e:
             print("[FALLBACK] Supabase update-profile error:", str(e))
-            db.update_profile(email, name, mobile)
+            db.update_profile(email, name, mobile, profile_photo)
 
     return jsonify({"status": "success", "message": "Profile updated successfully"})
 
@@ -2735,7 +2776,7 @@ def search_flights():
 @app.route('/api/flights/book', methods=['POST'])
 def book_flight():
     data = request.json or {}
-    user_email = data.get('user_email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai'
+    user_email = (data.get('user_email') or data.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai').strip().lower()
     
     flight_details = data.get('flight_details') or {}
     passenger_details = data.get('passenger_details') or []
@@ -2788,7 +2829,7 @@ def book_flight():
     except Exception as e:
         print("[SQLITE SYNC ERROR]:", str(e))
 
-    if not USE_SQLITE and supabase is not None:
+    if supabase is not None:
         try:
             supabase.table('flight_bookings').insert({
                 "user_email": user_email.lower(),

@@ -100,6 +100,11 @@ class AeroAssistApp {
     // Initial Fetch triggers
     this.fetchRestaurants();
     this.fetchLounges();
+    if (this.currentUser) {
+      this.fetchUserProfile();
+      this.fetchChatHistory();
+      this.fetchMyBookings();
+    }
     
     // Check session states to route initially
     if (this.currentVendor) {
@@ -671,6 +676,8 @@ class AeroAssistApp {
       this.fetchLounges();
     } else if (pageId === "wallet") {
       this.updateWalletDocs();
+    } else if (pageId === "chat") {
+      this.fetchChatHistory();
     } else if (pageId === "my-bookings") {
       this.fetchMyBookings();
       if (this.myBookingsPollTimer) clearInterval(this.myBookingsPollTimer);
@@ -1111,22 +1118,71 @@ class AeroAssistApp {
     }
   }
 
+  async fetchUserProfile() {
+    if (!this.currentUser || !this.currentUser.email) return;
+    try {
+      const res = await this.apiCall(`/get-profile?email=${encodeURIComponent(this.currentUser.email)}`);
+      if (res && res.status === "success") {
+        if (res.name) this.currentUser.name = res.name;
+        if (res.mobile) this.currentUser.mobile = res.mobile;
+        if (res.profile_photo) this.currentUser.profile_photo = res.profile_photo;
+        localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+        this.updateUserSessionUI();
+      }
+    } catch(e) {}
+  }
+
   updateUserSessionUI() {
     const charBadge = document.getElementById("user-avatar-char");
+    const avatarImg = document.getElementById("user-avatar-img");
     const nameLabel = document.getElementById("user-display-name");
     const emailLabel = document.getElementById("user-display-email");
 
     if (this.currentUser) {
-      charBadge.innerText = this.currentUser.name.charAt(0).toUpperCase();
-      nameLabel.innerText = this.currentUser.name;
-      emailLabel.innerText = this.currentUser.email;
+      if (nameLabel) nameLabel.innerText = this.currentUser.name;
+      if (emailLabel) emailLabel.innerText = this.currentUser.email;
+      if (this.currentUser.profile_photo) {
+        let photoSrc = this.currentUser.profile_photo;
+        if (!photoSrc.startsWith("data:") && !photoSrc.startsWith("http")) {
+          photoSrc = `data:image/jpeg;base64,${photoSrc}`;
+        }
+        if (avatarImg) {
+          avatarImg.src = photoSrc;
+          avatarImg.style.display = "block";
+        }
+        if (charBadge) charBadge.style.display = "none";
+      } else {
+        if (charBadge) {
+          charBadge.innerText = this.currentUser.name ? this.currentUser.name.charAt(0).toUpperCase() : "U";
+          charBadge.style.display = "flex";
+        }
+        if (avatarImg) avatarImg.style.display = "none";
+      }
     } else {
-      charBadge.innerText = "V";
-      nameLabel.innerText = "Visitor Account";
-      emailLabel.innerText = "Sign In / Sign Up";
+      if (charBadge) {
+        charBadge.innerText = "V";
+        charBadge.style.display = "flex";
+      }
+      if (avatarImg) avatarImg.style.display = "none";
+      if (nameLabel) nameLabel.innerText = "Visitor Account";
+      if (emailLabel) emailLabel.innerText = "Sign In / Sign Up";
     }
     this.updateSidebarRBAC();
+  }
 
+  handleProfilePhotoSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.pendingProfilePhotoBase64 = e.target.result;
+      const modalImg = document.getElementById("profile-modal-avatar-img");
+      if (modalImg) {
+        modalImg.src = e.target.result;
+        modalImg.style.display = "block";
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   // --- ROLE-BASED SIDEBAR ACCESS CONTROL (RBAC) ---
@@ -1144,7 +1200,6 @@ class AeroAssistApp {
     const isVendorRole = (role === "Vendor" || role === "Admin") && !!this.currentVendor;
 
     if (navVendor) {
-      // NEVER show Vendor Portal for Employee or Visitor
       if (role === "Employee" || role === "Visitor" || !isVendorRole) {
         navVendor.style.setProperty("display", "none", "important");
       } else {
@@ -1173,6 +1228,7 @@ class AeroAssistApp {
   openProfileModal() {
     const loggedIn = document.getElementById("profile-logged-in-views");
     const loggedOut = document.getElementById("profile-logged-out-views");
+    const modalImg = document.getElementById("profile-modal-avatar-img");
 
     if (this.currentUser) {
       loggedIn.style.display = "block";
@@ -1181,6 +1237,17 @@ class AeroAssistApp {
       document.getElementById("profile-name").value = this.currentUser.name;
       document.getElementById("profile-mobile").value = this.currentUser.mobile || "";
       document.getElementById("profile-email").value = this.currentUser.email;
+
+      if (this.currentUser.profile_photo && modalImg) {
+        let photoSrc = this.currentUser.profile_photo;
+        if (!photoSrc.startsWith("data:") && !photoSrc.startsWith("http")) {
+          photoSrc = `data:image/jpeg;base64,${photoSrc}`;
+        }
+        modalImg.src = photoSrc;
+        modalImg.style.display = "block";
+      } else if (modalImg) {
+        modalImg.style.display = "none";
+      }
     } else {
       loggedIn.style.display = "none";
       loggedOut.style.display = "block";
@@ -1198,15 +1265,18 @@ class AeroAssistApp {
       return;
     }
 
+    const photoToUpload = this.pendingProfilePhotoBase64 || (this.currentUser ? this.currentUser.profile_photo : null);
+
     const res = await this.apiCall("/update-profile", {
       method: "POST",
-      body: JSON.stringify({ email: this.currentUser.email, name, mobile })
+      body: JSON.stringify({ email: this.currentUser.email, name, mobile, profile_photo: photoToUpload })
     });
 
     if (res && res.status === "success") {
       alert("Profile updated successfully!");
       this.currentUser.name = name;
       this.currentUser.mobile = mobile;
+      if (photoToUpload) this.currentUser.profile_photo = photoToUpload;
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
       this.updateUserSessionUI();
       this.closeModal("profile");
@@ -1235,6 +1305,21 @@ class AeroAssistApp {
   }
 
   // --- AI CHATBOT COPILOT ---
+  async fetchChatHistory() {
+    const email = this.currentUser ? this.currentUser.email : (localStorage.getItem("user_email") || "santhoshbabusbk25@gmail.com");
+    if (!email) return;
+    try {
+      const res = await this.apiCall(`/chat-history?email=${encodeURIComponent(email)}`);
+      if (res && res.status === "success" && Array.isArray(res.history) && res.history.length > 0) {
+        this.chatHistory = res.history.map(item => ({
+          isUser: Boolean(item.is_user),
+          text: item.message
+        }));
+        this.renderChatHistory();
+      }
+    } catch(e) {}
+  }
+
   renderChatHistory() {
     const container = document.getElementById("chat-messages-box");
     if (!container) return;

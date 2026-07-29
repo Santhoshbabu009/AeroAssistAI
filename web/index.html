@@ -79,6 +79,7 @@
       <div class="sidebar-footer">
         <div class="user-badge" id="user-badge-profile" onclick="app.openProfileModal()">
           <div class="avatar" id="user-avatar-char">V</div>
+          <img id="user-avatar-img" style="width:36px; height:36px; border-radius:50%; object-fit:cover; display:none; border:2px solid var(--accent-color);">
           <div style="flex: 1; overflow: hidden;">
             <h4 id="user-display-name" style="margin: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Visitor Account</h4>
             <span id="user-display-email" style="font-size: 11px; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; display: block;">Sign In / Sign Up</span>
@@ -1115,6 +1116,15 @@
         <button class="close-modal" onclick="app.closeModal('profile')">&times;</button>
       </div>
       <div id="profile-logged-in-views">
+        <div style="text-align:center; margin-bottom:15px;">
+          <img id="profile-modal-avatar-img" src="" alt="Profile Photo" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-color); display:none; margin: 0 auto 10px auto;">
+          <div>
+            <label class="btn-secondary" style="font-size:12px; padding:6px 12px; cursor:pointer; display:inline-block;">
+              📷 Upload Profile Picture
+              <input type="file" id="profile-photo-file-input" accept="image/*" style="display:none;" onchange="app.handleProfilePhotoSelect(event)">
+            </label>
+          </div>
+        </div>
         <div class="form-group">
           <label>Display Name</label>
           <input type="text" id="profile-name">

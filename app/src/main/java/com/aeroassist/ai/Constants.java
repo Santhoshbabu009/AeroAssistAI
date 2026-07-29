@@ -21,6 +21,8 @@ public class Constants {
 
     public static final String REWARD_CERTIFICATE_ENDPOINT = API_V1_BASE + "/send-certificate";
     public static final String SAVE_CHAT_ENDPOINT = API_V1_BASE + "/save-chat";
+    public static final String GET_PROFILE_ENDPOINT = API_V1_BASE + "/get-profile";
+    public static final String CHAT_HISTORY_ENDPOINT = API_V1_BASE + "/chat-history";
     
     // Flight Booking Endpoints
     public static final String FLIGHT_SEARCH_ENDPOINT = API_V1_BASE + "/flights/search";

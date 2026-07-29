@@ -105,6 +105,7 @@ public class ChatbotActivity extends BaseActivity {
                 if(messages.size() > 0)
                     chatRecycler.scrollToPosition(messages.size()-1);
             });
+            fetchRemoteChatHistory();
         }).start();
 
         micBtn.setOnClickListener(v -> startVoiceInput());
@@ -444,6 +445,57 @@ public class ChatbotActivity extends BaseActivity {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private void fetchRemoteChatHistory() {
+        if (currentUserEmail == null || currentUserEmail.isEmpty() || currentUserEmail.equals("default_user")) return;
+        OkHttpClient client = new OkHttpClient();
+        String url = Constants.CHAT_HISTORY_ENDPOINT + "?email=" + currentUserEmail;
+        Request request = new Request.Builder().url(url).get().build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {}
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String body = response.body().string();
+                        JSONObject json = new JSONObject(body);
+                        if (json.optString("status").equals("success")) {
+                            org.json.JSONArray history = json.getJSONArray("history");
+                            List<ChatMessage> remoteMsgs = new ArrayList<>();
+                            for (int i = 0; i < history.length(); i++) {
+                                JSONObject item = history.getJSONObject(i);
+                                String msgText = item.getString("message");
+                                boolean isUser = item.getBoolean("is_user");
+                                long sessId = item.optLong("session_id", currentSessionId);
+                                ChatMessage msg = new ChatMessage(msgText, isUser, currentUserEmail, currentUserType, sessId);
+                                remoteMsgs.add(msg);
+                            }
+                            new Thread(() -> {
+                                for (ChatMessage m : remoteMsgs) {
+                                    db.chatDao().insert(m);
+                                }
+                                runOnUiThread(() -> {
+                                    messages.clear();
+                                    List<ChatMessage> updated = db.chatDao().getChatsBySession(currentSessionId);
+                                    if (updated != null && !updated.isEmpty()) {
+                                        messages.addAll(updated);
+                                    } else {
+                                        messages.addAll(remoteMsgs);
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                    if (!messages.isEmpty()) {
+                                        chatRecycler.scrollToPosition(messages.size() - 1);
+                                    }
+                                });
+                            }).start();
+                        }
+                    } catch (Exception e) { e.printStackTrace(); }
+                }
+            }
+        });
     }
 
     @Override
