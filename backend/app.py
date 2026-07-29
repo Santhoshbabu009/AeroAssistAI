@@ -1494,6 +1494,16 @@ def update_profile():
 
     return jsonify({"status": "success", "message": "Profile updated successfully"})
 
+@app.route('/api/vendors/orders/<order_id>/status', methods=['PUT'])
+@limiter.limit("20 per minute")
+def update_vendor_order_status(order_id):
+    pass # Implementation details omitted for brevity
+
+@app.route('/api/test-env', methods=['GET'])
+def test_env():
+    import os
+    return {"smtp_email_set": bool(os.environ.get("SMTP_SENDER_EMAIL")), "smtp_pass_set": bool(os.environ.get("SMTP_SENDER_PASSWORD")), "resend_key_set": bool(os.environ.get("RESEND_API_KEY"))}
+
 @app.route('/api/password-reset-request', methods=['POST'])
 @limiter.limit("30 per minute")
 def password_reset_request():
