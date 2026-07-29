@@ -1017,7 +1017,7 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
 """
 
     resend_key = os.environ.get("RESEND_API_KEY")
-    resend_sender = os.environ.get("RESEND_SENDER_EMAIL", "noreply@aeroassist.in").strip()
+    resend_sender = os.environ.get("RESEND_SENDER_EMAIL", "noreply@aeroassistai.in").strip()
 
     if resend_key:
         resend_key = resend_key.strip()
