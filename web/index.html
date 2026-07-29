@@ -66,9 +66,12 @@
       <!-- Top Global Header Bar -->
       <header id="top-app-bar">
         <!-- Quick Spotlight Command Trigger -->
-        <div class="top-bar-search-trigger" onclick="app.openCommandPalette()">
-          <span>🔍 Search flights, dining, lounges...</span>
-          <kbd class="top-bar-kbd">Ctrl+K</kbd>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="hamburger-btn" onclick="document.body.classList.toggle('mobile-nav-open')">☰</button>
+          <div class="top-bar-search-trigger" onclick="app.openCommandPalette()">
+            <span>🔍 Search flights, dining, lounges...</span>
+            <kbd class="top-bar-kbd">Ctrl+K</kbd>
+          </div>
         </div>
 
         <div class="top-bar-actions">

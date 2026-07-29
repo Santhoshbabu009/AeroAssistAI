@@ -665,6 +665,9 @@ class AeroAssistApp {
       document.body.classList.remove("nav-hidden");
     }
 
+    // Auto-close mobile sidebar on navigation
+    document.body.classList.remove("mobile-nav-open");
+
     // Deactivate all navigation links & pages
     document.querySelectorAll(".nav-link-btn").forEach(btn => btn.classList.remove("active"));
     document.querySelectorAll(".page-view").forEach(page => page.classList.remove("active"));
