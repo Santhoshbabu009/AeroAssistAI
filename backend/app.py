@@ -1018,11 +1018,9 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
 
     resend_key = os.environ.get("RESEND_API_KEY")
     resend_sender = os.environ.get("RESEND_SENDER_EMAIL", "noreply@aeroassist.in").strip()
-    email_sent = False
 
     if resend_key:
         resend_key = resend_key.strip()
-        print(f"[RESEND] Dispatching secure verification email from '{resend_sender}' to: {to_email}...")
         import requests
         try:
             url = "https://api.resend.com/emails"
@@ -1038,15 +1036,11 @@ def send_verification_email(to_email, otp, name="Valued User", custom_message=No
             }
             response = requests.post(url, json=data, headers=headers, timeout=5)
             if response.status_code in [200, 201]:
-                print(f"[RESEND SUCCESS] Email successfully delivered to {to_email}!")
-                email_sent = True
+                return True, "Sent via Resend"
             else:
-                print(f"[RESEND ERROR] HTTP Status {response.status_code}: {response.text}")
+                return False, f"Resend API Error {response.status_code}: {response.text}"
         except Exception as e_resend:
-            print(f"[RESEND EXCEPTION] HTTPS dispatch failed: {e_resend}")
-
-    if email_sent:
-        return True, "Sent via Resend"
+            return False, f"Resend HTTPS dispatch failed: {e_resend}"
 
     # SMTP Fallback (Direct SSL Port 465 for max speed and reliability)
     import smtplib
