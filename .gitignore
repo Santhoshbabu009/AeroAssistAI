@@ -24,19 +24,3 @@ dist/
 htmlcov/
 ~$*.xlsx
 
-# Test Results & Reports (auto-generated)
-Test_Results/
-Vulnerability Test Results/
-appium-tests/
-selenium-tests/screenshots/
-selenium-tests/node_modules/
-selenium-tests/*.xlsx
-backend/tests/
-backend/load_test.py
-backend/export_all_test_excel.py
-scripts/run_backend_tests.py
-scripts/run_frontend_tests.py
-scripts/run_load_tests.py
-.github/workflows/load-testing.yml
-.github/workflows/main-test-report.yml
-pytest.ini
