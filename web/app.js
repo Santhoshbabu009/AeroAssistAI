@@ -9,13 +9,22 @@ class AeroAssistApp {
     this.API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || !window.location.origin) ? "https://aeroassistai.onrender.com/api" : "/api";
     this.AVIATION_STACK_KEY = "322876eed5ec416a01fffd3e4429c29e";
     
-    // User Authentication Session State
-    this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
+    // User Authentication Session State (Safe Parsing)
+    try {
+      this.currentUser = JSON.parse(localStorage.getItem("user_session")) || null;
+      this.currentVendor = JSON.parse(localStorage.getItem("vendor_session")) || null;
+    } catch (e) {
+      console.warn("Corrupted session data. Resetting...");
+      this.currentUser = null;
+      this.currentVendor = null;
+      localStorage.removeItem("user_session");
+      localStorage.removeItem("vendor_session");
+    }
+    
     this.currentUserType = localStorage.getItem("user_type") || null; // Visitor, Employee, Vendor
     this.authMode = "login"; // login, signup, verify
     
     // Vendor Session State
-    this.currentVendor = JSON.parse(localStorage.getItem("vendor_session")) || null;
     this.vendorTab = "queue";
     
     // Chatbot State
@@ -61,7 +70,12 @@ class AeroAssistApp {
     // Background Polling
     this.pollingInterval = null;
     
-    this.init();
+    // Ensure safe initialization
+    try {
+      this.init();
+    } catch (e) {
+      console.error("Initialization failed:", e);
+    }
   }
 
   init() {
