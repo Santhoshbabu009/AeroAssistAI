@@ -49,6 +49,9 @@ public class ChatbotActivity extends BaseActivity {
     long currentSessionId;
     ImageButton historyBtn;
 
+    // Guard flag to avoid crashes when activity is already destroyed
+    private volatile boolean isDestroyed = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +73,7 @@ public class ChatbotActivity extends BaseActivity {
         // Initialize TextToSpeech with current app language
         String currentLang = LocaleHelper.getLanguage(this);
         tts = new TextToSpeech(this, status -> {
-            if(status == TextToSpeech.SUCCESS){
+            if (status == TextToSpeech.SUCCESS) {
                 tts.setLanguage(new Locale(currentLang));
             }
         });
@@ -78,34 +81,42 @@ public class ChatbotActivity extends BaseActivity {
         // Receive user data
         currentUserEmail = getIntent().getStringExtra("email");
         currentUserType = getIntent().getStringExtra("user_type");
-        if (currentUserEmail == null) currentUserEmail = "default_user";
-        if (currentUserType == null) currentUserType = "Visitor";
-        
+        if (currentUserEmail == null || currentUserEmail.isEmpty()) currentUserEmail = "default_user";
+        if (currentUserType == null || currentUserType.isEmpty()) currentUserType = "Visitor";
+
         db = ChatDatabase.getInstance(this);
 
         // Load previous session or start new one if none exists
         long requestedSession = getIntent().getLongExtra("session_id", -1);
         new Thread(() -> {
-            if (requestedSession != -1) {
-                currentSessionId = requestedSession;
-            } else {
-                Long lastSession = db.chatDao().getLastSessionId(currentUserEmail, currentUserType);
-                if (lastSession != null) {
-                    currentSessionId = lastSession;
+            try {
+                if (requestedSession != -1) {
+                    currentSessionId = requestedSession;
                 } else {
-                    currentSessionId = System.currentTimeMillis();
+                    Long lastSession = db.chatDao().getLastSessionId(currentUserEmail, currentUserType);
+                    if (lastSession != null) {
+                        currentSessionId = lastSession;
+                    } else {
+                        currentSessionId = System.currentTimeMillis();
+                    }
                 }
-            }
 
-            // Load chats for the determined session
-            List<ChatMessage> oldChats = db.chatDao().getChatsBySession(currentSessionId);
-            runOnUiThread(() -> {
-                messages.addAll(oldChats);
-                adapter.notifyDataSetChanged();
-                if(messages.size() > 0)
-                    chatRecycler.scrollToPosition(messages.size()-1);
-            });
-            fetchRemoteChatHistory();
+                // Load chats for the determined session
+                List<ChatMessage> oldChats = db.chatDao().getChatsBySession(currentSessionId);
+                if (!isDestroyed) {
+                    runOnUiThread(() -> {
+                        messages.addAll(oldChats);
+                        adapter.notifyDataSetChanged();
+                        if (messages.size() > 0)
+                            chatRecycler.scrollToPosition(messages.size() - 1);
+                    });
+                }
+
+                // Fetch remote chat history to sync across devices
+                fetchRemoteChatHistory();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
 
         micBtn.setOnClickListener(v -> startVoiceInput());
@@ -118,20 +129,29 @@ public class ChatbotActivity extends BaseActivity {
         });
 
         // Interactive Suggestion Prompt Chips Click Handlers
-        findViewById(R.id.promptGate).setOnClickListener(v -> {
-            userInput.setText("Where is Gate A24?");
-            sendMessage();
-        });
+        View gateChip = findViewById(R.id.promptGate);
+        if (gateChip != null) {
+            gateChip.setOnClickListener(v -> {
+                userInput.setText("Where is Gate A24?");
+                sendMessage();
+            });
+        }
 
-        findViewById(R.id.promptPass).setOnClickListener(v -> {
-            userInput.setText("Show boarding pass");
-            sendMessage();
-        });
+        View passChip = findViewById(R.id.promptPass);
+        if (passChip != null) {
+            passChip.setOnClickListener(v -> {
+                userInput.setText("Show boarding pass");
+                sendMessage();
+            });
+        }
 
-        findViewById(R.id.promptLounge).setOnClickListener(v -> {
-            userInput.setText("Nearest lounge?");
-            sendMessage();
-        });
+        View loungeChip = findViewById(R.id.promptLounge);
+        if (loungeChip != null) {
+            loungeChip.setOnClickListener(v -> {
+                userInput.setText("Nearest lounge?");
+                sendMessage();
+            });
+        }
 
         // Handle prefilled message (e.g. from Cab Booking card)
         String prefill = getIntent().getStringExtra("prefill");
@@ -141,52 +161,46 @@ public class ChatbotActivity extends BaseActivity {
         }
     }
 
-    private void startVoiceInput(){
-
+    private void startVoiceInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Speak your question");
-
-        startActivityForResult(intent,1);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your question");
+        startActivityForResult(intent, 1);
     }
 
     @Override
-    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        super.onActivityResult(requestCode,resultCode,data);
-
-        if(requestCode == 1 && resultCode == RESULT_OK){
-
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
             ArrayList<String> result =
                     data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-
-            String spokenText = result.get(0);
-
-            userInput.setText(spokenText);
-
-            sendMessage(); // automatically send after speaking
+            if (result != null && !result.isEmpty()) {
+                String spokenText = result.get(0);
+                userInput.setText(spokenText);
+                sendMessage(); // automatically send after speaking
+            }
         }
     }
 
     private void sendMessage() {
-
         String question = userInput.getText().toString().trim();
-
-        if(question.isEmpty())
-            return;
+        if (question.isEmpty()) return;
 
         ChatMessage userMessage = new ChatMessage(question, true, currentUserEmail, currentUserType, currentSessionId);
 
         new Thread(() -> {
-            db.chatDao().insert(userMessage);
+            try {
+                db.chatDao().insert(userMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
 
         messages.add(userMessage);
         adapter.notifyDataSetChanged();
-        chatRecycler.scrollToPosition(messages.size()-1);
+        chatRecycler.scrollToPosition(messages.size() - 1);
 
         userInput.setText("");
 
@@ -197,9 +211,9 @@ public class ChatbotActivity extends BaseActivity {
     private String getOwnerReply(String message) {
         String lower = message.toLowerCase();
         boolean askDetails = lower.contains("age") || lower.contains("old") || lower.contains("dob") || lower.contains("born") || lower.contains("birth") ||
-                            lower.contains("వయస్సు") || lower.contains("పుట్టిన") || 
-                            lower.contains("வயது") || lower.contains("பிறந்த") || 
-                            lower.contains("उम्र") || lower.contains("जन्म");
+                lower.contains("వయస్సు") || lower.contains("పుట్టిన") ||
+                lower.contains("வயது") || lower.contains("பிறந்த") ||
+                lower.contains("उम्र") || lower.contains("जन्म");
 
         // Telugu / Telugu-English Mix
         if (lower.contains("యజమాని") || lower.contains("ni owner") || lower.contains("evaru") || lower.contains("meeku owner")) {
@@ -254,132 +268,144 @@ public class ChatbotActivity extends BaseActivity {
 
     private void getAiResponse(String message) {
         String lowerMessage = message.toLowerCase();
-        
+
         // Owner Question Matching (Multi-lingual)
         boolean isOwnerQuestion = lowerMessage.contains("who is your owner") || lowerMessage.contains("who is owner") || lowerMessage.contains("who owns you") ||
-                                 lowerMessage.contains("ni owner") || lowerMessage.contains("unga owner") || lowerMessage.contains("unoda owner") || lowerMessage.contains("tera owner") || lowerMessage.contains("apka owner") || lowerMessage.contains("meeku owner") ||
-                                 lowerMessage.contains("மாलिक कौन है") || lowerMessage.contains("यजमान") || // Hindi
-                                 lowerMessage.contains("quién es tu dueño") || // Spanish
-                                 lowerMessage.contains("ഉടമ") || // Malayalam
-                                 lowerMessage.contains("உரிமையாளர்") || lowerMessage.contains("முதலாளி") || lowerMessage.contains("ஓனர்") || lowerMessage.contains("சொந்தக்காரர்") || // Tamil
-                                 lowerMessage.contains("యజమాని"); // Telugu
+                lowerMessage.contains("ni owner") || lowerMessage.contains("unga owner") || lowerMessage.contains("unoda owner") || lowerMessage.contains("tera owner") || lowerMessage.contains("apka owner") || lowerMessage.contains("meeku owner") ||
+                lowerMessage.contains("யாரு") || lowerMessage.contains("यजमान") || // Hindi
+                lowerMessage.contains("quién es tu dueño") || // Spanish
+                lowerMessage.contains("ഉടമ") || // Malayalam
+                lowerMessage.contains("உரிமையாளர்") || lowerMessage.contains("முதலாளி") || lowerMessage.contains("ஓனர்") || lowerMessage.contains("சொந்தக்காரர்") || // Tamil
+                lowerMessage.contains("యజమాని"); // Telugu
 
         if (isOwnerQuestion) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                runOnUiThread(() -> {
-                    thinkingIndicator.setVisibility(View.GONE);
-                    String reply = getOwnerReply(message);
-                    ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
-                    
-                    // Sync both user message and AI response to Supabase since we bypassed the backend
-                    saveChatToSupabase(new ChatMessage(message, true, currentUserEmail, currentUserType, currentSessionId));
-                    saveChatToSupabase(aiMsg);
-
-                    new Thread(() -> {
-                        db.chatDao().insert(aiMsg);
-                    }).start();
-                    messages.add(aiMsg);
-                    adapter.notifyDataSetChanged();
-                    chatRecycler.scrollToPosition(messages.size() - 1);
-                    if (tts != null) {
-                        tts.speak(reply, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null);
-                    }
-                });
+                if (isDestroyed) return;
+                thinkingIndicator.setVisibility(View.GONE);
+                String reply = getOwnerReply(message);
+                ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
+                saveChatToSupabase(new ChatMessage(message, true, currentUserEmail, currentUserType, currentSessionId));
+                saveChatToSupabase(aiMsg);
+                new Thread(() -> {
+                    try { db.chatDao().insert(aiMsg); } catch (Exception e) { e.printStackTrace(); }
+                }).start();
+                messages.add(aiMsg);
+                adapter.notifyDataSetChanged();
+                chatRecycler.scrollToPosition(messages.size() - 1);
+                if (tts != null) {
+                    tts.speak(reply, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null);
+                }
             }, 2000);
             return;
         }
 
         // Designer Question Matching (Multi-lingual)
         boolean isDesignerQuestion = lowerMessage.contains("who designed") || lowerMessage.contains("who created") || lowerMessage.contains("who built") || lowerMessage.contains("who developed") ||
-                                    lowerMessage.contains("ni design chesindi evaru") || lowerMessage.contains("ni create chesindi") || // Mixed
-                                    lowerMessage.contains("किसने बनाया") || lowerMessage.contains("डेवलपर") || // Hindi
-                                    lowerMessage.contains("quién diseñó") || lowerMessage.contains("creador") || // Spanish
-                                    lowerMessage.contains("രൂപകൽപ്പന") || // Malayalam
-                                    lowerMessage.contains("வடிவமைத்தவர்") || lowerMessage.contains("உருவாக்கியவர்") || lowerMessage.contains("தயாரித்தவர்") || // Tamil
-                                    lowerMessage.contains("రూపొందించారు"); // Telugu
+                lowerMessage.contains("ni design chesindi evaru") || lowerMessage.contains("ni create chesindi") || // Mixed
+                lowerMessage.contains("किसने बनाया") || lowerMessage.contains("डेवलपर") || // Hindi
+                lowerMessage.contains("quién diseñó") || lowerMessage.contains("creador") || // Spanish
+                lowerMessage.contains("രൂപകൽപ്പന") || // Malayalam
+                lowerMessage.contains("வடிவமைத்தவர்") || lowerMessage.contains("உருவாக்கியவர்") || lowerMessage.contains("தயாரித்தவர்") || // Tamil
+                lowerMessage.contains("రూపొందించారు"); // Telugu
 
         if (isDesignerQuestion) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                runOnUiThread(() -> {
-                    thinkingIndicator.setVisibility(View.GONE);
-                    String reply = getString(R.string.ai_designer_reply);
-                    ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
-
-                    // Sync both user message and AI response to Supabase
-                    saveChatToSupabase(new ChatMessage(message, true, currentUserEmail, currentUserType, currentSessionId));
-                    saveChatToSupabase(aiMsg);
-
-                    new Thread(() -> {
-                        db.chatDao().insert(aiMsg);
-                    }).start();
-                    messages.add(aiMsg);
-                    adapter.notifyDataSetChanged();
-                    chatRecycler.scrollToPosition(messages.size() - 1);
-                    if (tts != null) {
-                        tts.speak(reply, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null);
-                    }
-                });
+                if (isDestroyed) return;
+                thinkingIndicator.setVisibility(View.GONE);
+                String reply = getString(R.string.ai_designer_reply);
+                ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
+                saveChatToSupabase(new ChatMessage(message, true, currentUserEmail, currentUserType, currentSessionId));
+                saveChatToSupabase(aiMsg);
+                new Thread(() -> {
+                    try { db.chatDao().insert(aiMsg); } catch (Exception e) { e.printStackTrace(); }
+                }).start();
+                messages.add(aiMsg);
+                adapter.notifyDataSetChanged();
+                chatRecycler.scrollToPosition(messages.size() - 1);
+                if (tts != null) {
+                    tts.speak(reply, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null);
+                }
             }, 2000);
             return;
         }
 
-        OkHttpClient client = new OkHttpClient.Builder()
+        OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
                 .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
                 .build();
-        JSONObject json = new JSONObject();
+
         try {
+            JSONObject json = new JSONObject();
             json.put("message", message);
             json.put("email", currentUserEmail);
             json.put("user_type", currentUserType);
             json.put("session_id", currentSessionId);
             json.put("lang", LocaleHelper.getLanguage(this));
 
-        RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
-        Request request = new Request.Builder()
-                .url(Constants.CHAT_ENDPOINT)
-                .post(body)
-                .build();
+            RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
+            Request request = new Request.Builder()
+                    .url(Constants.CHAT_ENDPOINT)
+                    .post(body)
+                    .build();
 
-            client.newCall(request).enqueue(new Callback() {
+            httpClient.newCall(request).enqueue(new Callback() {
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    final String error = e.getMessage() != null ? e.getMessage() : "Unknown Error";
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        runOnUiThread(() -> {
-                            thinkingIndicator.setVisibility(View.GONE);
-                            ChatMessage errorMsg = new ChatMessage("Backend Error: " + error, false, currentUserEmail, currentUserType, currentSessionId);
-                            new Thread(() -> {
-                                db.chatDao().insert(errorMsg);
-                            }).start();
-                            messages.add(errorMsg);
-                            adapter.notifyDataSetChanged();
-                            chatRecycler.scrollToPosition(messages.size() - 1);
-                        });
-                    }, 2000);
+                    final String error = e != null && e.getMessage() != null ? e.getMessage() : "Network error";
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (isDestroyed) return;
+                        thinkingIndicator.setVisibility(View.GONE);
+                        ChatMessage errorMsg = new ChatMessage("Could not connect to server. Please check your internet connection.", false, currentUserEmail, currentUserType, currentSessionId);
+                        new Thread(() -> {
+                            try { db.chatDao().insert(errorMsg); } catch (Exception ex) { ex.printStackTrace(); }
+                        }).start();
+                        messages.add(errorMsg);
+                        adapter.notifyDataSetChanged();
+                        chatRecycler.scrollToPosition(messages.size() - 1);
+                    });
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-
-                    String result = response.body().string();
-
+                    // CRITICAL: Always close the response body to avoid resource leaks
+                    ResponseBody responseBody = response.body();
+                    final String result;
                     try {
+                        if (responseBody == null) {
+                            result = null;
+                        } else {
+                            result = responseBody.string();
+                        }
+                    } finally {
+                        if (responseBody != null) responseBody.close();
+                    }
 
-                        JSONObject obj = new JSONObject(result);
-                        String reply = obj.getString("reply");
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (isDestroyed) return;
+                        thinkingIndicator.setVisibility(View.GONE);
 
-                        runOnUiThread(() -> {
+                        if (result == null || result.isEmpty()) {
+                            showErrorMessage("Empty response from server.");
+                            return;
+                        }
 
-                            // open navigation if needed
+                        try {
+                            JSONObject obj = new JSONObject(result);
+                            String reply = obj.optString("reply", "");
+
+                            if (reply.isEmpty()) {
+                                showErrorMessage("AI returned empty response.");
+                                return;
+                            }
+
+                            // Open navigation if needed
                             String lowerReply = reply.toLowerCase();
-                            String lowerMessage = message.toLowerCase();
-
-                            if (lowerReply.contains("gate") || lowerMessage.contains("navigate") && lowerMessage.contains("gate")) {
+                            String lowerMsg = message.toLowerCase();
+                            if (lowerReply.contains("gate") || (lowerMsg.contains("navigate") && lowerMsg.contains("gate"))) {
                                 Intent intent = new Intent(ChatbotActivity.this, NavigationActivity.class);
-                                if (lowerMessage.contains("gate 5") || lowerReply.contains("gate 5")) {
+                                if (lowerMsg.contains("gate 5") || lowerReply.contains("gate 5")) {
                                     intent.putExtra("location", "gate5");
                                 } else {
                                     intent.putExtra("location", "gateA12");
@@ -388,45 +414,50 @@ public class ChatbotActivity extends BaseActivity {
                             }
 
                             ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
-
                             new Thread(() -> {
-                                db.chatDao().insert(aiMsg);
+                                try { db.chatDao().insert(aiMsg); } catch (Exception e) { e.printStackTrace(); }
                             }).start();
 
                             messages.add(aiMsg);
                             adapter.notifyDataSetChanged();
-                            chatRecycler.scrollToPosition(messages.size()-1);
+                            chatRecycler.scrollToPosition(messages.size() - 1);
 
-                            // Speak AI response
-                            if(tts != null){
+                            if (tts != null) {
                                 tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
                             }
 
-                        });
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        runOnUiThread(() -> {
-                            ChatMessage errorMsg = new ChatMessage("Error parsing response: " + e.getMessage(), false, currentUserEmail, currentUserType, currentSessionId);
-                            new Thread(() -> {
-                                db.chatDao().insert(errorMsg);
-                            }).start();
-                            messages.add(errorMsg);
-                            adapter.notifyDataSetChanged();
-                            chatRecycler.scrollToPosition(messages.size() - 1);
-                        });
-                    }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            showErrorMessage("Error reading AI response.");
+                        }
+                    });
                 }
             });
 
         } catch (Exception e) {
             e.printStackTrace();
+            runOnUiThread(() -> {
+                if (isDestroyed) return;
+                thinkingIndicator.setVisibility(View.GONE);
+                showErrorMessage("Failed to send message. Try again.");
+            });
         }
+    }
+
+    /** Helper: adds an error message bubble to the chat */
+    private void showErrorMessage(String errorText) {
+        ChatMessage errorMsg = new ChatMessage(errorText, false, currentUserEmail, currentUserType, currentSessionId);
+        new Thread(() -> {
+            try { db.chatDao().insert(errorMsg); } catch (Exception e) { e.printStackTrace(); }
+        }).start();
+        messages.add(errorMsg);
+        adapter.notifyDataSetChanged();
+        if (!messages.isEmpty()) chatRecycler.scrollToPosition(messages.size() - 1);
     }
 
     private void saveChatToSupabase(ChatMessage msg) {
         new Thread(() -> {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient saveClient = new OkHttpClient();
             try {
                 JSONObject json = new JSONObject();
                 json.put("email", msg.getUserEmail());
@@ -440,7 +471,8 @@ public class ChatbotActivity extends BaseActivity {
                         .url(Constants.SAVE_CHAT_ENDPOINT)
                         .post(body)
                         .build();
-                client.newCall(request).execute();
+                Response resp = saveClient.newCall(request).execute();
+                if (resp.body() != null) resp.body().close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -449,50 +481,78 @@ public class ChatbotActivity extends BaseActivity {
 
     private void fetchRemoteChatHistory() {
         if (currentUserEmail == null || currentUserEmail.isEmpty() || currentUserEmail.equals("default_user")) return;
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient fetchClient = new OkHttpClient.Builder()
+                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
         String url = Constants.CHAT_HISTORY_ENDPOINT + "?email=" + currentUserEmail;
         Request request = new Request.Builder().url(url).get().build();
-        client.newCall(request).enqueue(new Callback() {
+        fetchClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {}
+            public void onFailure(Call call, IOException e) {
+                // Silent fail - chat history sync is non-critical
+            }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String body = response.body().string();
-                        JSONObject json = new JSONObject(body);
-                        if (json.optString("status").equals("success")) {
-                            org.json.JSONArray history = json.getJSONArray("history");
-                            List<ChatMessage> remoteMsgs = new ArrayList<>();
-                            for (int i = 0; i < history.length(); i++) {
-                                JSONObject item = history.getJSONObject(i);
-                                String msgText = item.getString("message");
-                                boolean isUser = item.getBoolean("is_user");
-                                long sessId = item.optLong("session_id", currentSessionId);
-                                ChatMessage msg = new ChatMessage(msgText, isUser, currentUserEmail, currentUserType, sessId);
-                                remoteMsgs.add(msg);
-                            }
-                            new Thread(() -> {
-                                for (ChatMessage m : remoteMsgs) {
-                                    db.chatDao().insert(m);
-                                }
-                                runOnUiThread(() -> {
-                                    messages.clear();
+                ResponseBody respBody = response.body();
+                if (respBody == null) return;
+                final String body;
+                try {
+                    body = respBody.string();
+                } finally {
+                    respBody.close();
+                }
+                if (!response.isSuccessful() || body.isEmpty()) return;
+
+                try {
+                    JSONObject json = new JSONObject(body);
+                    if (!json.optString("status").equals("success")) return;
+
+                    org.json.JSONArray history = json.optJSONArray("history");
+                    if (history == null || history.length() == 0) return;
+
+                    List<ChatMessage> remoteMsgs = new ArrayList<>();
+                    for (int i = 0; i < history.length(); i++) {
+                        JSONObject item = history.getJSONObject(i);
+                        String msgText = item.optString("message", "");
+                        if (msgText.isEmpty()) continue;
+                        boolean isUser = item.optBoolean("is_user", false);
+                        long sessId = item.optLong("session_id", currentSessionId);
+                        remoteMsgs.add(new ChatMessage(msgText, isUser, currentUserEmail, currentUserType, sessId));
+                    }
+
+                    // Insert remote messages into local Room DB (on a background thread)
+                    for (ChatMessage m : remoteMsgs) {
+                        try { db.chatDao().insert(m); } catch (Exception ignored) {}
+                    }
+
+                    // Now refresh UI from local DB on the main thread
+                    if (!isDestroyed) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (isDestroyed) return;
+                            try {
+                                new Thread(() -> {
                                     List<ChatMessage> updated = db.chatDao().getChatsBySession(currentSessionId);
-                                    if (updated != null && !updated.isEmpty()) {
-                                        messages.addAll(updated);
-                                    } else {
-                                        messages.addAll(remoteMsgs);
+                                    if (!isDestroyed) {
+                                        new Handler(Looper.getMainLooper()).post(() -> {
+                                            if (isDestroyed) return;
+                                            if (updated != null && !updated.isEmpty()) {
+                                                messages.clear();
+                                                messages.addAll(updated);
+                                                adapter.notifyDataSetChanged();
+                                                chatRecycler.scrollToPosition(messages.size() - 1);
+                                            }
+                                        });
                                     }
-                                    adapter.notifyDataSetChanged();
-                                    if (!messages.isEmpty()) {
-                                        chatRecycler.scrollToPosition(messages.size() - 1);
-                                    }
-                                });
-                            }).start();
-                        }
-                    } catch (Exception e) { e.printStackTrace(); }
+                                }).start();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -500,7 +560,8 @@ public class ChatbotActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if(tts != null){
+        isDestroyed = true;
+        if (tts != null) {
             tts.stop();
             tts.shutdown();
         }
