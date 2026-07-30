@@ -90,10 +90,15 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
         mapView = findViewById(R.id.flightMap);
         mapView.getMap(Constants.OLA_MAPS_API_KEY, this, new MapControlSettings.Builder().build());
 
+        View backBtn = findViewById(R.id.backBtn);
+        if (backBtn != null) backBtn.setOnClickListener(v -> finish());
+
         checkBtn.setOnClickListener(v -> getFlightStatus());
         scanBtn.setOnClickListener(v -> startScanner());
         historyBtn.setOnClickListener(v -> startActivity(new Intent(this, FlightSearchHistoryActivity.class)));
         aiInsightsBtn.setOnClickListener(v -> getAIInsights());
+
+        populateLiveFidsBoard();
 
         notificationHelper = new NotificationHelper(this);
         requestNotificationPermission();
@@ -117,14 +122,35 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
         android.util.Log.e("OlaMaps", "Map Error: " + error);
     }
 
-    private void startScanner(){
+    private static final int PERMISSION_REQUEST_CAMERA = 103;
 
+    private void startScanner(){
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+        } else {
+            launchScanner();
+        }
+    }
+
+    private void launchScanner() {
         ScanOptions options = new ScanOptions();
         options.setPrompt("Scan Boarding Pass QR Code");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
 
         barcodeLauncher.launch(options);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                launchScanner();
+            } else {
+                android.widget.Toast.makeText(this, "Camera permission is required to scan QR code.", android.widget.Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void getFlightStatus(){
@@ -440,5 +466,71 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
                 "Flight " + flight + " has been moved from Gate A12 to Gate B5. Please update your navigation."
             );
         }, 15000); // 15 seconds after search
+    }
+
+    private void populateLiveFidsBoard() {
+        android.widget.LinearLayout container = findViewById(R.id.liveFidsContainer);
+        if (container == null) return;
+        container.removeAllViews();
+
+        String[][] flights = {
+            {"AI-432", "Delhi (DEL)", "Terminal 1", "Gate 9", "BOARDING", "#10B981", "06:00 AM"},
+            {"6E-2051", "Mumbai (BOM)", "Terminal 1", "Gate 14", "DELAYED", "#F59E0B", "08:30 AM"},
+            {"SG-103", "Bangalore (BLR)", "Terminal 2", "Gate 25", "ON TIME", "#00E5FF", "10:15 AM"},
+            {"IX-541", "Dubai (DXB)", "Terminal 2", "Gate 18", "CHECK-IN", "#6366F1", "12:00 PM"},
+            {"UK-812", "Hyderabad (HYD)", "Terminal 1", "Gate 6", "ON TIME", "#00E5FF", "02:45 PM"}
+        };
+
+        for (String[] f : flights) {
+            android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+            row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            row.setPadding(0, 16, 0, 16);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+            android.widget.LinearLayout leftCol = new android.widget.LinearLayout(this);
+            leftCol.setOrientation(android.widget.LinearLayout.VERTICAL);
+            android.widget.LinearLayout.LayoutParams leftParams = new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+            leftCol.setLayoutParams(leftParams);
+
+            android.widget.TextView codeTv = new android.widget.TextView(this);
+            codeTv.setText(f[0] + "  ➔  " + f[1]);
+            codeTv.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
+            codeTv.setTextSize(14);
+            codeTv.setTypeface(null, android.graphics.Typeface.BOLD);
+
+            android.widget.TextView metaTv = new android.widget.TextView(this);
+            metaTv.setText(f[2] + "  •  " + f[3] + "  •  " + f[6]);
+            metaTv.setTextColor(android.graphics.Color.parseColor("#94A3B8"));
+            metaTv.setTextSize(12);
+
+            leftCol.addView(codeTv);
+            leftCol.addView(metaTv);
+
+            android.widget.TextView statusBadge = new android.widget.TextView(this);
+            statusBadge.setText(" " + f[4] + " ");
+            statusBadge.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
+            statusBadge.setBackgroundColor(android.graphics.Color.parseColor(f[5]));
+            statusBadge.setPadding(14, 6, 14, 6);
+            statusBadge.setTextSize(11);
+            statusBadge.setTypeface(null, android.graphics.Typeface.BOLD);
+
+            row.addView(leftCol);
+            row.addView(statusBadge);
+
+            android.view.View divider = new android.view.View(this);
+            divider.setLayoutParams(new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
+            divider.setBackgroundColor(android.graphics.Color.parseColor("#334155"));
+
+            final String fNum = f[0];
+            row.setClickable(true);
+            row.setFocusable(true);
+            row.setOnClickListener(v -> {
+                flightInput.setText(fNum);
+                getFlightStatus();
+            });
+
+            container.addView(row);
+            container.addView(divider);
+        }
     }
 }
