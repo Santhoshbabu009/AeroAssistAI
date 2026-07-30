@@ -1075,6 +1075,8 @@ class AeroAssistApp {
         this.currentUser = {
           name: res.name || name,
           email: email.trim().toLowerCase(),
+          mobile: res.mobile || "",
+          profile_photo: res.profile_photo || null,
           token: res.token
         };
         localStorage.setItem("user_session", JSON.stringify(this.currentUser));
@@ -1082,6 +1084,7 @@ class AeroAssistApp {
         localStorage.setItem("auth_token", res.token);
 
         this.updateUserSessionUI();
+        await this.fetchUserProfile();
         this.showPage("dashboard");
       }
     } else {
@@ -1285,6 +1288,7 @@ class AeroAssistApp {
       this.currentUser.mobile = mobile;
       if (photoToUpload) this.currentUser.profile_photo = photoToUpload;
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+      this.pendingProfilePhotoBase64 = null;
       this.updateUserSessionUI();
       this.closeModal("profile");
     } else {
@@ -1295,8 +1299,18 @@ class AeroAssistApp {
   logoutUser() {
     this.currentUser = null;
     this.currentUserType = null;
+    this.allMyBookings = [];
+    this.activeOrder = null;
+    this.activeTrackingOrderId = null;
+    this.cart = { restaurant: null, items: [] };
+
     localStorage.removeItem("user_session");
     localStorage.removeItem("user_type");
+    localStorage.removeItem("user_email");
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("vendor_session");
+
     this.updateUserSessionUI();
     this.closeModal("profile");
     this.showPage("user-type");
@@ -1822,7 +1836,14 @@ class AeroAssistApp {
 
   // --- REAL TIME POLL PASSENGER STATES ---
   async fetchPassengerHistory() {
-    if (!this.currentUser) return;
+    const diningBanner = document.getElementById("floating-dining-banner");
+    const loungeBanner = document.getElementById("floating-lounge-banner");
+
+    if (!this.currentUser || !this.currentUser.email) {
+      if (diningBanner) diningBanner.style.display = "none";
+      if (loungeBanner) loungeBanner.style.display = "none";
+      return;
+    }
     
     const ordRes = await this.apiCall(`/orders?email=${this.currentUser.email}`);
     const bkRes = await this.apiCall(`/bookings?email=${this.currentUser.email}`);
@@ -2594,10 +2615,11 @@ class AeroAssistApp {
         booking_status: "Confirmed"
       };
 
-      // Save to local cache for instant offline rendering
-      const existing = JSON.parse(localStorage.getItem("aero_local_bookings") || "[]");
+      // Save to local cache for instant offline rendering (scoped by user email)
+      const localKey = `aero_local_bookings_${userEmail.toLowerCase()}`;
+      const existing = JSON.parse(localStorage.getItem(localKey) || "[]");
       existing.unshift(newBooking);
-      localStorage.setItem("aero_local_bookings", JSON.stringify(existing));
+      localStorage.setItem(localKey, JSON.stringify(existing));
 
       setTimeout(() => {
         this.closeModal("flight-payment");
@@ -2620,7 +2642,20 @@ class AeroAssistApp {
     const container = document.getElementById("my-bookings-list-container");
     if (!container) return;
 
-    const email = this.currentUser ? this.currentUser.email : (localStorage.getItem("user_email") || "demo@aeroassist.ai");
+    if (!this.currentUser || !this.currentUser.email) {
+      this.allMyBookings = [];
+      container.innerHTML = `
+        <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
+          <div style="font-size:3rem; margin-bottom:16px;">🔐</div>
+          <h3 style="color:var(--text-primary); margin-bottom:8px;">Sign In to View Your Bookings</h3>
+          <p style="margin-bottom:24px;">Please sign in or create an account to view your flight tickets and booking history.</p>
+          <button class="btn-primary" onclick="app.showPage('auth')" style="padding:12px 28px; border-radius:12px;">Sign In / Register</button>
+        </div>
+      `;
+      return;
+    }
+
+    const email = this.currentUser.email.trim().toLowerCase();
     let bookings = [];
 
     try {
@@ -2630,8 +2665,9 @@ class AeroAssistApp {
       }
     } catch (e) { /* fall through */ }
 
-    // Merge with locally stored bookings
-    const localBookings = JSON.parse(localStorage.getItem("aero_local_bookings") || "[]");
+    // Merge with user-scoped locally stored bookings
+    const localKey = `aero_local_bookings_${email}`;
+    const localBookings = JSON.parse(localStorage.getItem(localKey) || "[]");
     const combinedMap = new Map();
     [...bookings, ...localBookings].forEach(b => {
       const key = b.pnr || b.booking_id || b.id;

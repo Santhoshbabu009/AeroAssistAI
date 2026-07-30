@@ -178,9 +178,23 @@ public class MainActivity extends BaseActivity {
             greetingText.setText(timeGreet + ", " + firstName);
         }
 
-        // Load profile image
-        boolean loadedGoogleImage = false;
-        if (googleAccount != null) {
+        // Load profile image (Prioritize user's updated custom photo over Google default)
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        String safeEmail = email != null ? email : "default";
+        String savedImage = prefs.getString("image_" + safeEmail, null);
+
+        if (savedImage != null) {
+            try {
+                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
+                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                if (bitmap != null) {
+                    if (profileImage != null) profileImage.setImageBitmap(bitmap);
+                    if (navProfileImage != null) navProfileImage.setImageBitmap(bitmap);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (googleAccount != null) {
             android.net.Uri photoUri = googleAccount.getPhotoUrl();
             if (photoUri != null) {
                 if (profileImage != null) {
@@ -195,19 +209,6 @@ public class MainActivity extends BaseActivity {
                             .placeholder(R.drawable.certificate_bg)
                             .into(navProfileImage);
                 }
-                loadedGoogleImage = true;
-            }
-        }
-
-        if (!loadedGoogleImage) {
-            SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-            String safeEmail = email != null ? email : "default";
-            String savedImage = prefs.getString("image_" + safeEmail, null);
-            if (savedImage != null) {
-                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
-                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                if (profileImage != null) profileImage.setImageBitmap(bitmap);
-                if (navProfileImage != null) navProfileImage.setImageBitmap(bitmap);
             }
         }
 

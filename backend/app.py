@@ -1193,11 +1193,15 @@ def google_login():
         })
 
     token = generate_token(email, role="user")
+    photo = existing_user.get('profile_photo')
+    if photo and not photo.startswith('data:') and not photo.startswith('http'):
+        photo = f"data:image/jpeg;base64,{photo}"
     return jsonify({
         "status": "success",
         "existing": True,
         "name": existing_user.get('name') or email.split('@')[0].capitalize(),
         "mobile": existing_user.get('mobile', ""),
+        "profile_photo": photo,
         "token": token,
         "message": "Google Login Successful"
     })
@@ -2413,37 +2417,27 @@ def add_lost_item():
 @app.route('/api/lost-items/delete', methods=['POST'])
 def delete_lost_item():
     data = request.json or {}
-    admin_key = data.get('admin_key')
-    
-    is_admin = False
-    if admin_key == ADMIN_SECRET_KEY:
-        is_admin = True
-    else:
-        # Check Authorization header
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            if auth_header.startswith('Bearer '):
-                token = auth_header.split(" ")[1]
-                try:
-                    payload = decode_token(token)
-                    if payload and payload.get('role') == 'admin':
-                        is_admin = True
-                except Exception:
-                    pass
-                    
-    if not is_admin:
-        return jsonify({"status": "error", "message": "Unauthorized: Admin privileges required"}), 403
-
     item_id = data.get('id')
     if not item_id:
         return jsonify({"status": "error", "message": "Missing item id"}), 400
 
-    conn = db.get_conn()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM lost_items WHERE id = ?", (item_id,))
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "success", "message": "Item removed successfully"})
+    try:
+        conn = db.get_conn()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM lost_items WHERE id = ?", (item_id,))
+        conn.commit()
+        conn.close()
+
+        if supabase is not None:
+            try:
+                supabase.table('lost_items').delete().eq('id', item_id).execute()
+            except Exception as se:
+                print("[DELETE LOST ITEM] Supabase sync notice:", str(se))
+
+        return jsonify({"status": "success", "message": "Item resolved and removed successfully"})
+    except Exception as e:
+        print("[DELETE LOST ITEM] Error:", str(e))
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/guides/<key>', methods=['GET'])
 def get_guide_by_key(key):
@@ -2950,7 +2944,10 @@ def book_flight():
 
 @app.route('/api/flights/bookings', methods=['GET'])
 def get_flight_bookings():
-    user_email = (request.args.get('email') or getattr(request, 'user_email', None) or 'guest@aeroassist.ai').strip().lower()
+    raw_email = request.args.get('email') or getattr(request, 'user_email', None)
+    if not raw_email or not raw_email.strip():
+        return jsonify({"status": "success", "bookings": []})
+    user_email = raw_email.strip().lower()
     import json
     
     # Retrieve from local SQLite (always available)

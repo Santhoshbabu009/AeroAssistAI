@@ -33,9 +33,23 @@ public class AccountSettingsActivity extends BaseActivity {
         String savedName = prefs.getString("name_" + safeEmail, "Aero User");
         String savedImage = prefs.getString("image_" + safeEmail, null);
 
-        com.google.android.gms.auth.api.signin.GoogleSignInAccount googleAccount = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(this);
-        if (googleAccount != null) {
+        if (googleAccount != null && googleAccount.getDisplayName() != null) {
             nameTxt.setText(googleAccount.getDisplayName());
+        } else {
+            nameTxt.setText(savedName);
+        }
+
+        if (savedImage != null) {
+            try {
+                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                if (bitmap != null) {
+                    profileImg.setImageBitmap(bitmap);
+                }
+            } catch (Exception e) {
+                profileImg.setImageResource(R.drawable.certificate_bg);
+            }
+        } else if (googleAccount != null) {
             android.net.Uri photoUri = googleAccount.getPhotoUrl();
             if (photoUri != null) {
                 com.bumptech.glide.Glide.with(this)
@@ -46,12 +60,7 @@ public class AccountSettingsActivity extends BaseActivity {
                 profileImg.setImageResource(R.drawable.certificate_bg);
             }
         } else {
-            nameTxt.setText(savedName);
-            if (savedImage != null) {
-                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                profileImg.setImageBitmap(bitmap);
-            }
+            profileImg.setImageResource(R.drawable.certificate_bg);
         }
 
         CardView profile = findViewById(R.id.setProfile);

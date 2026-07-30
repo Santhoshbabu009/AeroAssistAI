@@ -114,32 +114,32 @@ public class ProfileActivity extends BaseActivity {
         
         userEmail = email;
 
-        // ✅ LOAD SAVED IMAGE
-        boolean loadedGoogleImage = false;
-        if (googleAccount != null) {
+        // ✅ LOAD PROFILE IMAGE (Prioritize user's updated custom image over Google default)
+        String savedImage = prefs.getString("image_" + userEmail, null);
+        if (savedImage != null) {
+            try {
+                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
+                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                if (bitmap != null) {
+                    profileImage.setImageBitmap(bitmap);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (googleAccount != null) {
             Uri photoUri = googleAccount.getPhotoUrl();
             if (photoUri != null) {
                 com.bumptech.glide.Glide.with(this)
                         .load(photoUri)
                         .placeholder(R.drawable.certificate_bg)
                         .into(profileImage);
-                loadedGoogleImage = true;
-            }
-        }
-
-        if (!loadedGoogleImage) {
-            String savedImage = prefs.getString("image_" + userEmail, null);
-            if (savedImage != null) {
-                byte[] imageBytes = Base64.decode(savedImage, Base64.DEFAULT);
-                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                profileImage.setImageBitmap(bitmap);
             }
         }
 
         fetchRemoteProfile();
 
-        // ✅ CLICK TO SELECT IMAGE
-        profileImage.setOnClickListener(v -> openGallery());
+        // ✅ CLICK TO SELECT OR CAPTURE IMAGE
+        profileImage.setOnClickListener(v -> showPhotoSourceOptions());
 
         // Google sign-in config
         GoogleSignInOptions gso =
@@ -277,6 +277,52 @@ public class ProfileActivity extends BaseActivity {
         return super.dispatchTouchEvent(ev);
     }
 
+    private static final int REQUEST_IMAGE_CAPTURE = 101;
+    private static final int PERMISSION_REQUEST_CAMERA = 104;
+
+    private void showPhotoSourceOptions() {
+        String[] options = {"📷 Take Photo with Camera", "🖼️ Choose from Gallery"};
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Change Profile Picture")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        checkCameraPermissionAndLaunch();
+                    } else {
+                        openGallery();
+                    }
+                })
+                .show();
+    }
+
+    private void checkCameraPermissionAndLaunch() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to launch camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take a photo.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     // ✅ OPEN GALLERY
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -284,36 +330,46 @@ public class ProfileActivity extends BaseActivity {
         startActivityForResult(intent, PICK_IMAGE);
     }
 
-    // ✅ HANDLE IMAGE RESULT
+    // ✅ HANDLE IMAGE RESULT (Camera + Gallery)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
+        if (resultCode != RESULT_OK || data == null) return;
 
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                profileImage.setImageBitmap(bitmap);
-
-                // Save image
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                byte[] imageBytes = baos.toByteArray();
-
-                String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("image_" + userEmail, encodedImage);
-                editor.apply();
-
-                saveProfilePhotoToServer(encodedImage);
-
-                Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+        Bitmap bitmap = null;
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                bitmap = (Bitmap) extras.get("data");
             }
+        } else if (requestCode == PICK_IMAGE) {
+            Uri imageUri = data.getData();
+            if (imageUri != null) {
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (bitmap != null) {
+            profileImage.setImageBitmap(bitmap);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] imageBytes = baos.toByteArray();
+
+            String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("image_" + userEmail, encodedImage);
+            editor.apply();
+
+            saveProfilePhotoToServer(encodedImage);
+
+            Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show();
         }
     }
 
