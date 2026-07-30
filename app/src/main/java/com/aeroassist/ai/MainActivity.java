@@ -37,7 +37,7 @@ import java.util.UUID;
 public class MainActivity extends BaseActivity {
 
     CardView flightCard, chatCard, parkingCard, bookCard, historyCard, servicesCard, walletCard, communityCard;
-    CardView quickTraceFlight, quickNavGate, weatherCard, lastFlightCard;
+    CardView weatherCard, lastFlightCard;
     TextView weatherStatus, weatherLocation, lastFlightCode, lastFlightStatus;
     TextView greetingText, tvCurrentAirport;
     LinearLayout navHomeBtn, navHelpBtn, navProfileBtn, navRewardsBtn;
@@ -71,9 +71,6 @@ public class MainActivity extends BaseActivity {
         profileImage = findViewById(R.id.profileImage);
         navProfileImage = findViewById(R.id.navProfileImage);
         airportViewFlipper = findViewById(R.id.airportViewFlipper);
-        
-        quickTraceFlight = findViewById(R.id.quickTraceFlight);
-        quickNavGate = findViewById(R.id.quickNavGate);
 
         weatherCard = findViewById(R.id.weatherCard);
         weatherStatus = findViewById(R.id.weatherStatus);
