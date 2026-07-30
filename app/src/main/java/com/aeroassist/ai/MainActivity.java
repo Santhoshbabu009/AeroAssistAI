@@ -36,7 +36,7 @@ import java.util.UUID;
 
 public class MainActivity extends BaseActivity {
 
-    CardView flightCard, chatCard, navCard, bookCard, historyCard, servicesCard, walletCard, communityCard;
+    CardView flightCard, chatCard, parkingCard, bookCard, historyCard, servicesCard, walletCard, communityCard;
     CardView quickTraceFlight, quickNavGate, weatherCard, lastFlightCard;
     TextView weatherStatus, weatherLocation, lastFlightCode, lastFlightStatus;
     TextView greetingText, tvCurrentAirport;
@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity {
 
         flightCard = findViewById(R.id.flightCard);
         chatCard = findViewById(R.id.chatCard);
-        navCard = findViewById(R.id.navCard);
+        parkingCard = findViewById(R.id.parkingCard);
         bookCard = findViewById(R.id.bookCard);
         historyCard = findViewById(R.id.historyCard);
         servicesCard = findViewById(R.id.servicesCard);
@@ -224,9 +224,9 @@ public class MainActivity extends BaseActivity {
             startActivity(intent);
         });
 
-        // Airport Navigation
-        navCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, NavigationActivity.class)));
+        // Parking
+        parkingCard.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, BookingHistoryActivity.class)));
 
         // Ticket Booking Engine
         bookCard.setOnClickListener(v ->
@@ -266,10 +266,8 @@ public class MainActivity extends BaseActivity {
         });
 
         findViewById(R.id.quickNavGate).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, NavigationActivity.class)));
+                startActivity(new Intent(MainActivity.this, BookingHistoryActivity.class)));
 
-        findViewById(R.id.quickBaggage).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, FlightStatusActivity.class)));
 
         findViewById(R.id.quickTraceFlight).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, FlightStatusActivity.class)));

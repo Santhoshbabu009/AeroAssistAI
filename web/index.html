@@ -49,17 +49,12 @@
         <button id="nav-utilities" class="nav-link-btn" onclick="app.showPage('utilities')">
           <i data-lucide="map" class="nav-icon"></i> <span data-i18n="nav_utilities">Travel Utilities</span>
         </button>
-        <button id="nav-baggage" class="nav-link-btn" onclick="app.showPage('baggage')">
-          <i data-lucide="luggage" class="nav-icon"></i> <span>Baggage Tracking</span>
-        </button>
+
         <button id="nav-lost-found" class="nav-link-btn" onclick="app.showPage('lost-found')">
           <i data-lucide="search" class="nav-icon"></i> <span>Lost & Found</span>
         </button>
         <button id="nav-parking" class="nav-link-btn" onclick="app.showPage('parking')">
           <i data-lucide="parking-circle" class="nav-icon"></i> <span>Airport Parking</span>
-        </button>
-        <button id="nav-navigation" class="nav-link-btn" onclick="app.showPage('navigation')">
-          <i data-lucide="compass" class="nav-icon"></i> <span>Indoor Maps</span>
         </button>
         <button id="nav-community" class="nav-link-btn" onclick="app.showPage('community')">
           <i data-lucide="users" class="nav-icon"></i> <span>Community Hub</span>
@@ -781,51 +776,7 @@
         </div>
       </section>
 
-      <!-- View: Baggage Tracking Hub -->
-      <section id="view-baggage" class="page-view">
-        <div class="glass-card" style="margin-bottom: 24px;">
-          <h1>Baggage <span class="gradient-text">Tracking</span></h1>
-          <p>Track your checked baggage securely using your RFID tag or PNR number.</p>
-        </div>
-        <div class="glass-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:16px;">
-            <div style="display:flex; gap:10px; width:100%;">
-              <input type="text" id="baggage-tracking-input" placeholder="Enter Bag Tag Number (e.g. AA123456)" style="flex:1;">
-              <button class="btn-primary" style="width:auto;" onclick="app.trackBaggage()">TRACK BAG</button>
-            </div>
-          </div>
-          
-          <div id="baggage-tracking-result" style="display: none; margin-top: 24px; padding-top: 24px; border-top: var(--glass-border);">
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-              <div style="background: var(--accent-glow); padding: 12px; border-radius: var(--radius-md); color: var(--accent-primary);">
-                <i data-lucide="luggage" style="width: 32px; height: 32px;"></i>
-              </div>
-              <div>
-                <h3 style="margin: 0;">Checked Bag - <span id="baggage-tracking-id" style="color: var(--accent-primary);"></span></h3>
-                <p style="margin: 0; font-size: 13px;">Status: <span class="status-badge on-time">In Transit</span></p>
-              </div>
-            </div>
-            
-            <div class="timeline" style="position: relative; padding-left: 20px; border-left: 2px solid var(--glass-border);">
-              <div style="position: relative; margin-bottom: 20px;">
-                <div style="position: absolute; left: -25px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--status-delivered-text); border: 2px solid var(--glass-bg);"></div>
-                <h4 style="margin: 0 0 4px 0;">Checked In</h4>
-                <p style="margin: 0; font-size: 12px;">Terminal 1 - Check-in Desk 42</p>
-              </div>
-              <div style="position: relative; margin-bottom: 20px;">
-                <div style="position: absolute; left: -25px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--status-delivered-text); border: 2px solid var(--glass-bg);"></div>
-                <h4 style="margin: 0 0 4px 0;">Security Cleared</h4>
-                <p style="margin: 0; font-size: 12px;">Automated Baggage Handling System</p>
-              </div>
-              <div style="position: relative; margin-bottom: 20px;">
-                <div style="position: absolute; left: -25px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-primary); border: 2px solid var(--glass-bg); box-shadow: 0 0 0 4px var(--accent-glow);"></div>
-                <h4 style="margin: 0 0 4px 0; color: var(--accent-primary);">Loaded on Aircraft</h4>
-                <p style="margin: 0; font-size: 12px;">Flight AI-432 Cargo Hold</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       <!-- View: Lost & Found Portal -->
       <section id="view-lost-found" class="page-view">
@@ -918,24 +869,6 @@
         </div>
       </section>
 
-      <!-- View: Interactive Navigation -->
-      <section id="view-navigation" class="page-view">
-        <div class="glass-card" style="margin-bottom: 24px;">
-          <h1>Indoor <span class="gradient-text">Maps</span></h1>
-          <p>Navigate terminals, find gates, and locate restrooms easily.</p>
-        </div>
-        <div class="glass-card" style="padding: 0; overflow: hidden; position: relative;">
-          <div style="padding: 16px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: var(--glass-border); display: flex; gap: 10px; position: absolute; top: 0; left: 0; right: 0; z-index: 10;">
-            <input type="text" placeholder="Search gates, lounges, restrooms..." style="flex: 1; height: 36px; border-radius: var(--radius-full);">
-            <button class="btn-primary" style="height: 36px; padding: 0 16px; border-radius: var(--radius-full);" onclick="alert('Routing to destination...')">Go</button>
-          </div>
-          <div style="height: 450px; background: url('https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&q=80&w=1240') center/cover; opacity: 0.8;"></div>
-          <div style="position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn-secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%;"><i data-lucide="plus"></i></button>
-            <button class="btn-secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%;"><i data-lucide="minus"></i></button>
-          </div>
-        </div>
-      </section>
 
       <!-- View: Community Hub -->
       <section id="view-community" class="page-view">

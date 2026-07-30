@@ -420,25 +420,6 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Baggage -->
-                    <androidx.cardview.widget.CardView 
-                        android:id="@+id/quickBaggage" 
-                        android:layout_width="95dp" 
-                        android:layout_height="52dp" 
-                        android:layout_margin="3dp" 
-                        app:cardCornerRadius="12dp" 
-                        app:cardElevation="0dp" 
-                        app:cardBackgroundColor="@android:color/transparent">
-                        <LinearLayout 
-                            android:layout_width="match_parent" 
-                            android:layout_height="match_parent" 
-                            android:background="@drawable/glass_card_cyan" 
-                            android:gravity="center" 
-                            android:orientation="horizontal">
-                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_wallet" app:tint="#5E9CD4"/>
-                            <TextView android:text="  Baggage" android:textColor="#FFFFFF" android:textSize="11sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
 
                     <!-- Status -->
                     <androidx.cardview.widget.CardView 
@@ -579,12 +560,12 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Navigation -->
-                <androidx.cardview.widget.CardView android:id="@+id/navCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
+                <!-- Parking Slots -->
+                <androidx.cardview.widget.CardView android:id="@+id/parkingCard" android:layout_width="0dp" android:layout_height="100dp" android:layout_rowWeight="1" android:layout_columnWeight="1" android:layout_margin="4dp" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@android:color/transparent">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/glass_card" android:orientation="vertical" android:padding="12dp">
                         <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_destination_pin" app:tint="#5E9CD4"/>
-                        <TextView android:text="Navigation" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:text="Gates and maps" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Parking" android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Reserve airport slots" android:textColor="#8E9AA8" android:textSize="10sp" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

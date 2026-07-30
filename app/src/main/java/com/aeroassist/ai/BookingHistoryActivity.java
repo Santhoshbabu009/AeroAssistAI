@@ -109,6 +109,23 @@ public class BookingHistoryActivity extends BaseActivity {
             booking.put("passenger_details", paxArray);
 
             list.add(booking);
+            
+            // Add Demo Parking Slot
+            JSONObject parking = new JSONObject();
+            parking.put("type", "parking");
+            parking.put("pnr", "PRK-9921");
+            parking.put("booking_status", "Confirmed");
+            JSONObject pDetails = new JSONObject();
+            pDetails.put("origin", "Airport Parking");
+            pDetails.put("destination", "Slot A-42");
+            pDetails.put("date", "2026-08-01");
+            pDetails.put("airline", "Duration");
+            pDetails.put("flight_number", "4 Hours");
+            pDetails.put("departure_time", "Vehicle Plate");
+            pDetails.put("arrival_time", "TN 01 AB 1234");
+            parking.put("flight_details", pDetails);
+            list.add(parking);
+            
         } catch (Exception ignored) {}
         return list;
     }
@@ -147,6 +164,24 @@ public class BookingHistoryActivity extends BaseActivity {
                             for (int i = 0; i < bookingsArray.length(); i++) {
                                 bookingsList.add(bookingsArray.getJSONObject(i));
                             }
+                            
+                            // Inject mock parking slot so it shows in the app for all users
+                            try {
+                                JSONObject parking = new JSONObject();
+                                parking.put("type", "parking");
+                                parking.put("pnr", "PRK-9921");
+                                parking.put("booking_status", "Confirmed");
+                                JSONObject pDetails = new JSONObject();
+                                pDetails.put("origin", "Airport Parking");
+                                pDetails.put("destination", "Slot A-42");
+                                pDetails.put("date", "2026-08-01");
+                                pDetails.put("airline", "Duration");
+                                pDetails.put("flight_number", "4 Hours");
+                                pDetails.put("departure_time", "Vehicle Plate");
+                                pDetails.put("arrival_time", "TN 01 AB 1234");
+                                parking.put("flight_details", pDetails);
+                                bookingsList.add(0, parking);
+                            } catch(Exception ignored) {}
                             if (bookingsList.isEmpty()) {
                                 displayList(buildDemoBookings());
                             } else {
@@ -223,12 +258,18 @@ public class BookingHistoryActivity extends BaseActivity {
                 String arrTime = flight.optString("arrival_time", "08:15 AM");
                 holder.bookingTime.setText(depTime + " - " + arrTime);
 
-                final String finalPnr = pnr;
-                holder.viewTicketBtn.setOnClickListener(v -> {
-                    Intent intent = new Intent(BookingHistoryActivity.this, ETicketActivity.class);
-                    intent.putExtra("PNR", finalPnr);
-                    startActivity(intent);
-                });
+                if ("parking".equals(booking.optString("type"))) {
+                    holder.viewTicketBtn.setText("VIEW PARKING TICKET");
+                    holder.viewTicketBtn.setOnClickListener(v -> {});
+                } else {
+                    holder.viewTicketBtn.setText("VIEW E-TICKET");
+                    final String finalPnr = pnr;
+                    holder.viewTicketBtn.setOnClickListener(v -> {
+                        Intent intent = new Intent(BookingHistoryActivity.this, ETicketActivity.class);
+                        intent.putExtra("PNR", finalPnr);
+                        startActivity(intent);
+                    });
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

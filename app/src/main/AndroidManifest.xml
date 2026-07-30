@@ -10,7 +10,12 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Hardware features -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 
     <queries>
         <intent>
@@ -52,7 +57,7 @@
         <activity android:name=".MainActivity" android:exported="false"/>
         <activity android:name=".FlightStatusActivity" android:exported="false"/>
         <activity android:name=".ChatbotActivity" android:exported="false" android:windowSoftInputMode="adjustResize" android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".NavigationActivity" android:exported="false"/>
+
         <activity android:name=".PasswordResetOtpActivity" />
         <activity android:name=".NewPasswordActivity" />
         <activity android:name=".ProfileActivity" />
