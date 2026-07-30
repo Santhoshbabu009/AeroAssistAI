@@ -2531,23 +2531,24 @@ def lounge_booking_history():
 def book_parking():
     # GET → alias for /api/parking-bookings/history (email-filtered list)
     if request.method == 'GET':
-        user_email = request.args.get('user_email') or request.args.get('email')
-        if not user_email:
-            return jsonify({"status": "error", "message": "Missing email parameter"}), 400
+        raw_email = request.args.get('user_email') or request.args.get('email')
+        if not raw_email or not raw_email.strip():
+            return jsonify({"status": "success", "bookings": []})
+        user_email = raw_email.strip().lower()
         raw_sqlite = db.get_parking_bookings(user_email)
         seen_keys = set()
         combined = []
         if supabase is not None:
             try:
-                bookings_resp = supabase.table('parking_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+                bookings_resp = supabase.table('parking_bookings').select('*').ilike('user_email', user_email).order('id', desc=True).execute()
                 for booking in (bookings_resp.data or []):
-                    key = f"{booking.get('zone')}_{booking.get('plate_number')}_{str(booking.get('created_at'))[:16]}"
+                    key = f"{booking.get('zone')}_{booking.get('plate_number')}_{booking.get('id')}"
                     seen_keys.add(key)
                     combined.append(booking)
             except Exception as e:
                 print("[SUPABASE QUERY NOTICE]:", str(e))
         for b in raw_sqlite:
-            key = f"{b.get('zone')}_{b.get('plate_number')}_{str(b.get('created_at'))[:16]}"
+            key = f"{b.get('zone')}_{b.get('plate_number')}_{b.get('id')}"
             if key not in seen_keys:
                 seen_keys.add(key)
                 combined.append(dict(b))
@@ -2574,13 +2575,13 @@ def book_parking():
     if supabase is not None:
         try:
             booking_resp = supabase.table('parking_bookings').insert({
-                'user_email': user_email,
+                'user_email': user_email.strip().lower(),
                 'zone': zone,
                 'hours': hours,
                 'plate_number': plate_number,
                 'payment_method': payment_method,
                 'total_price': total_price,
-                'status': 'Pending'
+                'status': 'Confirmed'
             }).execute()
             if booking_resp.data:
                 return jsonify({"status": "success", "message": "Parking booked successfully", "booking": booking_resp.data[0]})
@@ -2593,25 +2594,26 @@ def book_parking():
 
 @app.route('/api/parking-bookings/history', methods=['GET'])
 def parking_booking_history():
-    user_email = request.args.get('user_email') or request.args.get('email')
-    if not user_email:
-        return jsonify({"status": "error", "message": "Missing user_email parameter"}), 400
+    raw_email = request.args.get('user_email') or request.args.get('email')
+    if not raw_email or not raw_email.strip():
+        return jsonify({"status": "success", "bookings": []})
+    user_email = raw_email.strip().lower()
     raw_sqlite = db.get_parking_bookings(user_email)
     seen_keys = set()
     combined = []
     
     if supabase is not None:
         try:
-            bookings_resp = supabase.table('parking_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            bookings_resp = supabase.table('parking_bookings').select('*').ilike('user_email', user_email).order('id', desc=True).execute()
             for booking in (bookings_resp.data or []):
-                key = f"{booking.get('zone')}_{booking.get('plate_number')}_{str(booking.get('created_at'))[:16]}"
+                key = f"{booking.get('zone')}_{booking.get('plate_number')}_{booking.get('id')}"
                 seen_keys.add(key)
                 combined.append(booking)
         except Exception as e:
             print("[SUPABASE QUERY NOTICE]:", str(e))
             
     for b in raw_sqlite:
-        key = f"{b.get('zone')}_{b.get('plate_number')}_{str(b.get('created_at'))[:16]}"
+        key = f"{b.get('zone')}_{b.get('plate_number')}_{b.get('id')}"
         if key not in seen_keys:
             seen_keys.add(key)
             combined.append(dict(b))
@@ -3337,7 +3339,7 @@ def book_flight():
 
 @app.route('/api/flights/bookings', methods=['GET'])
 def get_flight_bookings():
-    raw_email = request.args.get('email') or getattr(request, 'user_email', None)
+    raw_email = request.args.get('email') or request.args.get('user_email') or getattr(request, 'user_email', None)
     if not raw_email or not raw_email.strip():
         return jsonify({"status": "success", "bookings": []})
     user_email = raw_email.strip().lower()
@@ -3354,7 +3356,7 @@ def get_flight_bookings():
             b_dict['passenger_details'] = json.loads(b_dict['passenger_details']) if isinstance(b_dict['passenger_details'], str) else b_dict['passenger_details']
         except Exception:
             pass
-        key = b_dict.get('pnr') or b_dict.get('booking_id')
+        key = b_dict.get('pnr') or b_dict.get('booking_id') or str(b_dict.get('id'))
         if key:
             bookings_map[key] = b_dict
 
@@ -3370,13 +3372,14 @@ def get_flight_bookings():
                         b['passenger_details'] = json.loads(b['passenger_details'])
                 except Exception:
                     pass
-                key = b.get('pnr') or b.get('booking_id')
+                key = b.get('pnr') or b.get('booking_id') or str(b.get('id'))
                 if key:
                     bookings_map[key] = b
         except Exception as e:
             print("[SUPABASE QUERY NOTICE]:", str(e))
 
     combined = list(bookings_map.values())
+    combined.sort(key=lambda x: str(x.get('created_at', '') or x.get('id', '')), reverse=True)
     return jsonify({"status": "success", "bookings": combined})
 
 
