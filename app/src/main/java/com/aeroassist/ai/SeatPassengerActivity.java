@@ -140,19 +140,39 @@ public class SeatPassengerActivity extends BaseActivity {
         if (seatGrid == null) return;
         seatGrid.removeAllViews();
 
-        String[] rows = {"1", "2", "3", "4", "5", "6"};
-        String[] cols = {"A", "B", "C", "D"};
+        String[] rows = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        String[] cols = {"A", "B", "C", "AISLE", "D", "E", "F"};
+
+        float density = getResources().getDisplayMetrics().density;
+        int seatSizePx = (int) (40 * density);
+        int aisleWidthPx = (int) (20 * density);
+        int marginPx = (int) (3 * density);
 
         for (int i = 0; i < rows.length; i++) {
             for (int j = 0; j < cols.length; j++) {
+                String colName = cols[j];
+
+                if ("AISLE".equals(colName)) {
+                    View aisleView = new View(this);
+                    GridLayout.LayoutParams aisleParams = new GridLayout.LayoutParams();
+                    aisleParams.width = aisleWidthPx;
+                    aisleParams.height = seatSizePx;
+                    aisleParams.setMargins(marginPx, marginPx, marginPx, marginPx);
+                    aisleView.setLayoutParams(aisleParams);
+                    seatGrid.addView(aisleView);
+                    continue;
+                }
+
                 Button seatBtn = new Button(this);
-                String seatId = rows[i] + cols[j];
+                String seatId = rows[i] + colName;
                 seatBtn.setText(seatId);
+                seatBtn.setTextSize(11);
+                seatBtn.setPadding(0, 0, 0, 0);
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = 110;
-                params.height = 110;
-                params.setMargins(6, 6, 6, 6);
+                params.width = seatSizePx;
+                params.height = seatSizePx;
+                params.setMargins(marginPx, marginPx, marginPx, marginPx);
                 seatBtn.setLayoutParams(params);
 
                 if (occupiedSeats != null && occupiedSeats.contains(seatId)) {
@@ -164,10 +184,10 @@ public class SeatPassengerActivity extends BaseActivity {
                     seatBtn.setTextColor(Color.WHITE);
                     seatBtn.setOnClickListener(v -> {
                         for (int k = 0; k < seatGrid.getChildCount(); k++) {
-                            Button b = (Button) seatGrid.getChildAt(k);
-                            if (b != null && b.isEnabled()) {
-                                b.setBackgroundColor(Color.parseColor("#1E293B"));
-                                b.setTextColor(Color.WHITE);
+                            View child = seatGrid.getChildAt(k);
+                            if (child instanceof Button && child.isEnabled()) {
+                                child.setBackgroundColor(Color.parseColor("#1E293B"));
+                                ((Button) child).setTextColor(Color.WHITE);
                             }
                         }
                         seatBtn.setBackgroundColor(Color.parseColor("#00E5FF"));
