@@ -678,6 +678,13 @@ class AeroAssistApp {
       this.updateWalletDocs();
     } else if (pageId === "chat") {
       this.fetchChatHistory();
+    } else if (pageId === "lost-found") {
+      this.fetchLostItems();
+    } else if (pageId === "flights") {
+      const flightInput = document.getElementById("flight-search-input");
+      if (flightInput) flightInput.value = "";
+      const resultBox = document.getElementById("flight-search-result");
+      if (resultBox) resultBox.style.display = "none";
     } else if (pageId === "my-bookings") {
       this.fetchMyBookings();
       if (this.myBookingsPollTimer) clearInterval(this.myBookingsPollTimer);
@@ -1300,6 +1307,7 @@ class AeroAssistApp {
     this.currentUser = null;
     this.currentUserType = null;
     this.allMyBookings = [];
+    this.chatHistory = [{ isUser: false, text: "Welcome to AeroAssist AI Copilot! I am your smart airport companion. How can I help you today?" }];
     this.activeOrder = null;
     this.activeTrackingOrderId = null;
     this.cart = { restaurant: null, items: [] };
@@ -2823,6 +2831,120 @@ class AeroAssistApp {
     set('tkt-txn-id',        b.transaction_id || 'TXN-7781920192');
 
     this.openModal("eticket");
+  }
+
+  // --- LOST & FOUND REGISTRY ---
+  async fetchLostItems() {
+    const container = document.getElementById("lost-found-registry-container");
+    if (!container) return;
+    try {
+      const res = await this.apiCall("/lost-items");
+      if (res && res.status === "success") {
+        this.allLostItems = res.items || [];
+        this.filterLostItems(this.currentLostFilter || "All");
+      } else {
+        container.innerHTML = `<div style="text-align:center; padding:20px;">Failed to load items.</div>`;
+      }
+    } catch(e) {
+      console.warn("[LOST&FOUND] Fetch error:", e);
+      container.innerHTML = `<div style="text-align:center; padding:20px;">Network error loading registry.</div>`;
+    }
+  }
+
+  filterLostItems(filterType) {
+    this.currentLostFilter = filterType;
+    // Update active button state
+    ["all", "only", "found-only"].forEach(id => {
+      const btn = document.getElementById(`filter-${id === "all" ? "lost-all" : (id === "only" ? "lost-only" : "found-only")}`);
+      if (btn) btn.classList.remove("active");
+    });
+    
+    let btnId = "filter-lost-all";
+    if (filterType === "Lost") btnId = "filter-lost-only";
+    if (filterType === "Found") btnId = "filter-found-only";
+    const activeBtn = document.getElementById(btnId);
+    if (activeBtn) activeBtn.classList.add("active");
+
+    const container = document.getElementById("lost-found-registry-container");
+    if (!container) return;
+
+    if (!this.allLostItems || this.allLostItems.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); grid-column:1/-1;">No lost or found items reported in the community.</div>`;
+      return;
+    }
+
+    const filtered = filterType === "All" ? this.allLostItems : this.allLostItems.filter(i => i.type === filterType);
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); grid-column:1/-1;">No ${filterType.toLowerCase()} items found.</div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => `
+      <div class="glass-card" style="padding: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <span style="font-size:24px;">${item.icon || '📦'}</span>
+            <h4 style="margin:8px 0 4px 0; font-size:16px;">${item.name}</h4>
+          </div>
+          <span class="status-badge ${item.type === 'Lost' ? 'pending' : 'accepted'}">${item.type}</span>
+        </div>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px; min-height:40px;">${item.description || 'No description provided.'}</p>
+        <div style="font-size:12px; color:var(--text-secondary); border-top:1px solid var(--glass-border); padding-top:12px;">
+          <div style="margin-bottom:6px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline-block; margin-right:4px;"></i> ${item.location}</div>
+          <div style="margin-bottom:6px;"><i data-lucide="phone" style="width:12px; height:12px; display:inline-block; margin-right:4px;"></i> ${item.contact}</div>
+          ${item.created_at ? `<div><i data-lucide="clock" style="width:12px; height:12px; display:inline-block; margin-right:4px;"></i> ${new Date(item.created_at).toLocaleDateString()}</div>` : ''}
+        </div>
+      </div>
+    `).join("");
+    
+    // Re-initialize lucide icons for the newly injected HTML
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+
+  async submitLostItemReport() {
+    const type = document.getElementById("lost-item-type").value;
+    const name = document.getElementById("lost-item-name").value.trim();
+    const desc = document.getElementById("lost-item-desc").value.trim();
+    const location = document.getElementById("lost-item-location").value.trim();
+    const contact = document.getElementById("lost-item-contact").value.trim();
+
+    if (!name || !location || !contact) {
+      alert("Please provide the Item Name, Location, and Contact details.");
+      return;
+    }
+
+    const payload = {
+      type: type,
+      name: name,
+      description: desc,
+      location: location,
+      contact: contact,
+      icon: type === 'Lost' ? '🔍' : '📦'
+    };
+
+    const res = await this.apiCall("/lost-items", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    if (res && res.status === "success") {
+      alert(`${type} item reported successfully to the community!`);
+      // Reset form
+      document.getElementById("lost-item-name").value = "";
+      document.getElementById("lost-item-desc").value = "";
+      document.getElementById("lost-item-location").value = "";
+      document.getElementById("lost-item-contact").value = "";
+      // Switch back to registry view
+      document.getElementById('lost-found-report').style.display='none'; 
+      document.getElementById('lost-found-menu').style.display='block';
+      // Refresh list
+      this.fetchLostItems();
+    } else {
+      alert(res.message || "Failed to submit report.");
+    }
   }
 
   // --- ADMIN PORTAL CONSOLE CONTEXTS ---

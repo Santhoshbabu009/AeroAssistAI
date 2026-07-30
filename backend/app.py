@@ -852,6 +852,18 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         finally:
             conn.close()
 
+        if supabase is not None:
+            try:
+                supabase.table('chat_history').insert({
+                    "email": email.lower(),
+                    "user_type": user_type,
+                    "session_id": session_id,
+                    "message": message,
+                    "is_user": is_user
+                }).execute()
+            except Exception as se:
+                print("[SUPABASE CHAT] Save message error:", str(se))
+
 db = LocalSQLiteDB()
 
 # --- DATABASE INITIALIZATION ---
@@ -2383,18 +2395,40 @@ def parking_booking_history():
 
 @app.route('/api/lost-items', methods=['GET'])
 def get_lost_items():
-    conn = db.get_conn()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM lost_items ORDER BY id DESC")
-    rows = cursor.fetchall()
-    conn.close()
-    return jsonify({"status": "success", "items": [dict(row) for row in rows]})
+    items_map = {}
+
+    # 1. Fetch from local SQLite
+    try:
+        conn = db.get_conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM lost_items ORDER BY id DESC")
+        rows = cursor.fetchall()
+        conn.close()
+        for row in rows:
+            d = dict(row)
+            key = (str(d.get('name', '')).lower(), str(d.get('location', '')).lower(), str(d.get('contact', '')).lower())
+            items_map[key] = d
+    except Exception as e:
+        print("[SQLITE LOST ITEMS]:", str(e))
+
+    # 2. Fetch from Supabase cloud database if available
+    if supabase is not None:
+        try:
+            res = supabase.table('lost_items').select('*').order('id', desc=True).execute()
+            for item in (res.data or []):
+                key = (str(item.get('name', '')).lower(), str(item.get('location', '')).lower(), str(item.get('contact', '')).lower())
+                items_map[key] = item
+        except Exception as e:
+            print("[SUPABASE LOST ITEMS]:", str(e))
+
+    items = list(items_map.values())
+    return jsonify({"status": "success", "items": items})
 
 @app.route('/api/lost-items', methods=['POST'])
 def add_lost_item():
     data = request.json or {}
     name = data.get('name')
-    description = data.get('description')
+    description = data.get('description', '')
     location = data.get('location')
     contact = data.get('contact')
     v_type = data.get('type', 'Lost')
@@ -2412,6 +2446,21 @@ def add_lost_item():
     """, (name, description, location, contact, v_type, icon, image))
     conn.commit()
     conn.close()
+
+    if supabase is not None:
+        try:
+            supabase.table('lost_items').insert({
+                "name": name,
+                "description": description,
+                "location": location,
+                "contact": contact,
+                "type": v_type,
+                "icon": icon,
+                "image": image
+            }).execute()
+        except Exception as se:
+            print("[SUPABASE LOST ITEM SYNC ERROR]:", str(se))
+
     return jsonify({"status": "success", "message": "Item reported successfully"})
 
 @app.route('/api/lost-items/delete', methods=['POST'])

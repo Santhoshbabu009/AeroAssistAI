@@ -812,37 +812,60 @@
 
       <!-- View: Lost & Found Portal -->
       <section id="view-lost-found" class="page-view">
-        <div class="glass-card" style="margin-bottom: 24px;">
-          <h1>Lost & <span class="gradient-text">Found</span></h1>
-          <p>Report a lost item or browse the global recovered item registry.</p>
-        </div>
-        <div class="grid-container" id="lost-found-menu">
-          <div class="glass-card">
-            <h3>Report Lost Item</h3>
-            <p>File an official claim for a lost item.</p>
-            <button class="btn-primary" style="margin-top:16px;" onclick="document.getElementById('lost-found-menu').style.display='none'; document.getElementById('lost-found-report').style.display='block';">FILE A REPORT</button>
+        <div class="glass-card" style="margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <h1>Lost & <span class="gradient-text">Found</span></h1>
+            <p>Report a lost/found item or browse the global airport community registry.</p>
           </div>
-          <div class="glass-card">
-            <h3>Browse Recovered</h3>
-            <p>Search through the database of found items.</p>
-            <button class="btn-secondary" style="margin-top:16px;" onclick="alert('Recovered database feature coming soon!')">SEARCH REGISTRY</button>
+          <button class="btn-primary" onclick="document.getElementById('lost-found-menu').style.display='none'; document.getElementById('lost-found-report').style.display='block';">+ REPORT NEW ITEM</button>
+        </div>
+
+        <!-- Community Lost & Found Registry View -->
+        <div id="lost-found-menu">
+          <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+            <button class="order-filter-btn active" id="filter-lost-all" onclick="app.filterLostItems('All')">All Items</button>
+            <button class="order-filter-btn" id="filter-lost-only" onclick="app.filterLostItems('Lost')">🔍 Lost Items</button>
+            <button class="order-filter-btn" id="filter-found-only" onclick="app.filterLostItems('Found')">📦 Found Items</button>
+          </div>
+          <div class="grid-container" id="lost-found-registry-container">
+            <div style="text-align:center; padding:40px; color:var(--text-secondary); grid-column:1/-1;">
+              <span class="spinner" style="display:inline-block; width:24px; height:24px; border:2px solid var(--accent-color); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></span>
+              <p style="margin-top:12px;">Loading community lost & found registry...</p>
+            </div>
           </div>
         </div>
         
-        <!-- Next Screen: Report Form -->
+        <!-- Report Item Form -->
         <div id="lost-found-report" style="display: none;">
-          <button class="btn-secondary" style="margin-bottom: 16px; width: auto;" onclick="document.getElementById('lost-found-report').style.display='none'; document.getElementById('lost-found-menu').style.display='grid';"><i data-lucide="arrow-left"></i> Back</button>
-          <div class="glass-card">
-            <h3>Submit Lost Item Claim</h3>
-            <div class="form-group" style="margin-top: 16px;">
-              <label>Item Description</label>
-              <input type="text" placeholder="e.g. Black Leather Wallet">
+          <button class="btn-secondary" style="margin-bottom: 16px; width: auto;" onclick="document.getElementById('lost-found-report').style.display='none'; document.getElementById('lost-found-menu').style.display='block';"><i data-lucide="arrow-left"></i> Back to Registry</button>
+          <div class="glass-card" style="max-width: 600px;">
+            <h3>File a Lost or Found Item Report</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">This report will be synced across all airport community users on Web & Mobile App.</p>
+            
+            <div class="form-group">
+              <label>Report Type</label>
+              <select id="lost-item-type" style="width:100%; padding:12px; border-radius:10px; background:var(--glass-bg-hover); color:var(--text-primary); border:var(--glass-border);">
+                <option value="Lost">🔍 Lost Item (I lost something)</option>
+                <option value="Found">📦 Found Item (I found something)</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>Last Seen Location</label>
-              <input type="text" placeholder="e.g. Terminal 1 Gate 9">
+              <label>Item Name</label>
+              <input type="text" id="lost-item-name" placeholder="e.g. Blue Leather Wallet or iPhone 13">
             </div>
-            <button class="btn-primary" onclick="alert('Claim submitted successfully! Reference #LF-8992'); document.getElementById('lost-found-report').style.display='none'; document.getElementById('lost-found-menu').style.display='grid';">SUBMIT CLAIM</button>
+            <div class="form-group">
+              <label>Description / Details</label>
+              <input type="text" id="lost-item-desc" placeholder="e.g. Silver case, contains ID cards">
+            </div>
+            <div class="form-group">
+              <label>Location (Terminal / Gate / Zone)</label>
+              <input type="text" id="lost-item-location" placeholder="e.g. Terminal 1 Gate 9 Food Court">
+            </div>
+            <div class="form-group">
+              <label>Contact Info (Phone Number / Email)</label>
+              <input type="text" id="lost-item-contact" placeholder="e.g. +91 9876543210 or user@example.com">
+            </div>
+            <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="app.submitLostItemReport()">SUBMIT TO AIRPORT COMMUNITY</button>
           </div>
         </div>
       </section>
