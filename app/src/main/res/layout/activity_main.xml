@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_bg_gradient">
+    android:background="@drawable/app_bg">
 
     <LinearLayout 
         android:layout_width="match_parent" 
@@ -95,13 +95,12 @@
                     android:layout_width="match_parent" 
                     android:layout_height="match_parent" 
                     android:autoStart="true" 
-                    android:flipInterval="4000" 
+                    android:flipInterval="1000" 
                     android:inAnimation="@android:anim/fade_in" 
                     android:outAnimation="@android:anim/fade_out">
                     <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_chennai"/>
                     <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_bengaluru"/>
                 </ViewFlipper>
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/app_bg"/>
             </androidx.cardview.widget.CardView>
 
             <!-- SINGLE PRIMARY FLIGHT STATUS CARD -->
@@ -222,7 +221,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@drawable/app_bg"
+                        android:background="#1E293B"
                         android:layout_marginBottom="14dp"/>
 
                     <!-- Details -->
@@ -752,11 +751,11 @@
                         android:orientation="horizontal"
                         android:gravity="center"
                         android:layout_marginBottom="14dp">
-                        <View android:layout_width="2dp" android:layout_height="4dp" android:background="@drawable/app_bg" android:layout_marginHorizontal="2dp"/>
-                        <View android:layout_width="2dp" android:layout_height="8dp" android:background="@drawable/app_bg" android:layout_marginHorizontal="2dp"/>
-                        <View android:layout_width="2dp" android:layout_height="12dp" android:background="@drawable/app_bg" android:layout_marginHorizontal="2dp"/>
-                        <View android:layout_width="2dp" android:layout_height="6dp" android:background="@drawable/app_bg" android:layout_marginHorizontal="2dp"/>
-                        <View android:layout_width="2dp" android:layout_height="3dp" android:background="@drawable/app_bg" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="4dp" android:background="#1E293B" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="8dp" android:background="#1E293B" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="12dp" android:background="#1E293B" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="6dp" android:background="#1E293B" android:layout_marginHorizontal="2dp"/>
+                        <View android:layout_width="2dp" android:layout_height="3dp" android:background="#1E293B" android:layout_marginHorizontal="2dp"/>
                     </LinearLayout>
 
                     <!-- Suggested queries horizontal track -->
@@ -877,7 +876,7 @@
         <LinearLayout android:id="@+id/navHomeBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
             <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_home" app:tint="#5E9CD4"/>
             <TextView android:text="Home" android:textColor="#5E9CD4" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <View android:layout_width="16dp" android:layout_height="2dp" android:background="@drawable/app_bg" android:layout_marginTop="2dp"/>
+            <View android:layout_width="16dp" android:layout_height="2dp" android:background="#1E293B" android:layout_marginTop="2dp"/>
         </LinearLayout>
 
         <LinearLayout android:id="@+id/navHelpBtn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true">
