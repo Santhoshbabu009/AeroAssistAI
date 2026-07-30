@@ -453,28 +453,45 @@
         <div class="glass-card" style="margin-bottom: 24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
             <div>
-              <h1>My Flight <span class="gradient-text">Bookings</span></h1>
-              <p>View all your active & past confirmed flight tickets, download e-tickets, or share boarding passes.</p>
+              <h1>My <span class="gradient-text">Bookings</span></h1>
+              <p>View all your active & past confirmed flight tickets and parking reservations.</p>
             </div>
-            <button class="btn-primary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('flights')">+ Book New Flight</button>
-          </div>
-        </div>
-
-        <!-- Search & Filter Controls -->
-        <div class="glass-card" style="margin-bottom: 20px; padding: 18px;">
-          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-            <input type="text" id="my-bookings-search-input" placeholder="🔍 Search by PNR, Flight Number, or Passenger..." style="flex:1; height:42px;" oninput="app.filterMyBookings()">
-            <div style="display:flex; gap:8px;">
-              <button id="bfilter-all" class="order-filter-btn active" onclick="app.setBookingFilter('all')">All Bookings</button>
-              <button id="bfilter-confirmed" class="order-filter-btn" onclick="app.setBookingFilter('confirmed')">Confirmed</button>
-              <button id="bfilter-completed" class="order-filter-btn" onclick="app.setBookingFilter('completed')">Completed</button>
+            <div style="display:flex; gap:12px;">
+              <button class="btn-primary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('flights')">+ Book Flight</button>
+              <button class="btn-secondary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('parking')">+ Book Parking</button>
             </div>
           </div>
         </div>
 
-        <!-- Bookings List Container -->
-        <div id="my-bookings-list-container">
-          <!-- Dynamically Populated in app.js -->
+        <!-- Tabs -->
+        <div style="display:flex; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:8px;">
+          <button id="tab-flight-bookings" class="order-filter-btn active" style="font-size:16px; font-weight:600;" onclick="app.switchBookingTab('flights')">✈️ Flight Tickets</button>
+          <button id="tab-parking-bookings" class="order-filter-btn" style="font-size:16px; font-weight:600;" onclick="app.switchBookingTab('parking')">🅿️ Parking Slots</button>
+        </div>
+
+        <div id="bookings-flights-section">
+          <!-- Search & Filter Controls -->
+          <div class="glass-card" style="margin-bottom: 20px; padding: 18px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="my-bookings-search-input" placeholder="🔍 Search by PNR, Flight Number, or Passenger..." style="flex:1; height:42px;" oninput="app.filterMyBookings()">
+              <div style="display:flex; gap:8px;">
+                <button id="bfilter-all" class="order-filter-btn active" onclick="app.setBookingFilter('all')">All Bookings</button>
+                <button id="bfilter-confirmed" class="order-filter-btn" onclick="app.setBookingFilter('confirmed')">Confirmed</button>
+                <button id="bfilter-completed" class="order-filter-btn" onclick="app.setBookingFilter('completed')">Completed</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bookings List Container -->
+          <div id="my-bookings-list-container">
+            <!-- Dynamically Populated in app.js -->
+          </div>
+        </div>
+
+        <div id="bookings-parking-section" style="display:none;">
+          <div id="my-parking-list-container">
+            <!-- Dynamically Populated in app.js -->
+          </div>
         </div>
       </section>
 
@@ -891,13 +908,13 @@
           <h3>Reservation Details</h3>
           <div class="form-group" style="margin-top: 16px;">
             <label>Vehicle License Plate</label>
-            <input type="text" placeholder="e.g. TN 01 AB 1234">
+            <input type="text" id="parking-plate" placeholder="e.g. TN 01 AB 1234">
           </div>
           <div class="form-group">
             <label>Duration (Hours)</label>
-            <input type="number" value="4">
+            <input type="number" id="parking-hours" value="4">
           </div>
-          <button class="btn-primary" onclick="alert('Parking Reserved! Slot A-42 is booked for your vehicle.'); document.getElementById('parking-checkout-view').style.display='none'; document.getElementById('parking-map-view').style.display='block';">CONFIRM BOOKING (₹400)</button>
+          <button class="btn-primary" onclick="app.reserveParkingSlot()">CONFIRM BOOKING</button>
         </div>
       </section>
 

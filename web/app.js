@@ -2605,21 +2605,26 @@ class AeroAssistApp {
         body: JSON.stringify(payload)
       });
 
-      const pnr = (res && res.pnr) ? res.pnr : "PNR" + Math.floor(100000 + Math.random() * 900000);
-      const newBooking = {
-        id: pnr,
-        pnr: pnr,
-        user_email: userEmail,
-        booking_id: "BK-" + Math.floor(100000 + Math.random() * 900000),
-        ticket_number: "TKT-" + Math.floor(10000000 + Math.random() * 90000000),
-        payment_id: "PAY-" + Math.floor(1000000 + Math.random() * 9000000),
-        transaction_id: "TXN-" + Math.floor(100000000 + Math.random() * 900000000),
-        flight_details: payload.flight_details,
-        passenger_details: payload.passenger_details,
-        amount: payload.total_fare,
-        payment_method: payload.payment_method,
-        booking_status: "Confirmed"
-      };
+      let newBooking = null;
+      if (res && res.booking) {
+        newBooking = res.booking;
+      } else {
+        const pnr = (res && res.pnr) ? res.pnr : "PNR" + Math.floor(100000 + Math.random() * 900000);
+        newBooking = {
+          id: pnr,
+          pnr: pnr,
+          user_email: userEmail,
+          booking_id: "BK-" + Math.floor(100000 + Math.random() * 900000),
+          ticket_number: "TKT-" + Math.floor(10000000 + Math.random() * 90000000),
+          payment_id: "PAY-" + Math.floor(1000000 + Math.random() * 9000000),
+          transaction_id: "TXN-" + Math.floor(100000000 + Math.random() * 900000000),
+          flight_details: payload.flight_details,
+          passenger_details: payload.passenger_details,
+          amount: payload.total_fare,
+          payment_method: payload.payment_method,
+          booking_status: "Confirmed"
+        };
+      }
 
       // Save to local cache for instant offline rendering (scoped by user email)
       const localKey = `aero_local_bookings_${userEmail.toLowerCase()}`;
@@ -2775,6 +2780,119 @@ class AeroAssistApp {
     });
 
     this.renderMyBookings(filtered);
+  }
+
+  // --- PARKING RESERVATIONS ---
+  switchBookingTab(tab) {
+    if (tab === 'flights') {
+      document.getElementById('tab-flight-bookings').classList.add('active');
+      document.getElementById('tab-parking-bookings').classList.remove('active');
+      document.getElementById('bookings-flights-section').style.display = 'block';
+      document.getElementById('bookings-parking-section').style.display = 'none';
+      this.fetchMyBookings();
+    } else {
+      document.getElementById('tab-flight-bookings').classList.remove('active');
+      document.getElementById('tab-parking-bookings').classList.add('active');
+      document.getElementById('bookings-flights-section').style.display = 'none';
+      document.getElementById('bookings-parking-section').style.display = 'block';
+      this.fetchParkingBookings();
+    }
+  }
+
+  fetchParkingBookings() {
+    const container = document.getElementById("my-parking-list-container");
+    if (!container) return;
+    
+    if (!this.currentUser || !this.currentUser.email) {
+      container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-secondary);">Please Sign In to view parking reservations.</div>`;
+      return;
+    }
+
+    const key = `aero_parking_${this.currentUser.email.toLowerCase()}`;
+    const localBookings = JSON.parse(localStorage.getItem(key) || '[]');
+    
+    if (localBookings.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
+          <div style="font-size:3rem; margin-bottom:16px;">🅿️</div>
+          <h3 style="color:var(--text-primary); margin-bottom:8px;">No Parking Reservations</h3>
+          <p style="margin-bottom:24px;">You haven't reserved any parking slots yet.</p>
+          <button class="btn-primary" onclick="app.showPage('parking')" style="padding:12px 28px; border-radius:12px;">Reserve a Slot</button>
+        </div>
+      `;
+      return;
+    }
+    
+    this.renderParkingBookings(localBookings);
+  }
+
+  renderParkingBookings(bookings) {
+    const container = document.getElementById("my-parking-list-container");
+    if (!container) return;
+    
+    container.innerHTML = bookings.map(b => `
+      <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+          <h3 style="margin:0;">Booking ID: <span style="color:var(--accent-cyan);">${b.id}</span></h3>
+          <span class="status-badge accepted">CONFIRMED</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; align-items:center;">
+          <div>
+            <p style="margin:0; font-size:18px; font-weight:700;">Slot: <span style="color:var(--accent-orange);">${b.slot}</span></p>
+            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Date: ${b.date} | Duration: ${b.hours} Hours</p>
+            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Vehicle Plate: ${b.plate} | Total: ₹${b.price}</p>
+          </div>
+          <div style="text-align:right;">
+            <i data-lucide="parking-circle" style="width:32px; height:32px; color:var(--text-secondary);"></i>
+          </div>
+        </div>
+      </div>
+    `).join("");
+    
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  reserveParkingSlot() {
+    if (!this.currentUser) {
+      alert("Please Sign In or Register to book a parking slot.");
+      this.showPage("auth");
+      return;
+    }
+    
+    const plate = document.getElementById('parking-plate').value.trim();
+    const hours = document.getElementById('parking-hours').value;
+    
+    if (!plate) {
+      alert("Please enter a valid vehicle license plate.");
+      return;
+    }
+    
+    const slots = ['A-42', 'B-12', 'C-05', 'D-99', 'E-21', 'A-09'];
+    const slot = slots[Math.floor(Math.random() * slots.length)];
+    const price = hours * 100; // Base ₹100 per hour
+    
+    const b = {
+      id: 'PRK-' + Math.floor(100000 + Math.random() * 900000),
+      plate: plate,
+      hours: hours,
+      slot: slot,
+      date: new Date().toLocaleDateString(),
+      price: price
+    };
+    
+    const key = `aero_parking_${this.currentUser.email.toLowerCase()}`;
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    list.unshift(b);
+    localStorage.setItem(key, JSON.stringify(list));
+    
+    alert(`Parking Reserved successfully!\n\nSlot: ${slot}\nAmount: ₹${price}\n\nYou can view this reservation in My Bookings.`);
+    
+    document.getElementById('parking-plate').value = '';
+    document.getElementById('parking-checkout-view').style.display='none'; 
+    document.getElementById('parking-map-view').style.display='block';
+    
+    this.showPage('my-bookings');
+    this.switchBookingTab('parking');
   }
 
   async viewETicket(pnr) {
