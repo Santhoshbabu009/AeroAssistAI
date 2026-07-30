@@ -261,43 +261,7 @@ public class MainActivity extends BaseActivity {
             startActivity(intent);
         });
 
-        // Premium Smart Telemetry & Quick Action Carousel Click Listeners
-        findViewById(R.id.quickPass).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, IDCardActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-        });
 
-        findViewById(R.id.quickNavGate).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, BookingHistoryActivity.class)));
-
-
-        findViewById(R.id.quickTraceFlight).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, FlightStatusActivity.class)));
-
-        findViewById(R.id.quickDining).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, RestaurantListActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.quickLounges).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoungeListActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.quickShopping).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ServicesActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.quickParking).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ServicesActivity.class);
-            intent.putExtra("email", email);
-            startActivity(intent);
-        });
 
         // Futuristic AI Assistant Prompt Suggestion Chips Handlers
         findViewById(R.id.btnMainPromptGate).setOnClickListener(v -> {
