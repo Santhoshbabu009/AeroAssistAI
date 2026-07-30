@@ -699,28 +699,73 @@ class AeroAssistApp {
   }
 
   // --- NEW MODULE LOGIC ---
-  trackBaggage() {
+  async trackBaggage() {
     const input = document.getElementById("baggage-tracking-input");
     const resultBox = document.getElementById("baggage-tracking-result");
     const idSpan = document.getElementById("baggage-tracking-id");
     
     if (!input.value.trim()) {
-      alert("Please enter a valid Bag Tag Number (e.g. AA123456)");
+      alert("Please enter a valid Bag Tag Number (e.g. AA123456) or PNR");
       return;
     }
     
-    // Simulate API fetch delay
     const oldText = input.nextElementSibling.innerText;
     input.nextElementSibling.innerText = "TRACKING...";
     
-    setTimeout(() => {
-      idSpan.innerText = input.value.toUpperCase();
-      resultBox.style.display = "block";
-      input.nextElementSibling.innerText = oldText;
+    try {
+      const res = await this.apiCall(`/baggage/track?tag=${encodeURIComponent(input.value.trim())}`);
       
-      // Re-initialize any new lucide icons in the result block
+      if (res && res.status === "success") {
+        idSpan.innerText = res.tag_id;
+        
+        // Build timeline HTML dynamically
+        const timelineHtml = res.timeline.map((step, idx) => {
+          let badgeClass = step.status === 'Checked In' || step.status === 'Security Cleared' ? 'status-delivered-text' : 
+                           step.status.includes('Arrived') || step.status.includes('Carousel') ? 'accent-cyan' : 'accent-primary';
+          
+          let markerHtml = '';
+          if (step.is_current) {
+            markerHtml = `<div style="position: absolute; left: -25px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--${badgeClass}); border: 2px solid var(--glass-bg); box-shadow: 0 0 0 4px rgba(255,255,255,0.1);"></div>`;
+          } else {
+            markerHtml = `<div style="position: absolute; left: -25px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--${badgeClass}); border: 2px solid var(--glass-bg);"></div>`;
+          }
+          
+          return `
+            <div style="position: relative; margin-bottom: 20px; opacity: ${step.is_current ? '1' : '0.7'};">
+              ${markerHtml}
+              <h4 style="margin: 0 0 4px 0; color: ${step.is_current ? `var(--${badgeClass})` : 'inherit'};">${step.status}</h4>
+              <p style="margin: 0; font-size: 12px;">${step.desc}</p>
+            </div>
+          `;
+        }).join('');
+        
+        // Replace inner HTML of the timeline
+        resultBox.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+            <div style="background: var(--accent-glow); padding: 12px; border-radius: var(--radius-md); color: var(--accent-primary);">
+              <i data-lucide="luggage" style="width: 32px; height: 32px;"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0;">Checked Bag / PNR - <span style="color: var(--accent-primary);">${res.tag_id}</span></h3>
+              <p style="margin: 0; font-size: 13px;">Status: <span class="status-badge ${res.color}">${res.current_status}</span></p>
+              ${res.flight ? `<p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-secondary);">Flight: ${res.flight}</p>` : ''}
+            </div>
+          </div>
+          <div class="timeline" style="position: relative; padding-left: 20px; border-left: 2px solid var(--glass-border);">
+            ${timelineHtml}
+          </div>
+        `;
+        
+        resultBox.style.display = "block";
+      } else {
+        alert(res?.message || "Failed to track baggage.");
+      }
+    } catch(e) {
+      alert("Network error tracking baggage.");
+    } finally {
+      input.nextElementSibling.innerText = oldText;
       if (typeof lucide !== 'undefined') lucide.createIcons();
-    }, 800);
+    }
   }
 
   // --- LIVE FLIGHT TRACKER ENGINE (AVIATIONSTACK API) ---

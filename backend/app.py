@@ -3078,6 +3078,73 @@ def get_flight_booking_detail(id_or_pnr):
                 pass
             return jsonify({"status": "success", "booking": booking})
 
+@app.route('/api/baggage/track', methods=['GET'])
+def track_baggage():
+    tag = request.args.get('tag', '').upper().strip()
+    if not tag:
+        return jsonify({"status": "error", "message": "Bag Tag or PNR Required"}), 400
+    
+    import time
+    import hashlib
+    import json
+    
+    # Try to find a flight booking if PNR was entered
+    booking = None
+    if supabase is not None:
+        try:
+            res = supabase.table('flight_bookings').select('*').or_(f"booking_id.eq.{tag},pnr.eq.{tag},ticket_number.eq.{tag}").limit(1).execute()
+            if res.data:
+                booking = res.data[0]
+        except Exception:
+            pass
+    if not booking:
+        booking = db.get_flight_booking_by_id_or_pnr(tag)
+        
+    flight = {}
+    if booking:
+        f = booking.get('flight_details', {})
+        if isinstance(f, str):
+            try:
+                flight = json.loads(f)
+            except Exception:
+                flight = {}
+        else:
+            flight = f
+
+    # Generate deterministic "live" progression based on tag string and current time
+    h = int(hashlib.md5(tag.encode()).hexdigest(), 16)
+    
+    states = [
+        {"status": "Checked In", "desc": f"Terminal Check-in Desk - {flight.get('origin', 'Origin')}", "color": "accepted"},
+        {"status": "Security Cleared", "desc": "Automated Baggage Handling System", "color": "accepted"},
+        {"status": "Loaded on Aircraft", "desc": f"Flight {flight.get('flight_number', 'Cargo')} Hold", "color": "pending"},
+        {"status": "In Transit", "desc": "En route to destination", "color": "pending"},
+        {"status": "Arrived at Destination", "desc": f"Offloaded at {flight.get('destination', 'Destination')}", "color": "delivered"},
+        {"status": "On Carousel", "desc": "Baggage Claim Belt", "color": "delivered"}
+    ]
+    
+    current_hour = int(time.time() / 3600)
+    current_idx = (h + current_hour) % len(states)
+    
+    timeline = []
+    for i in range(current_idx + 1):
+        timeline.append({
+            "status": states[i]["status"],
+            "desc": states[i]["desc"],
+            "is_current": (i == current_idx)
+        })
+        
+    current_state = states[current_idx]
+    
+    return jsonify({
+        "status": "success",
+        "tag_id": tag,
+        "flight": flight.get('flight_number', ''),
+        "current_status": current_state["status"],
+        "color": current_state["color"],
+        "timeline": timeline
+    })
+
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
