@@ -400,18 +400,7 @@ public class ChatbotActivity extends BaseActivity {
                                 return;
                             }
 
-                            // Open navigation if needed
-                            String lowerReply = reply.toLowerCase();
-                            String lowerMsg = message.toLowerCase();
-                            if (lowerReply.contains("gate") || (lowerMsg.contains("navigate") && lowerMsg.contains("gate"))) {
-                                Intent intent = new Intent(ChatbotActivity.this, NavigationActivity.class);
-                                if (lowerMsg.contains("gate 5") || lowerReply.contains("gate 5")) {
-                                    intent.putExtra("location", "gate5");
-                                } else {
-                                    intent.putExtra("location", "gateA12");
-                                }
-                                startActivity(intent);
-                            }
+                            // Navigation feature removed - gate info shown in chat reply
 
                             ChatMessage aiMsg = new ChatMessage(reply, false, currentUserEmail, currentUserType, currentSessionId);
                             new Thread(() -> {
