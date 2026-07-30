@@ -1852,7 +1852,6 @@ class AeroAssistApp {
 
     // Update active banner for food orders
     const activeOrder = orders.find(ord => ["pending", "accepted", "preparing", "ready"].includes((ord.status || '').toLowerCase()));
-    const diningBanner = document.getElementById("floating-dining-banner");
     
     if (activeOrder) {
       document.getElementById("floating-dining-status").innerText = activeOrder.status.toUpperCase();
@@ -1864,18 +1863,17 @@ class AeroAssistApp {
       }
       diningBanner.style.display = "flex";
     } else {
-      diningBanner.style.display = "none";
+      if (diningBanner) diningBanner.style.display = "none";
     }
 
     // Update active banner for lounges
     const activeBooking = bookings.find(b => ["pending", "confirmed"].includes((b.status || '').toLowerCase()));
-    const loungeBanner = document.getElementById("floating-lounge-banner");
     
     if (activeBooking) {
       document.getElementById("floating-lounge-status").innerText = activeBooking.status.toUpperCase();
-      loungeBanner.style.display = "flex";
+      if (loungeBanner) loungeBanner.style.display = "flex";
     } else {
-      loungeBanner.style.display = "none";
+      if (loungeBanner) loungeBanner.style.display = "none";
     }
   }
 
