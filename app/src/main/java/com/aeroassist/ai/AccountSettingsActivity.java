@@ -33,6 +33,7 @@ public class AccountSettingsActivity extends BaseActivity {
         String savedName = prefs.getString("name_" + safeEmail, "Aero User");
         String savedImage = prefs.getString("image_" + safeEmail, null);
 
+        com.google.android.gms.auth.api.signin.GoogleSignInAccount googleAccount = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(this);
         if (googleAccount != null && googleAccount.getDisplayName() != null) {
             nameTxt.setText(googleAccount.getDisplayName());
         } else {
