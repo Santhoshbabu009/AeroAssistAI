@@ -396,7 +396,7 @@ public class ParkingActivity extends BaseActivity {
             RequestBody body = RequestBody.create(
                     bookingJson.toString(), MediaType.get("application/json; charset=utf-8"));
 
-            String url = Constants.PARKING_BOOKINGS_ENDPOINT;
+            String url = Constants.PARKING_BOOK_ENDPOINT;
             Request request = new Request.Builder().url(url).post(body).build();
 
             runOnUiThread(() -> Toast.makeText(ParkingActivity.this, "Booking your parking slot...", Toast.LENGTH_SHORT).show());

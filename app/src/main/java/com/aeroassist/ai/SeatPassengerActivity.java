@@ -119,7 +119,9 @@ public class SeatPassengerActivity extends BaseActivity {
                     String body = response.body() != null ? response.body().string() : "{}";
                     JSONObject json = new JSONObject(body);
                     if ("success".equals(json.optString("status"))) {
-                        JSONArray arr = json.optJSONArray("occupied_seats");
+                        // backend returns "booked_seats" key
+                        JSONArray arr = json.optJSONArray("booked_seats");
+                        if (arr == null) arr = json.optJSONArray("occupied_seats"); // legacy fallback
                         if (arr != null) {
                             for (int i = 0; i < arr.length(); i++) {
                                 occupied.add(arr.getString(i));

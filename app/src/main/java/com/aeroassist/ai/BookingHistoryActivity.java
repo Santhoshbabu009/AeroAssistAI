@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +134,10 @@ public class BookingHistoryActivity extends BaseActivity {
     /** Fetch real parking bookings from backend API */
     private void fetchParkingFromApi() {
         String email = getLoggedInEmail();
-        String url = Constants.PARKING_BOOKINGS_ENDPOINT + "?email=" + email;
+        Log.d("BookingHistory", "Fetching parking bookings for email: [" + email + "]");
+        String encodedEmail;
+        try { encodedEmail = URLEncoder.encode(email, "UTF-8"); } catch (UnsupportedEncodingException e) { encodedEmail = email; }
+        String url = Constants.PARKING_BOOKINGS_ENDPOINT + "?email=" + encodedEmail;
         Request request = new Request.Builder().url(url).get().build();
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -193,7 +199,10 @@ public class BookingHistoryActivity extends BaseActivity {
         emptyText.setVisibility(View.GONE);
 
         String email = getLoggedInEmail();
-        String url = Constants.FLIGHT_BOOKINGS_ENDPOINT + "?email=" + email;
+        Log.d("BookingHistory", "Fetching flight bookings for email: [" + email + "]");
+        String encodedEmail;
+        try { encodedEmail = URLEncoder.encode(email, "UTF-8"); } catch (UnsupportedEncodingException e) { encodedEmail = email; }
+        String url = Constants.FLIGHT_BOOKINGS_ENDPOINT + "?email=" + encodedEmail;
 
         Request request = new Request.Builder().url(url).get().build();
 

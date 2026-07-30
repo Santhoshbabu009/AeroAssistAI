@@ -2522,8 +2522,33 @@ def lounge_booking_history():
 
 # --- PARKING BOOKING SYSTEM ENDPOINTS ---
 
-@app.route('/api/parking-bookings', methods=['POST'])
+@app.route('/api/parking-bookings', methods=['POST', 'GET'])
 def book_parking():
+    # GET → alias for /api/parking-bookings/history (email-filtered list)
+    if request.method == 'GET':
+        user_email = request.args.get('user_email') or request.args.get('email')
+        if not user_email:
+            return jsonify({"status": "error", "message": "Missing email parameter"}), 400
+        raw_sqlite = db.get_parking_bookings(user_email)
+        seen_keys = set()
+        combined = []
+        if supabase is not None:
+            try:
+                bookings_resp = supabase.table('parking_bookings').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+                for booking in (bookings_resp.data or []):
+                    key = f"{booking.get('zone')}_{booking.get('plate_number')}_{str(booking.get('created_at'))[:16]}"
+                    seen_keys.add(key)
+                    combined.append(booking)
+            except Exception as e:
+                print("[SUPABASE QUERY NOTICE]:", str(e))
+        for b in raw_sqlite:
+            key = f"{b.get('zone')}_{b.get('plate_number')}_{str(b.get('created_at'))[:16]}"
+            if key not in seen_keys:
+                seen_keys.add(key)
+                combined.append(dict(b))
+        combined.sort(key=lambda x: str(x.get('created_at', '')), reverse=True)
+        return jsonify({"status": "success", "bookings": combined})
+
     data = request.json or {}
     user_email = data.get('user_email')
     zone = data.get('zone')
@@ -3174,6 +3199,7 @@ def get_flight_seats():
         "flight_number": flight_number,
         "departure_date": departure_date,
         "booked_seats": booked_seat_numbers,
+        "occupied_seats": booked_seat_numbers,   # alias for Android clients
         "seats_detail": seats
     })
 

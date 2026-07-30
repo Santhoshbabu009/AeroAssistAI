@@ -32,7 +32,8 @@ public class Constants {
     public static final String FLIGHT_SEAT_RELEASE_ENDPOINT = API_V1_BASE + "/flights/seats/release";
 
     // Parking Endpoints
-    public static final String PARKING_BOOKINGS_ENDPOINT = API_V1_BASE + "/parking-bookings";
+    public static final String PARKING_BOOK_ENDPOINT      = API_V1_BASE + "/parking-bookings";         // POST - create booking
+    public static final String PARKING_BOOKINGS_ENDPOINT  = API_V1_BASE + "/parking-bookings/history";  // GET  - fetch history
 
     // Food Orders Endpoint
     public static final String FOOD_ORDERS_ENDPOINT = API_V1_BASE + "/orders";

@@ -2713,27 +2713,73 @@ class AeroAssistApp {
     }
 
     const email = this.currentUser.email.trim().toLowerCase();
-    let bookings = [];
+    let backendBookings = [];
 
     try {
       const res = await this.apiCall(`/flights/bookings?email=${encodeURIComponent(email)}`);
-      if (res && res.status === "success" && res.bookings && res.bookings.length > 0) {
-        bookings = res.bookings;
+      if (res && res.status === "success" && Array.isArray(res.bookings)) {
+        backendBookings = res.bookings;
       }
-    } catch (e) { /* fall through */ }
+    } catch (e) { /* network failure — fall through to localStorage */ }
 
-    // Merge with user-scoped locally stored bookings
+    // Build a set of PNRs / booking IDs already confirmed in the backend
+    const backendKeys = new Set(backendBookings.map(b => b.pnr || b.booking_id || b.id).filter(Boolean));
+
+    // Sync any localStorage-only bookings up to the backend
     const localKey = `aero_local_bookings_${email}`;
     const localBookings = JSON.parse(localStorage.getItem(localKey) || "[]");
+    const syncedPNRs = new Set();
+
+    for (const lb of localBookings) {
+      const lKey = lb.pnr || lb.booking_id || lb.id;
+      if (!lKey || backendKeys.has(lKey)) continue; // already on backend – skip
+
+      // Attempt to push this orphan booking to the backend
+      try {
+        const syncPayload = {
+          email: email,
+          flight_details: lb.flight_details || {},
+          passenger_details: lb.passenger_details || [],
+          payment_method: lb.payment_method || "card",
+          total_fare: lb.amount || lb.total_fare || 0
+        };
+        const syncRes = await this.apiCall("/flights/book", {
+          method: "POST",
+          body: JSON.stringify(syncPayload)
+        });
+        if (syncRes && (syncRes.status === "success" || syncRes.pnr)) {
+          syncedPNRs.add(lKey); // mark for removal from localStorage
+          // Add the server-confirmed booking to our list
+          const confirmed = syncRes.booking || { ...lb, pnr: syncRes.pnr || lKey };
+          backendBookings.unshift(confirmed);
+          backendKeys.add(syncRes.pnr || lKey);
+        }
+      } catch (_) { /* keep in localStorage if sync fails */ }
+    }
+
+    // Remove successfully synced bookings from localStorage
+    if (syncedPNRs.size > 0) {
+      const remaining = localBookings.filter(lb => {
+        const k = lb.pnr || lb.booking_id || lb.id;
+        return !syncedPNRs.has(k);
+      });
+      localStorage.setItem(localKey, JSON.stringify(remaining));
+    }
+
+    // Merge: backend is primary; fill any remaining local-only bookings that failed sync
     const combinedMap = new Map();
-    [...bookings, ...localBookings].forEach(b => {
+    backendBookings.forEach(b => {
       const key = b.pnr || b.booking_id || b.id;
-      if (key && !combinedMap.has(key)) combinedMap.set(key, b);
+      if (key) combinedMap.set(key, b);
+    });
+    localBookings.forEach(b => {
+      const key = b.pnr || b.booking_id || b.id;
+      if (key && !combinedMap.has(key)) combinedMap.set(key, b); // offline-only fallback
     });
 
     let resultList = Array.from(combinedMap.values());
 
-    // Show empty state if no bookings found - do NOT show fake demo data
+    // Show empty state if no bookings found
     if (resultList.length === 0) {
       container.innerHTML = `
         <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
