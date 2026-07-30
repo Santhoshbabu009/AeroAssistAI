@@ -31,6 +31,9 @@ public class BookingSearchActivity extends BaseActivity {
         dateBtn = findViewById(R.id.dateBtn);
         searchBtn = findViewById(R.id.searchBtn);
 
+        originInput.setFilters(new android.text.InputFilter[] { new android.text.InputFilter.AllCaps(), new android.text.InputFilter.LengthFilter(3) });
+        destInput.setFilters(new android.text.InputFilter[] { new android.text.InputFilter.AllCaps(), new android.text.InputFilter.LengthFilter(3) });
+
         dateBtn.setOnClickListener(v -> {
             final Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);

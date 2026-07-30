@@ -225,8 +225,11 @@ public class MainActivity extends BaseActivity {
         });
 
         // Parking
-        parkingCard.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, BookingHistoryActivity.class)));
+        parkingCard.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ParkingActivity.class);
+            intent.putExtra("email", email);
+            startActivity(intent);
+        });
 
         // Ticket Booking Engine
         bookCard.setOnClickListener(v ->
