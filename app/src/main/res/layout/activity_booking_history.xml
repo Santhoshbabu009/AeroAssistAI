@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0F172A">
+    android:background="@drawable/app_bg">
 
     <!-- Header -->
     <LinearLayout

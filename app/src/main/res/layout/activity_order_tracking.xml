@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC">
+    android:background="@drawable/app_bg">
 
     <!-- Top Toolbar -->
     <RelativeLayout
@@ -150,7 +150,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="#CCCCCC" />
+                        android:background="@drawable/app_bg" />
 
                     <!-- Step 2: Accepted -->
                     <LinearLayout
@@ -188,7 +188,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="#CCCCCC" />
+                        android:background="@drawable/app_bg" />
 
                     <!-- Step 3: Preparing -->
                     <LinearLayout
@@ -226,7 +226,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="#CCCCCC" />
+                        android:background="@drawable/app_bg" />
 
                     <!-- Step 4: Ready/Out for delivery -->
                     <LinearLayout
@@ -264,7 +264,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="#CCCCCC" />
+                        android:background="@drawable/app_bg" />
 
                     <!-- Step 5: Delivered -->
                     <LinearLayout

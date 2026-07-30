@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC">
+    android:background="@drawable/app_bg">
 
     <!-- Top Toolbar -->
     <RelativeLayout
@@ -305,7 +305,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E2E8F0"
+                        android:background="@drawable/app_bg"
                         android:layout_marginVertical="8dp" />
 
                     <RelativeLayout
