@@ -243,12 +243,12 @@
               <p style="font-size:13px; margin-bottom:24px; color:var(--text-secondary);">Please enter the 6-digit code sent to your email.</p>
               
               <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 32px;" id="web-otp-container">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-1" oninput="app.focusNextOtp(this, 1)" onkeydown="app.handleOtpBackspace(event, 1)">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-2" oninput="app.focusNextOtp(this, 2)" onkeydown="app.handleOtpBackspace(event, 2)">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-3" oninput="app.focusNextOtp(this, 3)" onkeydown="app.handleOtpBackspace(event, 3)">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-4" oninput="app.focusNextOtp(this, 4)" onkeydown="app.handleOtpBackspace(event, 4)">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-5" oninput="app.focusNextOtp(this, 5)" onkeydown="app.handleOtpBackspace(event, 5)">
-                <input type="text" maxlength="1" class="web-otp-box" id="auth-otp-6" oninput="app.focusNextOtp(this, 6)" onkeydown="app.handleOtpBackspace(event, 6)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-1" autocomplete="one-time-code" oninput="app.focusNextOtp(this, 1)" onkeydown="app.handleOtpBackspace(event, 1)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-2" autocomplete="off" oninput="app.focusNextOtp(this, 2)" onkeydown="app.handleOtpBackspace(event, 2)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-3" autocomplete="off" oninput="app.focusNextOtp(this, 3)" onkeydown="app.handleOtpBackspace(event, 3)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-4" autocomplete="off" oninput="app.focusNextOtp(this, 4)" onkeydown="app.handleOtpBackspace(event, 4)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-5" autocomplete="off" oninput="app.focusNextOtp(this, 5)" onkeydown="app.handleOtpBackspace(event, 5)">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="web-otp-box" id="auth-otp-6" autocomplete="off" oninput="app.focusNextOtp(this, 6)" onkeydown="app.handleOtpBackspace(event, 6)">
               </div>
               
               <button class="btn-primary" style="width: 100%;" onclick="app.submitUserVerification()">VERIFY OTP</button>

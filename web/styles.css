@@ -585,15 +585,31 @@ textarea {
   background: var(--glass-bg);
   border: var(--glass-border);
   color: var(--text-primary);
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--accent-color);
   padding: 0;
   transition: all 0.2s var(--easing);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
 }
 
 .web-otp-box:focus {
   background: var(--glass-bg-hover);
   border: var(--glass-border-focus);
+  color: var(--text-primary);
+  -webkit-text-fill-color: var(--text-primary);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px -4px var(--accent-glow);
+}
+
+/* Fix mobile browser autofill overriding OTP box colours */
+.web-otp-box:-webkit-autofill,
+.web-otp-box:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--glass-bg) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* --- GRIDS & TABLES SYSTEM --- */
