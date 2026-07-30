@@ -1327,11 +1327,10 @@ class AeroAssistApp {
       this.pendingProfilePhotoBase64 = null;
       this.updateUserSessionUI();
       this.closeModal("profile");
-    } else {
-      alert("Failed to save profile changes.");
     }
   }
 
+  logoutUser() {
     this.currentUser = null;
     this.currentUserType = null;
     this.allMyBookings = [];
