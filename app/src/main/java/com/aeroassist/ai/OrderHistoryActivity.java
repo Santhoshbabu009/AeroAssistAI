@@ -60,8 +60,20 @@ public class OrderHistoryActivity extends BaseActivity {
         fetchOrderHistory();
     }
 
+    private String getLoggedInEmail() {
+        if (email != null && !email.trim().isEmpty()) return email.trim();
+        android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+        String saved = session.getString("email", session.getString("user_email", null));
+        if (saved == null || saved.isEmpty()) {
+            android.content.SharedPreferences userSession = getSharedPreferences("UserSession", MODE_PRIVATE);
+            saved = userSession.getString("user_email", userSession.getString("email", "demo@aeroassist.ai"));
+        }
+        return saved;
+    }
+
     private void fetchOrderHistory() {
-        String url = Constants.BACKEND_BASE_URL + "/api/orders?email=" + email;
+        String activeEmail = getLoggedInEmail();
+        String url = Constants.BACKEND_BASE_URL + "/api/orders?email=" + activeEmail;
         Request request = new Request.Builder().url(url).build();
 
         client.newCall(request).enqueue(new Callback() {

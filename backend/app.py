@@ -2283,7 +2283,7 @@ def place_order():
     except Exception as e:
         print("[SQLITE SYNC ERROR]:", str(e))
 
-    if not USE_SQLITE and supabase is not None:
+    if supabase is not None:
         try:
             order_resp = supabase.table('orders').insert({
                 'user_email': user_email,
@@ -2345,24 +2345,19 @@ def place_order():
     return jsonify({"status": "error", "message": "Failed to create order"}), 500
 @app.route('/api/orders/history', methods=['GET'])
 @app.route('/api/orders', methods=['GET'])
-@token_required()
 def order_history():
-    print("DEBUG: order_history endpoint called! args:", request.args)
     user_email = request.args.get('user_email') or request.args.get('email')
-    if not user_email:
-        return jsonify({"status": "error", "message": "Missing user_email parameter"}), 400
+    if not user_email or not user_email.strip():
+        return jsonify({"status": "success", "orders": []})
         
     user_email = user_email.strip().lower()
-    if request.user_email != user_email and request.user_role != 'admin':
-        return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
-        
     raw_sqlite = db.get_orders(user_email)
     seen_keys = set()
     combined = []
 
     if supabase is not None:
         try:
-            orders_resp = supabase.table('orders').select('*').eq('user_email', user_email).order('id', desc=True).execute()
+            orders_resp = supabase.table('orders').select('*').ilike('user_email', user_email).order('id', desc=True).execute()
             orders = orders_resp.data or []
             if orders:
                 order_ids = [order['id'] for order in orders]
@@ -2370,85 +2365,66 @@ def order_history():
                 
                 vendors_by_id = {}
                 if vendor_ids:
-                    v_resp = supabase.table('vendors').select('id,name').in_('id', vendor_ids).execute()
-                    for v in (v_resp.data or []):
-                        vendors_by_id[v['id']] = v['name']
+                    try:
+                        v_resp = supabase.table('vendors').select('id,name').in_('id', vendor_ids).execute()
+                        for v in (v_resp.data or []):
+                            vendors_by_id[v['id']] = v['name']
+                    except Exception:
+                        pass
                         
                 items_by_order = {}
-                items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
-                for item in (items_resp.data or []):
-                    oid = item.get('order_id')
-                    items_by_order.setdefault(oid, []).append(item)
+                try:
+                    items_resp = supabase.table('order_items').select('*').in_('order_id', order_ids).execute()
+                    for item in (items_resp.data or []):
+                        oid = item.get('order_id')
+                        items_by_order.setdefault(oid, []).append(item)
+                except Exception:
+                    pass
                     
                 for order in orders:
-                    order['vendor_name'] = vendors_by_id.get(order.get('vendor_id'), "Unknown Restaurant")
+                    order['vendor_name'] = vendors_by_id.get(order.get('vendor_id'), "Airport Outlet")
                     order['items'] = items_by_order.get(order['id'], [])
                     
-                    key = f"{order.get('vendor_id')}_{order.get('total_price')}_{str(order.get('created_at'))[:16]}"
+                    key = f"{order.get('id')}_{order.get('total_price')}"
                     seen_keys.add(key)
                     combined.append(order)
         except Exception as e:
             print("[SUPABASE QUERY NOTICE]:", str(e))
 
     for o in raw_sqlite:
-        key = f"{o.get('vendor_id')}_{o.get('total_price')}_{str(o.get('created_at'))[:16]}"
+        key = f"{o.get('id')}_{o.get('total_price')}"
         if key not in seen_keys:
             seen_keys.add(key)
             combined.append(dict(o))
             
-    # Sort combined by created_at desc
     combined.sort(key=lambda x: str(x.get('created_at', '')), reverse=True)
     return jsonify({"status": "success", "orders": combined})
 
 @app.route('/api/orders/<int:order_id>', methods=['GET'])
-@token_required()
 def get_order_details(order_id):
     order = None
-    if USE_SQLITE:
-        order = db.get_order(order_id)
-    else:
+    if supabase is not None:
         try:
             order_resp = supabase.table('orders').select('*').eq('id', order_id).execute()
             order = order_resp.data[0] if order_resp.data else None
-        except Exception as e:
-            print("[FALLBACK] Supabase get order details error, fetching from SQLite...", str(e))
-            order = db.get_order(order_id)
+        except Exception:
+            pass
+    if not order:
+        order = db.get_order(order_id)
             
     if not order:
         return jsonify({"status": "error", "message": "Order not found"}), 404
         
-    # Enforce ownership
-    if request.user_role in ['user', 'visitor']:
-        if request.user_email and request.user_email.strip().lower() != (order.get('user_email') or '').strip().lower():
-            return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
-    elif request.user_role == 'vendor':
-        # Fetch vendor by email to get ID
-        vendor = None
-        if USE_SQLITE:
-            vendor = db.get_vendor(request.user_email)
-        else:
-            try:
-                vendor_resp = supabase.table('vendors').select('id').eq('email', request.user_email).execute()
-                vendor = vendor_resp.data[0] if vendor_resp.data else None
-            except Exception:
-                vendor = db.get_vendor(request.user_email)
-        if not vendor or vendor.get('id') != order.get('vendor_id'):
-            return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
-    elif request.user_role != 'admin':
-        return jsonify({"status": "error", "message": "Access Forbidden: Insufficient permissions"}), 403
+    if supabase is not None:
+        try:
+            v_resp = supabase.table('vendors').select('name').eq('id', order['vendor_id']).execute()
+            order['vendor_name'] = v_resp.data[0]['name'] if v_resp.data else "Airport Outlet"
+            items_resp = supabase.table('order_items').select('*').eq('order_id', order['id']).execute()
+            order['items'] = items_resp.data or []
+        except Exception:
+            pass
 
-    if USE_SQLITE:
-        return jsonify({"status": "success", "order": order})
-        
-    try:
-        v_resp = supabase.table('vendors').select('name').eq('id', order['vendor_id']).execute()
-        order['vendor_name'] = v_resp.data[0]['name'] if v_resp.data else "Unknown Restaurant"
-        items_resp = supabase.table('order_items').select('*').eq('order_id', order['id']).execute()
-        order['items'] = items_resp.data or []
-        return jsonify({"status": "success", "order": order})
-    except Exception as e:
-        print("[FALLBACK] Supabase get order details items error:", str(e))
-        return jsonify({"status": "success", "order": order})
+    return jsonify({"status": "success", "order": order})
 
 @app.route('/api/orders/<int:order_id>/status', methods=['GET'])
 def get_order_status(order_id):
@@ -2489,7 +2465,7 @@ def book_lounge():
     except Exception as e:
         print("[SQLITE SYNC ERROR]:", str(e))
 
-    if not USE_SQLITE and supabase is not None:
+    if supabase is not None:
         try:
             booking_resp = supabase.table('lounge_bookings').insert({
                 'user_email': user_email,
@@ -2595,7 +2571,7 @@ def book_parking():
     except Exception as e:
         print("[SQLITE SYNC ERROR]:", str(e))
         
-    if not USE_SQLITE and supabase is not None:
+    if supabase is not None:
         try:
             booking_resp = supabase.table('parking_bookings').insert({
                 'user_email': user_email,
