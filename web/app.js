@@ -685,6 +685,7 @@ class AeroAssistApp {
       if (flightInput) flightInput.value = "";
       const resultBox = document.getElementById("flight-search-result");
       if (resultBox) resultBox.style.display = "none";
+      this.resetFlightSearchUI();
     } else if (pageId === "my-bookings") {
       this.fetchMyBookings();
       if (this.myBookingsPollTimer) clearInterval(this.myBookingsPollTimer);
@@ -910,6 +911,7 @@ class AeroAssistApp {
         token: res.token || null
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
+      this.resetFlightSearchUI();
       this.updateUserSessionUI();
       this.showPage("dashboard");
     } else {
@@ -1070,6 +1072,7 @@ class AeroAssistApp {
         localStorage.setItem("token", res.token);
         localStorage.setItem("auth_token", res.token);
 
+        this.resetFlightSearchUI();
         this.updateUserSessionUI();
         await this.fetchUserProfile();
         this.showPage("dashboard");
@@ -1103,6 +1106,7 @@ class AeroAssistApp {
       };
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
       localStorage.setItem("user_email", email);
+      this.resetFlightSearchUI();
       this.updateUserSessionUI();
       // Fetch latest profile data from server (Supabase-first) to sync photo + details
       await this.fetchUserProfile();
@@ -1328,14 +1332,16 @@ class AeroAssistApp {
     }
   }
 
-  logoutUser() {
     this.currentUser = null;
     this.currentUserType = null;
     this.allMyBookings = [];
+    this.currentFlights = null;
     this.chatHistory = [{ isUser: false, text: "Welcome to AeroAssist AI Copilot! I am your smart airport companion. How can I help you today?" }];
     this.activeOrder = null;
     this.activeTrackingOrderId = null;
     this.cart = { restaurant: null, items: [] };
+
+    this.resetFlightSearchUI();
 
     localStorage.removeItem("user_session");
     localStorage.removeItem("user_type");
@@ -2305,6 +2311,23 @@ class AeroAssistApp {
     this.loadFlightResults(flights, passengers, cabinClass, date);
   }
 
+  resetFlightSearchUI() {
+    const searchCard = document.getElementById("flight-search-card");
+    if (searchCard) searchCard.style.display = "block";
+
+    const results = document.getElementById("flight-results-container");
+    if (results) { results.style.display = "none"; results.innerHTML = ""; }
+
+    const seatPass = document.getElementById("flight-seat-passenger-container");
+    if (seatPass) { seatPass.style.display = "none"; seatPass.innerHTML = ""; }
+
+    const review = document.getElementById("flight-review-container");
+    if (review) { review.style.display = "none"; review.innerHTML = ""; }
+
+    this.currentFlights = null;
+    this.bookingDraft = { passengers: 1, cabinClass: 'Economy', date: new Date().toISOString().split('T')[0], seats: [], passengerDetails: [] };
+  }
+
   setQuickRoute(orig, dest) {
     const origSelect = document.getElementById("flight-search-origin");
     const destSelect = document.getElementById("flight-search-dest");
@@ -2663,10 +2686,7 @@ class AeroAssistApp {
         this.closeModal("flight-payment");
         alert("✅ Payment Successful! Your flight ticket is confirmed.");
         
-        document.getElementById("flight-review-container").style.display = "none";
-        const searchCard = document.getElementById("flight-search-card");
-        if (searchCard) searchCard.style.display = "block";
-        
+        this.resetFlightSearchUI();
         this.showPage('my-bookings');
       }, 1500);
     } catch(err) {
