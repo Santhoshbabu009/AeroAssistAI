@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:background="#0F172A">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,6 +32,41 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- Tab Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="#1E293B">
+
+        <Button
+            android:id="@+id/tabFlights"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="✈  Flight Tickets"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:background="#00E5FF"
+            android:backgroundTint="#00E5FF"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/tabParking"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="🅿  Parking Slots"
+            android:textColor="#94A3B8"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:background="#1E293B"
+            android:backgroundTint="#1E293B"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <!-- Loading -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -39,21 +75,33 @@
         android:layout_marginTop="50dp"
         android:indeterminateTint="#00E5FF" />
 
+    <!-- Empty State -->
     <TextView
         android:id="@+id/emptyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
-        android:text="No flight bookings found."
+        android:text="No bookings found."
         android:textColor="#94A3B8"
+        android:textSize="15sp"
         android:visibility="gone" />
 
+    <!-- Flights RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bookingsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
         android:clipToPadding="false" />
+
+    <!-- Parking RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/parkingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:visibility="gone" />
 
 </LinearLayout>

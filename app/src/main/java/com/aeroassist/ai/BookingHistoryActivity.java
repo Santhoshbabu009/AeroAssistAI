@@ -34,7 +34,14 @@ public class BookingHistoryActivity extends BaseActivity {
     private ProgressBar progressBar;
     private TextView emptyText;
     private RecyclerView bookingsRecyclerView;
+    private RecyclerView parkingRecyclerView;
+    private Button tabFlights, tabParking;
     private OkHttpClient client;
+
+    private List<JSONObject> flightList = new ArrayList<>();
+    private List<JSONObject> parkingList = new ArrayList<>();
+
+    private boolean showingFlights = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +57,65 @@ public class BookingHistoryActivity extends BaseActivity {
         progressBar = findViewById(R.id.progressBar);
         emptyText = findViewById(R.id.emptyText);
         bookingsRecyclerView = findViewById(R.id.bookingsRecyclerView);
-        
+        parkingRecyclerView = findViewById(R.id.parkingRecyclerView);
+        tabFlights = findViewById(R.id.tabFlights);
+        tabParking = findViewById(R.id.tabParking);
+
         bookingsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        parkingRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        tabFlights.setOnClickListener(v -> switchTab(true));
+        tabParking.setOnClickListener(v -> switchTab(false));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         fetchBookings();
+        loadParkingFromPrefs();
+    }
+
+    private void switchTab(boolean flights) {
+        showingFlights = flights;
+        if (flights) {
+            tabFlights.setBackgroundColor(Color.parseColor("#00E5FF"));
+            tabFlights.setTextColor(Color.parseColor("#000000"));
+            tabParking.setBackgroundColor(Color.parseColor("#1E293B"));
+            tabParking.setTextColor(Color.parseColor("#94A3B8"));
+            bookingsRecyclerView.setVisibility(View.VISIBLE);
+            parkingRecyclerView.setVisibility(View.GONE);
+            showFlightEmpty(flightList.isEmpty());
+        } else {
+            tabParking.setBackgroundColor(Color.parseColor("#00E5FF"));
+            tabParking.setTextColor(Color.parseColor("#000000"));
+            tabFlights.setBackgroundColor(Color.parseColor("#1E293B"));
+            tabFlights.setTextColor(Color.parseColor("#94A3B8"));
+            bookingsRecyclerView.setVisibility(View.GONE);
+            parkingRecyclerView.setVisibility(View.VISIBLE);
+            showParkingEmpty(parkingList.isEmpty());
+        }
+    }
+
+    private void showFlightEmpty(boolean empty) {
+        if (empty) {
+            emptyText.setText("No flight bookings found.");
+            emptyText.setVisibility(View.VISIBLE);
+            bookingsRecyclerView.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+            bookingsRecyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showParkingEmpty(boolean empty) {
+        if (empty) {
+            emptyText.setText("No parking bookings found.");
+            emptyText.setVisibility(View.VISIBLE);
+            parkingRecyclerView.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+            parkingRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private String getLoggedInEmail() {
@@ -70,16 +128,48 @@ public class BookingHistoryActivity extends BaseActivity {
         return email;
     }
 
-    private List<JSONObject> buildDemoBookings() {
+    /** Load parking bookings stored by web/app when user reserves a slot */
+    private void loadParkingFromPrefs() {
+        parkingList.clear();
+        String email = getLoggedInEmail();
+        SharedPreferences prefs = getSharedPreferences("parking_" + email, MODE_PRIVATE);
+        String json = prefs.getString("slots", null);
+
+        if (json != null) {
+            try {
+                JSONArray arr = new JSONArray(json);
+                for (int i = 0; i < arr.length(); i++) {
+                    parkingList.add(arr.getJSONObject(i));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // If no real data, show a demo entry so the tab always has content
+        if (parkingList.isEmpty()) {
+            try {
+                JSONObject demo = new JSONObject();
+                demo.put("booking_id", "PRK-DEMO-001");
+                demo.put("slot", "Zone A – Slot 12");
+                demo.put("plate", "TN 01 AB 1234");
+                demo.put("duration", "4 Hours");
+                demo.put("date", "2026-08-01");
+                demo.put("status", "Confirmed");
+                parkingList.add(demo);
+            } catch (Exception ignored) {}
+        }
+
+        parkingRecyclerView.setAdapter(new ParkingAdapter(parkingList));
+        if (!showingFlights) showParkingEmpty(parkingList.isEmpty());
+    }
+
+    private List<JSONObject> buildDemoFlightBookings() {
         List<JSONObject> list = new ArrayList<>();
         try {
             JSONObject booking = new JSONObject();
-            booking.put("id", "AA8921");
             booking.put("pnr", "AA8921");
             booking.put("booking_id", "BK-892102");
-            booking.put("ticket_number", "TKT-9920192");
-            booking.put("payment_id", "PAY-8810239");
-            booking.put("transaction_id", "TXN-7781920192");
             booking.put("booking_status", "Confirmed");
             booking.put("departure_date", "2026-08-01");
 
@@ -91,41 +181,9 @@ public class BookingHistoryActivity extends BaseActivity {
             flight.put("date", "2026-08-01");
             flight.put("departure_time", "06:00 AM");
             flight.put("arrival_time", "08:15 AM");
-            flight.put("duration", "2h 15m");
-            flight.put("stops", "Non-stop");
-            flight.put("cabinClass", "Economy");
-            flight.put("baggage", "25 kg Check-in + 7 kg Hand Bag");
-
-            JSONObject pax = new JSONObject();
-            pax.put("name", "Santhosh Babu");
-            pax.put("seat", "12A");
-            pax.put("gender", "Male");
-            pax.put("age", "28");
-
-            JSONArray paxArray = new JSONArray();
-            paxArray.put(pax);
-
             booking.put("flight_details", flight);
-            booking.put("passenger_details", paxArray);
 
             list.add(booking);
-            
-            // Add Demo Parking Slot
-            JSONObject parking = new JSONObject();
-            parking.put("type", "parking");
-            parking.put("pnr", "PRK-9921");
-            parking.put("booking_status", "Confirmed");
-            JSONObject pDetails = new JSONObject();
-            pDetails.put("origin", "Airport Parking");
-            pDetails.put("destination", "Slot A-42");
-            pDetails.put("date", "2026-08-01");
-            pDetails.put("airline", "Duration");
-            pDetails.put("flight_number", "4 Hours");
-            pDetails.put("departure_time", "Vehicle Plate");
-            pDetails.put("arrival_time", "TN 01 AB 1234");
-            parking.put("flight_details", pDetails);
-            list.add(parking);
-            
         } catch (Exception ignored) {}
         return list;
     }
@@ -137,17 +195,16 @@ public class BookingHistoryActivity extends BaseActivity {
         String email = getLoggedInEmail();
         String url = Constants.FLIGHT_BOOKINGS_ENDPOINT + "?email=" + email;
 
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
+        Request request = new Request.Builder().url(url).get().build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    displayList(buildDemoBookings());
+                    flightList = buildDemoFlightBookings();
+                    bookingsRecyclerView.setAdapter(new FlightAdapter(flightList));
+                    if (showingFlights) showFlightEmpty(flightList.isEmpty());
                 });
             }
 
@@ -159,139 +216,140 @@ public class BookingHistoryActivity extends BaseActivity {
                     try {
                         JSONObject jsonObject = new JSONObject(respStr);
                         if (jsonObject.optString("status").equals("success")) {
-                            JSONArray bookingsArray = jsonObject.getJSONArray("bookings");
-                            List<JSONObject> bookingsList = new ArrayList<>();
-                            for (int i = 0; i < bookingsArray.length(); i++) {
-                                bookingsList.add(bookingsArray.getJSONObject(i));
+                            JSONArray arr = jsonObject.getJSONArray("bookings");
+                            flightList = new ArrayList<>();
+                            for (int i = 0; i < arr.length(); i++) {
+                                flightList.add(arr.getJSONObject(i));
                             }
-                            
-                            // Inject mock parking slot so it shows in the app for all users
-                            try {
-                                JSONObject parking = new JSONObject();
-                                parking.put("type", "parking");
-                                parking.put("pnr", "PRK-9921");
-                                parking.put("booking_status", "Confirmed");
-                                JSONObject pDetails = new JSONObject();
-                                pDetails.put("origin", "Airport Parking");
-                                pDetails.put("destination", "Slot A-42");
-                                pDetails.put("date", "2026-08-01");
-                                pDetails.put("airline", "Duration");
-                                pDetails.put("flight_number", "4 Hours");
-                                pDetails.put("departure_time", "Vehicle Plate");
-                                pDetails.put("arrival_time", "TN 01 AB 1234");
-                                parking.put("flight_details", pDetails);
-                                bookingsList.add(0, parking);
-                            } catch(Exception ignored) {}
-                            if (bookingsList.isEmpty()) {
-                                displayList(buildDemoBookings());
-                            } else {
-                                displayList(bookingsList);
+                            if (flightList.isEmpty()) {
+                                flightList = buildDemoFlightBookings();
                             }
                         } else {
-                            displayList(buildDemoBookings());
+                            flightList = buildDemoFlightBookings();
                         }
                     } catch (Exception e) {
-                        displayList(buildDemoBookings());
+                        flightList = buildDemoFlightBookings();
                     }
+                    bookingsRecyclerView.setAdapter(new FlightAdapter(flightList));
+                    if (showingFlights) showFlightEmpty(flightList.isEmpty());
                 });
             }
         });
     }
 
-    private void displayList(List<JSONObject> list) {
-        if (list == null || list.isEmpty()) {
-            emptyText.setVisibility(View.VISIBLE);
-            bookingsRecyclerView.setVisibility(View.GONE);
-        } else {
-            emptyText.setVisibility(View.GONE);
-            bookingsRecyclerView.setVisibility(View.VISIBLE);
-            bookingsRecyclerView.setAdapter(new BookingAdapter(list));
+    // ─────────────────── FLIGHT ADAPTER ───────────────────
+    private class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightVH> {
+        private final List<JSONObject> list;
+        FlightAdapter(List<JSONObject> list) { this.list = list; }
+
+        @NonNull @Override
+        public FlightVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_flight_booking, parent, false);
+            return new FlightVH(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull FlightVH h, int pos) {
+            JSONObject b = list.get(pos);
+            try {
+                String pnr = b.optString("pnr", b.optString("booking_id", "—"));
+                String status = b.optString("booking_status", b.optString("status", "Confirmed")).toUpperCase();
+                JSONObject flight = b.optJSONObject("flight_details");
+                if (flight == null) flight = new JSONObject();
+
+                h.pnr.setText("PNR: " + pnr);
+                h.status.setText(status);
+
+                if (status.equalsIgnoreCase("PENDING")) {
+                    h.status.setBackgroundColor(Color.parseColor("#FF9800"));
+                } else if (status.equalsIgnoreCase("COMPLETED")) {
+                    h.status.setBackgroundColor(Color.parseColor("#059669"));
+                } else {
+                    h.status.setBackgroundColor(Color.parseColor("#00E5FF"));
+                    h.status.setTextColor(Color.BLACK);
+                }
+
+                h.route.setText(flight.optString("origin", "MAA") + " ➔ " + flight.optString("destination", "DEL"));
+                h.meta.setText(flight.optString("date", "2026-08-01") + " | "
+                        + flight.optString("airline", "Airline") + " ("
+                        + flight.optString("flight_number", "—") + ")");
+                h.time.setText(flight.optString("departure_time", "—") + " - " + flight.optString("arrival_time", "—"));
+
+                final String finalPnr = pnr;
+                h.btn.setText("VIEW E-TICKET");
+                h.btn.setOnClickListener(v -> {
+                    Intent intent = new Intent(BookingHistoryActivity.this, ETicketActivity.class);
+                    intent.putExtra("PNR", finalPnr);
+                    startActivity(intent);
+                });
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+
+        @Override public int getItemCount() { return list.size(); }
+
+        class FlightVH extends RecyclerView.ViewHolder {
+            TextView pnr, status, route, meta, time;
+            Button btn;
+            FlightVH(View v) {
+                super(v);
+                pnr    = v.findViewById(R.id.bookingPnr);
+                status = v.findViewById(R.id.bookingStatus);
+                route  = v.findViewById(R.id.bookingRoute);
+                meta   = v.findViewById(R.id.bookingMeta);
+                time   = v.findViewById(R.id.bookingTime);
+                btn    = v.findViewById(R.id.viewTicketBtn);
+            }
         }
     }
 
-    private class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
+    // ─────────────────── PARKING ADAPTER ───────────────────
+    private class ParkingAdapter extends RecyclerView.Adapter<ParkingAdapter.ParkingVH> {
+        private final List<JSONObject> list;
+        ParkingAdapter(List<JSONObject> list) { this.list = list; }
 
-        private final List<JSONObject> bookingList;
-
-        public BookingAdapter(List<JSONObject> bookingList) {
-            this.bookingList = bookingList;
-        }
-
-        @NonNull
-        @Override
-        public BookingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_flight_booking, parent, false);
-            return new BookingViewHolder(view);
+        @NonNull @Override
+        public ParkingVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_parking_booking, parent, false);
+            return new ParkingVH(v);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
-            JSONObject booking = bookingList.get(position);
+        public void onBindViewHolder(@NonNull ParkingVH h, int pos) {
+            JSONObject b = list.get(pos);
             try {
-                String pnr = booking.optString("pnr", booking.optString("booking_id", "AA8921"));
-                String status = booking.optString("booking_status", booking.optString("status", "Confirmed")).toUpperCase();
-                JSONObject flight = booking.optJSONObject("flight_details");
-                if (flight == null) flight = new JSONObject();
+                String id = b.optString("booking_id", b.optString("pnr", "PRK-" + (pos + 1)));
+                String status = b.optString("status", "Confirmed").toUpperCase();
+                String slot   = b.optString("slot", "Zone A – Slot 12");
+                String plate  = b.optString("plate", "—");
+                String dur    = b.optString("duration", "—");
+                String date   = b.optString("date", "—");
 
-                holder.bookingPnr.setText("PNR: " + pnr);
-                holder.bookingStatus.setText(status);
-                
+                h.id.setText("Booking ID: " + id);
+                h.status.setText(status);
                 if (status.equalsIgnoreCase("PENDING")) {
-                    holder.bookingStatus.setBackgroundColor(Color.parseColor("#FF9800"));
-                } else if (status.equalsIgnoreCase("COMPLETED")) {
-                    holder.bookingStatus.setBackgroundColor(Color.parseColor("#059669"));
+                    h.status.setBackgroundColor(Color.parseColor("#FF9800"));
                 } else {
-                    holder.bookingStatus.setBackgroundColor(Color.parseColor("#00E5FF"));
-                    holder.bookingStatus.setTextColor(Color.BLACK);
+                    h.status.setBackgroundColor(Color.parseColor("#059669"));
                 }
-
-                String orig = flight.optString("origin", "MAA");
-                String dest = flight.optString("destination", "DEL");
-                holder.bookingRoute.setText(orig + " ➔ " + dest);
-
-                String fDate = flight.optString("date", booking.optString("departure_date", "2026-08-01"));
-                String airline = flight.optString("airline", "Air India");
-                String flightNum = flight.optString("flight_number", "AI-432");
-                holder.bookingMeta.setText(fDate + " | " + airline + " (" + flightNum + ")");
-
-                String depTime = flight.optString("departure_time", "06:00 AM");
-                String arrTime = flight.optString("arrival_time", "08:15 AM");
-                holder.bookingTime.setText(depTime + " - " + arrTime);
-
-                if ("parking".equals(booking.optString("type"))) {
-                    holder.viewTicketBtn.setText("VIEW PARKING TICKET");
-                    holder.viewTicketBtn.setOnClickListener(v -> {});
-                } else {
-                    holder.viewTicketBtn.setText("VIEW E-TICKET");
-                    final String finalPnr = pnr;
-                    holder.viewTicketBtn.setOnClickListener(v -> {
-                        Intent intent = new Intent(BookingHistoryActivity.this, ETicketActivity.class);
-                        intent.putExtra("PNR", finalPnr);
-                        startActivity(intent);
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                h.slot.setText("🅿  " + slot);
+                h.plate.setText("🚗  Vehicle: " + plate);
+                h.duration.setText("⏱  " + dur + "  |  📅  " + date);
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
-        @Override
-        public int getItemCount() {
-            return bookingList.size();
-        }
+        @Override public int getItemCount() { return list.size(); }
 
-        class BookingViewHolder extends RecyclerView.ViewHolder {
-            TextView bookingPnr, bookingStatus, bookingRoute, bookingMeta, bookingTime;
-            Button viewTicketBtn;
-
-            public BookingViewHolder(@NonNull View itemView) {
-                super(itemView);
-                bookingPnr = itemView.findViewById(R.id.bookingPnr);
-                bookingStatus = itemView.findViewById(R.id.bookingStatus);
-                bookingRoute = itemView.findViewById(R.id.bookingRoute);
-                bookingMeta = itemView.findViewById(R.id.bookingMeta);
-                bookingTime = itemView.findViewById(R.id.bookingTime);
-                viewTicketBtn = itemView.findViewById(R.id.viewTicketBtn);
+        class ParkingVH extends RecyclerView.ViewHolder {
+            TextView id, status, slot, plate, duration;
+            ParkingVH(View v) {
+                super(v);
+                id       = v.findViewById(R.id.parkingId);
+                status   = v.findViewById(R.id.parkingStatus);
+                slot     = v.findViewById(R.id.parkingSlot);
+                plate    = v.findViewById(R.id.parkingPlate);
+                duration = v.findViewById(R.id.parkingDuration);
             }
         }
     }
