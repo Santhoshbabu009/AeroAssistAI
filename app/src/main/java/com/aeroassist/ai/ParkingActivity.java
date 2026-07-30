@@ -61,6 +61,10 @@ public class ParkingActivity extends BaseActivity {
         setContentView(R.layout.activity_parking);
 
         email = getIntent().getStringExtra("email");
+        if (email == null || email.isEmpty()) {
+            android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+            email = session.getString("email", session.getString("user_email", "demo@aeroassist.ai"));
+        }
         client = new OkHttpClient();
 
         backBtn = findViewById(R.id.backBtn);
@@ -392,7 +396,7 @@ public class ParkingActivity extends BaseActivity {
             RequestBody body = RequestBody.create(
                     bookingJson.toString(), MediaType.get("application/json; charset=utf-8"));
 
-            String url = Constants.BACKEND_BASE_URL + "/api/parking-bookings";
+            String url = Constants.PARKING_BOOKINGS_ENDPOINT;
             Request request = new Request.Builder().url(url).post(body).build();
 
             runOnUiThread(() -> Toast.makeText(ParkingActivity.this, "Booking your parking slot...", Toast.LENGTH_SHORT).show());

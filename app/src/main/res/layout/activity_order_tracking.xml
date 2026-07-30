@@ -150,7 +150,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="@drawable/app_bg" />
+                        android:background="#1E293B" />
 
                     <!-- Step 2: Accepted -->
                     <LinearLayout
@@ -188,7 +188,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="@drawable/app_bg" />
+                        android:background="#1E293B" />
 
                     <!-- Step 3: Preparing -->
                     <LinearLayout
@@ -226,7 +226,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="@drawable/app_bg" />
+                        android:background="#1E293B" />
 
                     <!-- Step 4: Ready/Out for delivery -->
                     <LinearLayout
@@ -264,7 +264,7 @@
                         android:layout_width="2dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="13dp"
-                        android:background="@drawable/app_bg" />
+                        android:background="#1E293B" />
 
                     <!-- Step 5: Delivered -->
                     <LinearLayout

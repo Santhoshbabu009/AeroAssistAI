@@ -90,15 +90,10 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
         mapView = findViewById(R.id.flightMap);
         mapView.getMap(Constants.OLA_MAPS_API_KEY, this, new MapControlSettings.Builder().build());
 
-        View backBtn = findViewById(R.id.backBtn);
-        if (backBtn != null) backBtn.setOnClickListener(v -> finish());
-
         checkBtn.setOnClickListener(v -> getFlightStatus());
         scanBtn.setOnClickListener(v -> startScanner());
         historyBtn.setOnClickListener(v -> startActivity(new Intent(this, FlightSearchHistoryActivity.class)));
         aiInsightsBtn.setOnClickListener(v -> getAIInsights());
-
-        populateLiveFidsBoard();
 
         notificationHelper = new NotificationHelper(this);
         requestNotificationPermission();
@@ -164,12 +159,8 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
 
         saveToHistory(flight);
 
-        resultText.setText("🔍 Searching for " + flight + "...");
+        resultText.setText("ðŸ” Searching for " + flight + "...");
         if (mapCard != null) mapCard.setVisibility(View.GONE);
-        if (Constants.AVIATION_STACK_API_KEY.equals("ENTER_AVIATION_STACK_API_KEY_HERE") || Constants.AVIATION_STACK_API_KEY.isEmpty()) {
-            showFallbackFlightStatus(flight);
-            return;
-        }
 
         String url = "https://api.aviationstack.com/v1/flights?access_key="
                 + Constants.AVIATION_STACK_API_KEY + "&flight_iata=" + flight;
@@ -180,7 +171,7 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
 
             @Override
             public void onFailure(Call call, java.io.IOException e) {
-                runOnUiThread(() -> showFallbackFlightStatus(flight));
+                runOnUiThread(() -> resultText.setText("âŒ Network error. Check your internet connection.\n" + e.getMessage()));
             }
 
             @Override
@@ -189,16 +180,28 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
                     String responseData = response.body().string();
                     JSONObject obj = new JSONObject(responseData);
 
-                    // Detect API-level error (quota exceeded, invalid key, etc.) -> seamless fallback
-                    if (obj.has("error") || !obj.has("data")) {
-                        runOnUiThread(() -> showFallbackFlightStatus(flight));
+                    // Detect API-level error (quota exceeded, invalid key, etc.)
+                    if (obj.has("error")) {
+                        JSONObject error = obj.getJSONObject("error");
+                        String errMsg = error.optString("message", "Unknown API error");
+                        String errCode = error.optString("code", "");
+                        runOnUiThread(() -> resultText.setText(
+                                "âš ï¸ API Error: " + errMsg +
+                                "\nCode: " + errCode +
+                                "\n\nYour AviationStack free plan may have exceeded its monthly quota."));
+                        return;
+                    }
+
+                    if (!obj.has("data")) {
+                        runOnUiThread(() -> resultText.setText("âš ï¸ Unexpected API response. Try again."));
                         return;
                     }
 
                     JSONArray data = obj.getJSONArray("data");
 
-                    if (data.length() == 0) {
-                        runOnUiThread(() -> showFallbackFlightStatus(flight));
+                    if(data.length() == 0){
+                        runOnUiThread(() -> resultText.setText(
+                                "âœˆï¸ Flight " + flight + " not found.\n\n• Check the IATA code (e.g. AI101, EK202)\n• Flight may have landed or not departed yet"));
                         return;
                     }
 
@@ -458,112 +461,5 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
                 "Flight " + flight + " has been moved from Gate A12 to Gate B5. Please update your navigation."
             );
         }, 15000); // 15 seconds after search
-    }
-
-    private void populateLiveFidsBoard() {
-        android.widget.LinearLayout container = findViewById(R.id.liveFidsContainer);
-        if (container == null) return;
-        container.removeAllViews();
-
-        String[][] flights = {
-            {"AI-432", "Delhi (DEL)", "Terminal 1", "Gate 9", "BOARDING", "#10B981", "06:00 AM"},
-            {"6E-2051", "Mumbai (BOM)", "Terminal 1", "Gate 14", "DELAYED", "#F59E0B", "08:30 AM"},
-            {"SG-103", "Bangalore (BLR)", "Terminal 2", "Gate 25", "ON TIME", "#00E5FF", "10:15 AM"},
-            {"IX-541", "Dubai (DXB)", "Terminal 2", "Gate 18", "CHECK-IN", "#6366F1", "12:00 PM"},
-            {"UK-812", "Hyderabad (HYD)", "Terminal 1", "Gate 6", "ON TIME", "#00E5FF", "02:45 PM"}
-        };
-
-        for (String[] f : flights) {
-            android.widget.LinearLayout row = new android.widget.LinearLayout(this);
-            row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-            row.setPadding(0, 16, 0, 16);
-            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
-
-            android.widget.LinearLayout leftCol = new android.widget.LinearLayout(this);
-            leftCol.setOrientation(android.widget.LinearLayout.VERTICAL);
-            android.widget.LinearLayout.LayoutParams leftParams = new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-            leftCol.setLayoutParams(leftParams);
-
-            android.widget.TextView codeTv = new android.widget.TextView(this);
-            codeTv.setText(f[0] + "  ➔  " + f[1]);
-            codeTv.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
-            codeTv.setTextSize(14);
-            codeTv.setTypeface(null, android.graphics.Typeface.BOLD);
-
-            android.widget.TextView metaTv = new android.widget.TextView(this);
-            metaTv.setText(f[2] + "  •  " + f[3] + "  •  " + f[6]);
-            metaTv.setTextColor(android.graphics.Color.parseColor("#94A3B8"));
-            metaTv.setTextSize(12);
-
-            leftCol.addView(codeTv);
-            leftCol.addView(metaTv);
-
-            android.widget.TextView statusBadge = new android.widget.TextView(this);
-            statusBadge.setText(" " + f[4] + " ");
-            statusBadge.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
-            statusBadge.setBackgroundColor(android.graphics.Color.parseColor(f[5]));
-            statusBadge.setPadding(14, 6, 14, 6);
-            statusBadge.setTextSize(11);
-            statusBadge.setTypeface(null, android.graphics.Typeface.BOLD);
-
-            row.addView(leftCol);
-            row.addView(statusBadge);
-
-            android.view.View divider = new android.view.View(this);
-            divider.setLayoutParams(new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(android.graphics.Color.parseColor("#334155"));
-
-            final String fNum = f[0];
-            row.setClickable(true);
-            row.setFocusable(true);
-            row.setOnClickListener(v -> {
-                flightInput.setText(fNum);
-                getFlightStatus();
-            });
-
-            container.addView(row);
-            container.addView(divider);
-        }
-    }
-
-    private void showFallbackFlightStatus(String flight) {
-        String airlineName = flight.startsWith("AI") ? "Air India" :
-                            flight.startsWith("6E") ? "IndiGo" :
-                            flight.startsWith("SG") ? "SpiceJet" :
-                            flight.startsWith("IX") ? "Air India Express" :
-                            flight.startsWith("UK") ? "Vistara" :
-                            flight.startsWith("EK") ? "Emirates" : "AeroAssist Airways";
-
-        String orig = flight.startsWith("AI") ? "Chennai International Airport (MAA)" :
-                     flight.startsWith("6E") ? "Mumbai Chhatrapati Shivaji Airport (BOM)" :
-                     "Bangalore Kempegowda Airport (BLR)";
-        String dest = "Delhi Indira Gandhi Airport (DEL)";
-        String status = "SCHEDULED / ON TIME";
-        String gate = "Gate " + (Math.abs(flight.hashCode() % 20) + 1);
-
-        String result = "✈️   " + flight + " — " + airlineName +
-                        "\n\n🟢 Status: " + status +
-                        "\n\n🛫 From: " + orig +
-                        "\n       Dep: 06:00 AM  |  Gate: " + gate +
-                        "\n\n🛬 To: " + dest +
-                        "\n       Arr: 08:30 AM" +
-                        "\n\n📡 Live Position: Radar Tracking Active (13.0827°, 80.2707°)";
-
-        resultText.setText(result);
-        if (aiInsightsBtn != null) aiInsightsBtn.setVisibility(View.VISIBLE);
-        if (aiInsightsCard != null) aiInsightsCard.setVisibility(View.GONE);
-        saveLastFlight(flight, result);
-
-        if (olaMap != null) {
-            if (mapCard != null) mapCard.setVisibility(View.VISIBLE);
-            planePos = new OlaLatLng(13.0827, 80.2707, 0.0);
-            if (planeMarker != null) planeMarker.removeMarker();
-            OlaMarkerOptions.Builder markerBuilder = new OlaMarkerOptions.Builder()
-                    .setPosition(planePos)
-                    .setSnippet("Flight " + flight + "\nAlt: 10500m | 850km/h")
-                    .setIconIntRes(R.drawable.ic_plane);
-            planeMarker = olaMap.addMarker(markerBuilder.build());
-            olaMap.moveCameraToLatLong(planePos, 6, 1000);
-        }
     }
 }

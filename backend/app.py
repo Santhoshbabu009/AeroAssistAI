@@ -164,17 +164,34 @@ class LocalSQLiteDB:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 email TEXT PRIMARY KEY,
+                uid TEXT,
                 name TEXT NOT NULL,
                 password TEXT NOT NULL,
                 mobile TEXT,
-                profile_photo TEXT
+                profile_photo TEXT,
+                nationality TEXT DEFAULT 'Indian',
+                preferred_language TEXT DEFAULT 'en',
+                account_type TEXT DEFAULT 'Passenger',
+                security_preferences TEXT DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         cursor.execute("PRAGMA table_info(users)")
         u_cols = [row['name'] for row in cursor.fetchall()]
-        if 'profile_photo' not in u_cols:
-            cursor.execute("ALTER TABLE users ADD COLUMN profile_photo TEXT DEFAULT NULL")
-            conn.commit()
+        for col_name, col_type in [
+            ('profile_photo', 'TEXT DEFAULT NULL'),
+            ('uid', 'TEXT DEFAULT NULL'),
+            ('nationality', "TEXT DEFAULT 'Indian'"),
+            ('preferred_language', "TEXT DEFAULT 'en'"),
+            ('account_type', "TEXT DEFAULT 'Passenger'"),
+            ('security_preferences', "TEXT DEFAULT '{}'")
+        ]:
+            if col_name not in u_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+                    conn.commit()
+                except Exception:
+                    pass
         
         # vendors table
         cursor.execute("""
@@ -211,22 +228,33 @@ class LocalSQLiteDB:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                booking_id TEXT,
                 user_email TEXT NOT NULL,
                 vendor_id INTEGER,
                 terminal TEXT NOT NULL,
                 gate TEXT NOT NULL,
+                pickup_counter TEXT,
                 status TEXT DEFAULT 'Pending',
                 total_price REAL NOT NULL,
                 payment_method TEXT DEFAULT 'COD',
+                payment_status TEXT DEFAULT 'Completed',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
             )
         """)
-        
-        try:
-            cursor.execute("ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT 'COD'")
-        except Exception:
-            pass
+        cursor.execute("PRAGMA table_info(orders)")
+        o_cols = [row['name'] for row in cursor.fetchall()]
+        for col_name, col_type in [
+            ('booking_id', 'TEXT DEFAULT NULL'),
+            ('pickup_counter', 'TEXT DEFAULT NULL'),
+            ('payment_status', "TEXT DEFAULT 'Completed'")
+        ]:
+            if col_name not in o_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE orders ADD COLUMN {col_name} {col_type}")
+                    conn.commit()
+                except Exception:
+                    pass
         
         # order_items table
         cursor.execute("""
@@ -261,16 +289,38 @@ class LocalSQLiteDB:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS parking_bookings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                booking_id TEXT,
                 user_email TEXT NOT NULL,
                 zone TEXT NOT NULL,
+                slot_number TEXT,
+                terminal TEXT DEFAULT 'Terminal 1',
+                duration_hours INTEGER DEFAULT 2,
+                entry_time TEXT,
+                exit_time TEXT,
                 hours INTEGER NOT NULL,
                 plate_number TEXT NOT NULL,
                 payment_method TEXT NOT NULL,
                 total_price REAL NOT NULL,
-                status TEXT DEFAULT 'Pending',
+                status TEXT DEFAULT 'Confirmed',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        cursor.execute("PRAGMA table_info(parking_bookings)")
+        p_cols = [row['name'] for row in cursor.fetchall()]
+        for col_name, col_type in [
+            ('booking_id', 'TEXT DEFAULT NULL'),
+            ('slot_number', 'TEXT DEFAULT NULL'),
+            ('terminal', "TEXT DEFAULT 'Terminal 1'"),
+            ('duration_hours', 'INTEGER DEFAULT 2'),
+            ('entry_time', 'TEXT DEFAULT NULL'),
+            ('exit_time', 'TEXT DEFAULT NULL')
+        ]:
+            if col_name not in p_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE parking_bookings ADD COLUMN {col_name} {col_type}")
+                    conn.commit()
+                except Exception:
+                    pass
 
         # flight_bookings table
         cursor.execute("""
@@ -296,17 +346,36 @@ class LocalSQLiteDB:
             )
         """)
 
+        # flight_seats central inventory table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS flight_seats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                flight_number TEXT NOT NULL,
+                departure_date TEXT NOT NULL,
+                seat_number TEXT NOT NULL,
+                is_booked INTEGER DEFAULT 1,
+                booked_by TEXT NOT NULL,
+                booking_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(flight_number, departure_date, seat_number)
+            )
+        """)
+
         # lost_items table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS lost_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
+                category TEXT DEFAULT 'General',
                 description TEXT NOT NULL,
                 location TEXT NOT NULL,
                 contact TEXT NOT NULL,
                 type TEXT DEFAULT 'Lost',
                 icon TEXT DEFAULT '📦',
                 image TEXT DEFAULT NULL,
+                reporter_name TEXT DEFAULT 'Anonymous',
+                status TEXT DEFAULT 'Pending',
+                user_email TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -314,23 +383,63 @@ class LocalSQLiteDB:
         # Schema migration check
         cursor.execute("PRAGMA table_info(lost_items)")
         columns = [row['name'] for row in cursor.fetchall()]
-        if 'type' not in columns:
-            cursor.execute("ALTER TABLE lost_items ADD COLUMN type TEXT DEFAULT 'Lost'")
-            conn.commit()
-        if 'image' not in columns:
-            cursor.execute("ALTER TABLE lost_items ADD COLUMN image TEXT DEFAULT NULL")
-            conn.commit()
+        for col_name, col_type in [
+            ('type', "TEXT DEFAULT 'Lost'"),
+            ('image', 'TEXT DEFAULT NULL'),
+            ('category', "TEXT DEFAULT 'General'"),
+            ('reporter_name', "TEXT DEFAULT 'Anonymous'"),
+            ('status', "TEXT DEFAULT 'Pending'"),
+            ('user_email', 'TEXT DEFAULT NULL')
+        ]:
+            if col_name not in columns:
+                try:
+                    cursor.execute(f"ALTER TABLE lost_items ADD COLUMN {col_name} {col_type}")
+                    conn.commit()
+                except Exception:
+                    pass
         
         cursor.execute("SELECT COUNT(*) FROM lost_items")
         if cursor.fetchone()[0] == 0:
             cursor.execute("""
-                INSERT INTO lost_items (name, description, location, contact, type, icon) VALUES
-                ('iPhone 13 Pro', 'Blue case', 'Gate 14', '+1234567890', 'Lost', '📱'),
-                ('Leather Wallet', 'Brown', 'Terminal 2', '+1234567890', 'Lost', '👛'),
-                ('MacBook Air', 'Silver', 'Food Court', '+1234567890', 'Lost', '💻'),
-                ('Spectacles', 'RayBan', 'Lounge 1', '+1234567890', 'Lost', '👓')
+                INSERT INTO lost_items (name, category, description, location, contact, type, icon, reporter_name, status) VALUES
+                ('iPhone 13 Pro', 'Electronics', 'Blue case', 'Gate 14', '+1234567890', 'Lost', '📱', 'Santhosh Babu', 'Pending'),
+                ('Leather Wallet', 'Personal Items', 'Brown', 'Terminal 2', '+1234567890', 'Lost', '👛', 'Rahul Sharma', 'Pending'),
+                ('MacBook Air', 'Electronics', 'Silver', 'Food Court', '+1234567890', 'Lost', '💻', 'Priya Singh', 'Pending'),
+                ('Spectacles', 'Accessories', 'RayBan', 'Lounge 1', '+1234567890', 'Lost', '👓', 'Alex Vance', 'Resolved')
             """)
             conn.commit()
+
+        # wallet table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS wallet (
+                user_email TEXT PRIMARY KEY,
+                balance REAL DEFAULT 500.0,
+                transactions TEXT DEFAULT '[]'
+            )
+        """)
+
+        # quiz_scores table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS quiz_scores (
+                user_email TEXT PRIMARY KEY,
+                user_name TEXT,
+                score INTEGER DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # notifications table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_email TEXT NOT NULL,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                type TEXT DEFAULT 'info',
+                is_read INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
         # chat_history table
         cursor.execute("""
@@ -453,17 +562,61 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         finally:
             conn.close()
 
-    def update_profile(self, email, name, mobile, profile_photo=None):
+    def update_profile(self, email, name=None, mobile=None, profile_photo=None, nationality=None, preferred_language=None, account_type=None, security_preferences=None):
         conn = self.get_conn()
         try:
             cursor = conn.cursor()
-            if profile_photo is not None:
-                cursor.execute("UPDATE users SET name = ?, mobile = ?, profile_photo = ? WHERE LOWER(email) = ?",
-                               (name, mobile, profile_photo, email.lower()))
-            else:
-                cursor.execute("UPDATE users SET name = ?, mobile = ? WHERE LOWER(email) = ?",
-                               (name, mobile, email.lower()))
+            fields = []
+            params = []
+            if name is not None: fields.append("name = ?"); params.append(name)
+            if mobile is not None: fields.append("mobile = ?"); params.append(mobile)
+            if profile_photo is not None: fields.append("profile_photo = ?"); params.append(profile_photo)
+            if nationality is not None: fields.append("nationality = ?"); params.append(nationality)
+            if preferred_language is not None: fields.append("preferred_language = ?"); params.append(preferred_language)
+            if account_type is not None: fields.append("account_type = ?"); params.append(account_type)
+            if security_preferences is not None: fields.append("security_preferences = ?"); params.append(security_preferences)
+            
+            if fields:
+                params.append(email.lower())
+                sql = f"UPDATE users SET {', '.join(fields)} WHERE LOWER(email) = ?"
+                cursor.execute(sql, params)
+                conn.commit()
+        finally:
+            conn.close()
+
+    # Seat Inventory Operations
+    def get_booked_seats(self, flight_number, departure_date):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT seat_number, booked_by FROM flight_seats WHERE flight_number = ? AND departure_date = ? AND is_booked = 1", (flight_number, departure_date))
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    def book_seat(self, flight_number, departure_date, seat_number, booked_by, booking_id=None):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO flight_seats (flight_number, departure_date, seat_number, is_booked, booked_by, booking_id)
+                VALUES (?, ?, ?, 1, ?, ?)
+            """, (flight_number, departure_date, seat_number, booked_by, booking_id))
             conn.commit()
+            return True
+        except Exception:
+            return False
+        finally:
+            conn.close()
+
+    def release_seat(self, flight_number, departure_date, seat_number):
+        conn = self.get_conn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM flight_seats WHERE flight_number = ? AND departure_date = ? AND seat_number = ?", (flight_number, departure_date, seat_number))
+            conn.commit()
+            return True
         finally:
             conn.close()
 
@@ -594,10 +747,15 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         conn = self.get_conn()
         try:
             cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM orders")
+            count = cursor.fetchone()[0] + 1
+            booking_id = f"FOOD-{count:06d}"
+            pickup_counter = gate
+
             cursor.execute("""
-                INSERT INTO orders (user_email, vendor_id, terminal, gate, status, total_price, payment_method)
-                VALUES (?, ?, ?, ?, 'Pending', ?, ?)
-            """, (user_email, vendor_id, terminal, gate, total_price, payment_method))
+                INSERT INTO orders (booking_id, user_email, vendor_id, terminal, gate, pickup_counter, status, total_price, payment_method, payment_status)
+                VALUES (?, ?, ?, ?, ?, ?, 'Confirmed', ?, ?, 'Completed')
+            """, (booking_id, user_email, vendor_id, terminal, gate, pickup_counter, total_price, payment_method))
             order_id = cursor.lastrowid
             
             for item in items:
@@ -772,14 +930,27 @@ Gates B1 to B50 are located here. Automated People Movers (APM) connect differen
         finally:
             conn.close()
 
-    def book_parking(self, user_email, zone, hours, plate_number, payment_method, total_price):
+    def book_parking(self, user_email, zone, hours, plate_number, payment_method, total_price, booking_id=None, slot_number=None, terminal=None):
         conn = self.get_conn()
         try:
             cursor = conn.cursor()
+            if not booking_id:
+                cursor.execute("SELECT COUNT(*) FROM parking_bookings")
+                count = cursor.fetchone()[0] + 1
+                booking_id = f"PRK-{count:06d}"
+            if not slot_number:
+                slot_number = f"Slot {zone}-{(abs(hash(str(plate_number) + str(user_email))) % 40) + 1:02d}"
+            if not terminal:
+                terminal = "Terminal 1" if "1" in str(zone) or "A" in str(zone) else "Terminal 2"
+            
+            now = datetime.datetime.now()
+            entry_time = now.strftime("%Y-%m-%d %H:%M")
+            exit_time = (now + datetime.timedelta(hours=int(hours or 2))).strftime("%Y-%m-%d %H:%M")
+
             cursor.execute("""
-                INSERT INTO parking_bookings (user_email, zone, hours, plate_number, payment_method, total_price, status)
-                VALUES (?, ?, ?, ?, ?, ?, 'Pending')
-            """, (user_email, zone, hours, plate_number, payment_method, total_price))
+                INSERT INTO parking_bookings (booking_id, user_email, zone, slot_number, terminal, duration_hours, entry_time, exit_time, hours, plate_number, payment_method, total_price, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Confirmed')
+            """, (booking_id, user_email, zone, slot_number, terminal, hours, entry_time, exit_time, hours, plate_number, payment_method, total_price))
             conn.commit()
             last_id = cursor.lastrowid
             cursor.execute("SELECT * FROM parking_bookings WHERE id = ?", (last_id,))
@@ -1645,7 +1816,11 @@ def get_profile():
             "email": user.get('email'),
             "name": user.get('name'),
             "mobile": user.get('mobile'),
-            "profile_photo": photo
+            "profile_photo": photo,
+            "nationality": user.get('nationality') or 'Indian',
+            "preferred_language": user.get('preferred_language') or 'en',
+            "account_type": user.get('account_type') or 'Passenger',
+            "security_preferences": user.get('security_preferences') or '{}'
         })
     else:
         return jsonify({
@@ -1653,7 +1828,11 @@ def get_profile():
             "email": email,
             "name": email.split('@')[0].capitalize(),
             "mobile": "",
-            "profile_photo": None
+            "profile_photo": None,
+            "nationality": 'Indian',
+            "preferred_language": 'en',
+            "account_type": 'Passenger',
+            "security_preferences": '{}'
         })
 
 @app.route('/api/update-profile', methods=['POST'])
@@ -1663,13 +1842,19 @@ def update_profile():
     name = data.get('name')
     mobile = data.get('mobile')
     profile_photo = data.get('profile_photo')
+    nationality = data.get('nationality')
+    preferred_language = data.get('preferred_language') or data.get('language')
+    account_type = data.get('account_type') or data.get('user_type')
+    security_preferences = data.get('security_preferences')
+    if isinstance(security_preferences, dict):
+        import json
+        security_preferences = json.dumps(security_preferences)
 
     if not email:
         return jsonify({"status": "error", "message": "email is required"}), 400
 
     # Normalize profile_photo: strip data URI prefix for DB storage, re-add when reading
     if profile_photo and profile_photo.startswith('data:'):
-        # Store raw base64 only (strip data:image/...;base64, prefix)
         try:
             profile_photo_clean = profile_photo.split(',', 1)[1]
         except Exception:
@@ -1679,7 +1864,16 @@ def update_profile():
 
     # DUAL WRITE: Always write to SQLite
     try:
-        db.update_profile(email, name, mobile, profile_photo_clean)
+        db.update_profile(
+            email=email,
+            name=name,
+            mobile=mobile,
+            profile_photo=profile_photo_clean,
+            nationality=nationality,
+            preferred_language=preferred_language,
+            account_type=account_type,
+            security_preferences=security_preferences
+        )
     except Exception as e:
         print("[UPDATE PROFILE] SQLite error:", str(e))
 
@@ -1690,6 +1884,10 @@ def update_profile():
             if name is not None: update_dict['name'] = name
             if mobile is not None: update_dict['mobile'] = mobile
             if profile_photo_clean is not None: update_dict['profile_photo'] = profile_photo_clean
+            if nationality is not None: update_dict['nationality'] = nationality
+            if preferred_language is not None: update_dict['preferred_language'] = preferred_language
+            if account_type is not None: update_dict['account_type'] = account_type
+            if security_preferences is not None: update_dict['security_preferences'] = security_preferences
             if update_dict:
                 supabase.table('users').update(update_dict).ilike('email', email).execute()
         except Exception as e:
@@ -2395,6 +2593,11 @@ def parking_booking_history():
 
 @app.route('/api/lost-items', methods=['GET'])
 def get_lost_items():
+    search = (request.args.get('search') or '').strip().lower()
+    category_filter = (request.args.get('category') or '').strip().lower()
+    status_filter = (request.args.get('status') or '').strip().lower()
+    type_filter = (request.args.get('type') or '').strip().lower()
+
     items_map = {}
 
     # 1. Fetch from local SQLite
@@ -2422,28 +2625,52 @@ def get_lost_items():
             print("[SUPABASE LOST ITEMS]:", str(e))
 
     items = list(items_map.values())
-    return jsonify({"status": "success", "items": items})
+
+    # Apply Filtering
+    filtered = []
+    for item in items:
+        name = str(item.get('name', '')).lower()
+        desc = str(item.get('description', '')).lower()
+        loc = str(item.get('location', '')).lower()
+        cat = str(item.get('category', '')).lower()
+        st = str(item.get('status', 'Pending')).lower()
+        tp = str(item.get('type', 'Lost')).lower()
+
+        if search and (search not in name and search not in desc and search not in loc):
+            continue
+        if category_filter and category_filter != 'all' and category_filter not in cat:
+            continue
+        if status_filter and status_filter != 'all' and status_filter != st:
+            continue
+        if type_filter and type_filter != 'all' and type_filter != tp:
+            continue
+        filtered.append(item)
+
+    return jsonify({"status": "success", "items": filtered})
 
 @app.route('/api/lost-items', methods=['POST'])
 def add_lost_item():
     data = request.json or {}
     name = data.get('name')
+    category = data.get('category', 'General')
     description = data.get('description', '')
-    location = data.get('location')
-    contact = data.get('contact')
+    location = data.get('location') or data.get('terminal', 'Terminal 1')
+    contact = data.get('contact') or data.get('contact_method', '')
     v_type = data.get('type', 'Lost')
     icon = data.get('icon', '📦')
-    image = data.get('image')
+    image = data.get('image') or data.get('photo', '')
+    reporter_name = data.get('reporter_name') or data.get('name', 'Anonymous')
+    user_email = data.get('user_email') or data.get('email') or getattr(request, 'user_email', None)
 
     if not name or not location or not contact:
-        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+        return jsonify({"status": "error", "message": "Missing required fields: name, location/terminal, contact"}), 400
 
     conn = db.get_conn()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO lost_items (name, description, location, contact, type, icon, image)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (name, description, location, contact, v_type, icon, image))
+        INSERT INTO lost_items (name, category, description, location, contact, type, icon, image, reporter_name, status, user_email)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)
+    """, (name, category, description, location, contact, v_type, icon, image, reporter_name, user_email))
     conn.commit()
     conn.close()
 
@@ -2451,17 +2678,46 @@ def add_lost_item():
         try:
             supabase.table('lost_items').insert({
                 "name": name,
+                "category": category,
                 "description": description,
                 "location": location,
                 "contact": contact,
                 "type": v_type,
                 "icon": icon,
-                "image": image
+                "image": image,
+                "reporter_name": reporter_name,
+                "status": "Pending",
+                "user_email": user_email
             }).execute()
         except Exception as se:
             print("[SUPABASE LOST ITEM SYNC ERROR]:", str(se))
 
-    return jsonify({"status": "success", "message": "Item reported successfully"})
+    return jsonify({"status": "success", "message": "Lost & Found report submitted successfully"})
+
+@app.route('/api/lost-items/status', methods=['POST', 'PUT'])
+def update_lost_item_status():
+    data = request.json or {}
+    item_id = data.get('id')
+    new_status = data.get('status', 'Resolved')
+    if not item_id:
+        return jsonify({"status": "error", "message": "Missing item id"}), 400
+
+    try:
+        conn = db.get_conn()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE lost_items SET status = ? WHERE id = ?", (new_status, item_id))
+        conn.commit()
+        conn.close()
+
+        if supabase is not None:
+            try:
+                supabase.table('lost_items').update({'status': new_status}).eq('id', item_id).execute()
+            except Exception as se:
+                print("[UPDATE LOST ITEM STATUS] Supabase sync notice:", str(se))
+
+        return jsonify({"status": "success", "message": f"Item status updated to {new_status}"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/lost-items/delete', methods=['POST'])
 def delete_lost_item():
@@ -2904,6 +3160,53 @@ def search_flights():
         "flights": flights
     })
 
+@app.route('/api/flights/seats', methods=['GET'])
+def get_flight_seats():
+    flight_number = request.args.get('flight_number') or request.args.get('flight_code') or request.args.get('flight')
+    departure_date = request.args.get('date') or datetime.date.today().strftime('%Y-%m-%d')
+    if not flight_number:
+        return jsonify({"status": "error", "message": "flight_number parameter is required"}), 400
+
+    seats = db.get_booked_seats(flight_number, departure_date)
+    booked_seat_numbers = [s['seat_number'] for s in seats]
+    return jsonify({
+        "status": "success",
+        "flight_number": flight_number,
+        "departure_date": departure_date,
+        "booked_seats": booked_seat_numbers,
+        "seats_detail": seats
+    })
+
+@app.route('/api/flights/seats/book', methods=['POST'])
+def book_flight_seat():
+    data = request.json or {}
+    flight_number = data.get('flight_number') or data.get('flight_code')
+    departure_date = data.get('date') or datetime.date.today().strftime('%Y-%m-%d')
+    seat_number = data.get('seat_number')
+    booked_by = data.get('user_email') or data.get('email') or 'guest@aeroassist.ai'
+    booking_id = data.get('booking_id')
+
+    if not flight_number or not seat_number:
+        return jsonify({"status": "error", "message": "flight_number and seat_number are required"}), 400
+
+    success = db.book_seat(flight_number, departure_date, seat_number, booked_by, booking_id)
+    if success:
+        return jsonify({"status": "success", "message": f"Seat {seat_number} reserved successfully", "seat_number": seat_number})
+    else:
+        return jsonify({"status": "error", "message": f"Seat {seat_number} is already booked by another passenger"}), 409
+
+@app.route('/api/flights/seats/release', methods=['POST'])
+def release_flight_seat():
+    data = request.json or {}
+    flight_number = data.get('flight_number') or data.get('flight_code')
+    departure_date = data.get('date') or datetime.date.today().strftime('%Y-%m-%d')
+    seat_number = data.get('seat_number')
+
+    if not flight_number or not seat_number:
+        return jsonify({"status": "error", "message": "flight_number and seat_number are required"}), 400
+
+    db.release_seat(flight_number, departure_date, seat_number)
+    return jsonify({"status": "success", "message": f"Seat {seat_number} released successfully"})
 
 @app.route('/api/flights/book', methods=['POST'])
 def book_flight():
@@ -2919,15 +3222,25 @@ def book_flight():
     rnd_suffix = "".join(random.choices("0123456789", k=6))
     booking_id = f"BK-{rnd_suffix}"
     pnr = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=6))
-    payment_id = f"PAY-{"".join(random.choices('0123456789', k=8))}"
-    transaction_id = f"TXN-{"".join(random.choices('0123456789', k=10))}"
-    ticket_number = f"TKT-{"".join(random.choices('0123456789', k=10))}"
-    invoice_number = f"INV-2026-{"".join(random.choices('0123456789', k=5))}"
+    payment_id = f"PAY-{''.join(random.choices('0123456789', k=8))}"
+    transaction_id = f"TXN-{''.join(random.choices('0123456789', k=10))}"
+    ticket_number = f"TKT-{''.join(random.choices('0123456789', k=10))}"
+    invoice_number = f"INV-2026-{''.join(random.choices('0123456789', k=5))}"
     
     origin = flight_details.get('origin', 'DEL')
     destination = flight_details.get('destination', 'BOM')
     departure_date = flight_details.get('departure_date', datetime.date.today().strftime('%Y-%m-%d'))
-    
+    flight_num = flight_details.get('flight_number', 'AI-432')
+
+    # Reserve seat numbers in central inventory
+    seats_assigned = data.get('seat_numbers') or []
+    if not seats_assigned and isinstance(passenger_details, list):
+        for p in passenger_details:
+            if isinstance(p, dict) and p.get('seat'):
+                seats_assigned.append(p.get('seat'))
+    for s_num in seats_assigned:
+        db.book_seat(flight_num, departure_date, s_num, user_email, booking_id)
+
     import json
     flight_json = json.dumps(flight_details)
     pax_json = json.dumps(passenger_details)

@@ -24,8 +24,19 @@ public class Constants {
     public static final String GET_PROFILE_ENDPOINT = API_V1_BASE + "/get-profile";
     public static final String CHAT_HISTORY_ENDPOINT = API_V1_BASE + "/chat-history";
     
-    // Flight Booking Endpoints
     public static final String FLIGHT_SEARCH_ENDPOINT = API_V1_BASE + "/flights/search";
     public static final String FLIGHT_BOOK_ENDPOINT = API_V1_BASE + "/flights/book";
     public static final String FLIGHT_BOOKINGS_ENDPOINT = API_V1_BASE + "/flights/bookings";
+    public static final String FLIGHT_SEATS_ENDPOINT = API_V1_BASE + "/flights/seats";
+    public static final String FLIGHT_SEAT_BOOK_ENDPOINT = API_V1_BASE + "/flights/seats/book";
+    public static final String FLIGHT_SEAT_RELEASE_ENDPOINT = API_V1_BASE + "/flights/seats/release";
+
+    // Parking Endpoints
+    public static final String PARKING_BOOKINGS_ENDPOINT = API_V1_BASE + "/parking-bookings";
+
+    // Food Orders Endpoint
+    public static final String FOOD_ORDERS_ENDPOINT = API_V1_BASE + "/orders";
+
+    // Lost & Found Endpoint
+    public static final String LOST_ITEMS_ENDPOINT = API_V1_BASE + "/lost-items";
 }

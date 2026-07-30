@@ -443,24 +443,26 @@
         </div>
       </section>
 
-      <!-- View: My Bookings & Manage Tickets -->
+      <!-- View 1.5: My Bookings & History Suite -->
       <section id="view-my-bookings" class="page-view">
         <div class="glass-card" style="margin-bottom: 24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
             <div>
-              <h1>My <span class="gradient-text">Bookings</span></h1>
-              <p>View all your active & past confirmed flight tickets and parking reservations.</p>
+              <h1>My <span class="gradient-text">Bookings & Orders</span></h1>
+              <p>View all your active & past confirmed flight tickets, food orders, and parking reservations.</p>
             </div>
             <div style="display:flex; gap:12px;">
               <button class="btn-primary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('flights')">+ Book Flight</button>
+              <button class="btn-secondary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('dining')">+ Order Food</button>
               <button class="btn-secondary" style="width:auto; padding:0 20px; height:40px;" onclick="app.showPage('parking')">+ Book Parking</button>
             </div>
           </div>
         </div>
 
         <!-- Tabs -->
-        <div style="display:flex; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:8px;">
+        <div style="display:flex; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:8px; overflow-x:auto;">
           <button id="tab-flight-bookings" class="order-filter-btn active" style="font-size:16px; font-weight:600;" onclick="app.switchBookingTab('flights')">✈️ Flight Tickets</button>
+          <button id="tab-food-bookings" class="order-filter-btn" style="font-size:16px; font-weight:600;" onclick="app.switchBookingTab('food')">🍔 Food Order History</button>
           <button id="tab-parking-bookings" class="order-filter-btn" style="font-size:16px; font-weight:600;" onclick="app.switchBookingTab('parking')">🅿️ Parking Slots</button>
         </div>
 
@@ -479,6 +481,12 @@
 
           <!-- Bookings List Container -->
           <div id="my-bookings-list-container">
+            <!-- Dynamically Populated in app.js -->
+          </div>
+        </div>
+
+        <div id="bookings-food-section" style="display:none;">
+          <div id="my-food-list-container">
             <!-- Dynamically Populated in app.js -->
           </div>
         </div>
@@ -822,6 +830,21 @@
               <input type="text" id="lost-item-name" placeholder="e.g. Blue Leather Wallet or iPhone 13">
             </div>
             <div class="form-group">
+              <label>Item Category</label>
+              <select id="lost-item-category" style="width:100%; padding:12px; border-radius:10px; background:var(--glass-bg-hover); color:var(--text-primary); border:var(--glass-border);">
+                <option value="General">📦 General Item</option>
+                <option value="Electronics">📱 Electronics (Phone, Tablet, Laptop)</option>
+                <option value="Documents">📄 Documents (Passport, ID, Visa)</option>
+                <option value="Luggage">🧳 Luggage / Bag</option>
+                <option value="Jewellery">💍 Jewellery / Accessories</option>
+                <option value="Clothing">👔 Clothing</option>
+                <option value="Keys">🔑 Keys</option>
+                <option value="Wallet">👛 Wallet / Purse</option>
+                <option value="Toys">🧸 Children's Items / Toys</option>
+                <option value="Medical">💊 Medical / Medications</option>
+              </select>
+            </div>
+            <div class="form-group">
               <label>Description / Details</label>
               <input type="text" id="lost-item-desc" placeholder="e.g. Silver case, contains ID cards">
             </div>
@@ -916,32 +939,62 @@
       <section id="view-profile" class="page-view">
         <div class="glass-card" style="margin-bottom: 24px;">
           <h1>User <span class="gradient-text">Profile</span></h1>
-          <p>Manage your account settings, travel documents, and security preferences.</p>
+          <p>Manage your unified profile, contact details, nationality, language, and security preferences.</p>
         </div>
         <div class="grid-container">
           <div class="glass-card">
-            <h3>Account Details</h3>
+            <h3>Personal Information</h3>
             <div class="form-group" style="margin-top: 16px;">
               <label>Full Name</label>
-              <input type="text" value="AeroAssist User" id="profile-name-input">
+              <input type="text" id="profile-name-input" placeholder="e.g. Santhosh Babu">
             </div>
             <div class="form-group">
               <label>Email Address</label>
-              <input type="email" value="user@aeroassist.in" disabled style="opacity: 0.6;">
+              <input type="email" id="profile-email-input" readonly style="opacity: 0.7; cursor: not-allowed;">
             </div>
-            <button class="btn-primary" onclick="alert('Profile updated!')">SAVE CHANGES</button>
+            <div class="form-group">
+              <label>Mobile Number</label>
+              <input type="text" id="profile-mobile-input" placeholder="e.g. +91 9876543210">
+            </div>
+            <div class="form-group">
+              <label>Nationality</label>
+              <input type="text" id="profile-nationality-input" placeholder="e.g. Indian">
+            </div>
           </div>
           <div class="glass-card">
-            <h3>Security & Preferences</h3>
+            <h3>Preferences & Security</h3>
+            <div class="form-group" style="margin-top: 16px;">
+              <label>Preferred Language</label>
+              <select id="profile-lang-select">
+                <option value="en">🌐 English (EN)</option>
+                <option value="hi">🇮🇳 हिन्दी (HI)</option>
+                <option value="ta">🇮🇳 தமிழ் (TA)</option>
+                <option value="es">🇪🇸 Español (ES)</option>
+                <option value="fr">🇫🇷 Français (FR)</option>
+                <option value="de">🇩🇪 Deutsch (DE)</option>
+                <option value="zh">🇨🇳 中文 (ZH)</option>
+                <option value="ar">🇸🇦 العربية (AR)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Account Type</label>
+              <select id="profile-account-type-select">
+                <option value="Passenger">✈️ Passenger / Visitor</option>
+                <option value="Employee">👮 Airport Employee</option>
+                <option value="Vendor">🔐 Merchant / Vendor</option>
+              </select>
+            </div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; margin-bottom: 24px; padding: 12px; border: var(--glass-border); border-radius: var(--radius-sm);">
               <div>
-                <h4 style="margin: 0 0 4px 0;">Two-Factor Authentication</h4>
-                <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Secure your account with 2FA.</p>
+                <h4 style="margin: 0 0 4px 0;">Voice Assistant Reply</h4>
+                <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Enable speech responses from AI copilot.</p>
               </div>
-              <input type="checkbox" checked style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
+              <input type="checkbox" id="profile-voice-check" checked style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
             </div>
-            <button class="btn-secondary" onclick="alert('A password reset link has been sent to your email.')">CHANGE PASSWORD</button>
-            <button class="btn-danger" style="margin-top:12px;" onclick="app.showPage('auth')">LOGOUT ACCOUNT</button>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+              <button class="btn-primary" style="flex:1;" onclick="app.saveUserProfile()">SAVE PROFILE CHANGES</button>
+              <button class="btn-danger" style="width: 130px;" onclick="app.logoutUser()">LOGOUT</button>
+            </div>
           </div>
         </div>
       </section>

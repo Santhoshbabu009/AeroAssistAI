@@ -695,6 +695,9 @@ class AeroAssistApp {
           clearInterval(this.myBookingsPollTimer);
         }
       }, 8000);
+    } else if (pageId === "profile") {
+      this._populateProfileView();
+      if (this.currentUser) this.fetchUserProfile();
     }
   }
 
@@ -1118,12 +1121,57 @@ class AeroAssistApp {
       if (res && res.status === "success") {
         if (res.name) this.currentUser.name = res.name;
         if (res.mobile !== undefined) this.currentUser.mobile = res.mobile;
-        // Always sync photo from server (even if null - clear cached stale photo)
         this.currentUser.profile_photo = res.profile_photo || null;
+        this.currentUser.nationality = res.nationality || 'Indian';
+        this.currentUser.preferred_language = res.preferred_language || 'en';
+        this.currentUser.account_type = res.account_type || 'Passenger';
+        this.currentUser.security_preferences = res.security_preferences || '{}';
         localStorage.setItem("user_session", JSON.stringify(this.currentUser));
         this.updateUserSessionUI();
+        this._populateProfileView();
       }
     } catch(e) { console.warn("[PROFILE] Fetch failed:", e); }
+  }
+
+  _populateProfileView() {
+    if (!this.currentUser) return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('profile-name-input', this.currentUser.name);
+    set('profile-email-input', this.currentUser.email);
+    set('profile-mobile-input', this.currentUser.mobile);
+    set('profile-nationality-input', this.currentUser.nationality);
+    const langSel = document.getElementById('profile-lang-select');
+    if (langSel) langSel.value = this.currentUser.preferred_language || 'en';
+    const typeSel = document.getElementById('profile-account-type-select');
+    if (typeSel) typeSel.value = this.currentUser.account_type || 'Passenger';
+  }
+
+  async saveUserProfile() {
+    if (!this.currentUser) { alert('Please sign in first.'); return; }
+    const name = (document.getElementById('profile-name-input')?.value || '').trim();
+    const mobile = (document.getElementById('profile-mobile-input')?.value || '').trim();
+    const nationality = (document.getElementById('profile-nationality-input')?.value || '').trim();
+    const preferred_language = document.getElementById('profile-lang-select')?.value || 'en';
+    const account_type = document.getElementById('profile-account-type-select')?.value || 'Passenger';
+    if (!name) { alert('Full Name cannot be empty.'); return; }
+    const res = await this.apiCall('/update-profile', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: this.currentUser.email, name, mobile, nationality, preferred_language, account_type
+      })
+    });
+    if (res && res.status === 'success') {
+      this.currentUser.name = name;
+      this.currentUser.mobile = mobile;
+      this.currentUser.nationality = nationality;
+      this.currentUser.preferred_language = preferred_language;
+      this.currentUser.account_type = account_type;
+      localStorage.setItem('user_session', JSON.stringify(this.currentUser));
+      this.updateUserSessionUI();
+      alert('✅ Profile saved successfully and synced across all devices!');
+    } else {
+      alert(res.message || 'Failed to save profile.');
+    }
   }
 
   updateUserSessionUI() {
@@ -2332,14 +2380,22 @@ class AeroAssistApp {
     this.renderSeatMap();
   }
 
-  renderSeatMap() {
+  async renderSeatMap() {
     const container = document.getElementById("flight-seat-passenger-container");
     if (!container) return;
 
     document.getElementById("flight-results-container").style.display = "none";
     container.style.display = "block";
+    container.innerHTML = `<div class="glass-card" style="padding:24px; text-align:center;"><p>Loading seat availability from central inventory...</p></div>`;
 
-    // Create a dummy seat map (6 columns, 10 rows for economy, fewer for business)
+    // Fetch booked seats from central backend inventory
+    const flight = this.bookingDraft.flight;
+    let bookedSeats = [];
+    try {
+      const res = await this.apiCall(`/flights/seats?flight_number=${encodeURIComponent(flight.flight_number)}&date=${encodeURIComponent(this.bookingDraft.date)}`);
+      if (res && res.booked_seats) bookedSeats = res.booked_seats;
+    } catch(e) { console.warn('[SEAT MAP] Could not fetch central seat inventory:', e); }
+
     const rows = this.bookingDraft.cabinClass === "Economy" ? 10 : 5;
     const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
     
@@ -2347,16 +2403,13 @@ class AeroAssistApp {
     
     for (let r = 1; r <= rows; r++) {
       for (let c = 0; c < cols.length; c++) {
-        if (c === 3) {
-          // Aisle
-          seatGridHTML += `<div style="width:40px; height:40px;"></div>`;
-        }
+        if (c === 3) seatGridHTML += `<div style="width:40px; height:40px;"></div>`;
         const seatId = `${r}${cols[c]}`;
-        const isOccupied = Math.random() > 0.7; // Dummy 30% occupied
+        const isOccupied = bookedSeats.includes(seatId);
         if (isOccupied) {
-          seatGridHTML += `<div class="seat-item occupied" style="width:40px; height:40px; border-radius:8px; background:rgba(255,255,255,0.1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:not-allowed;" title="Occupied">${seatId}</div>`;
+          seatGridHTML += `<div class="seat-item occupied" style="width:40px;height:40px;border-radius:8px;background:rgba(255,80,80,0.25);border:1px solid rgba(255,80,80,0.4);color:rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:not-allowed;" title="Occupied — booked by another passenger">${seatId}</div>`;
         } else {
-          seatGridHTML += `<div class="seat-item available" id="seat-${seatId}" style="width:40px; height:40px; border-radius:8px; background:rgba(0, 229, 255, 0.1); border:1px solid var(--accent-cyan); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" onclick="app.toggleSeatSelection('${seatId}')">${seatId}</div>`;
+          seatGridHTML += `<div class="seat-item available" id="seat-${seatId}" style="width:40px;height:40px;border-radius:8px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;" onclick="app.toggleSeatSelection('${seatId}')">${seatId}</div>`;
         }
       }
     }
@@ -2365,16 +2418,13 @@ class AeroAssistApp {
     container.innerHTML = `
       <div class="glass-card" style="padding:24px;">
         <h3 style="margin-bottom:8px;">Select Seats</h3>
-        <p style="font-size:13px; color:var(--text-secondary);">Please select ${this.bookingDraft.passengers} seat(s) for your journey.</p>
-        
-        <div style="display:flex; justify-content:center; gap:20px; margin-top:16px;">
-          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);border-radius:4px;"></div> <span style="font-size:12px;">Available</span></div>
-          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:var(--accent-cyan);border-radius:4px;"></div> <span style="font-size:12px;">Selected</span></div>
-          <div style="display:flex; align-items:center; gap:8px;"><div style="width:16px;height:16px;background:rgba(255,255,255,0.1);border-radius:4px;"></div> <span style="font-size:12px;">Occupied</span></div>
+        <p style="font-size:13px; color:var(--text-secondary);">Please select ${this.bookingDraft.passengers} seat(s). Red seats are reserved by other passengers in real-time.</p>
+        <div style="display:flex; justify-content:center; gap:20px; margin-top:16px; flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);border-radius:4px;"></div><span style="font-size:12px;">Available</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:var(--accent-cyan);border-radius:4px;"></div><span style="font-size:12px;">Selected</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:rgba(255,80,80,0.25);border:1px solid rgba(255,80,80,0.4);border-radius:4px;"></div><span style="font-size:12px;">Occupied</span></div>
         </div>
-
         ${seatGridHTML}
-
         <div style="text-align:right; margin-top:24px;">
           <button class="btn-primary" onclick="app.continueToPassengerDetails()">CONTINUE</button>
         </div>
@@ -2761,115 +2811,178 @@ class AeroAssistApp {
 
   // --- PARKING RESERVATIONS ---
   switchBookingTab(tab) {
-    if (tab === 'flights') {
-      document.getElementById('tab-flight-bookings').classList.add('active');
-      document.getElementById('tab-parking-bookings').classList.remove('active');
-      document.getElementById('bookings-flights-section').style.display = 'block';
-      document.getElementById('bookings-parking-section').style.display = 'none';
-      this.fetchMyBookings();
-    } else {
-      document.getElementById('tab-flight-bookings').classList.remove('active');
-      document.getElementById('tab-parking-bookings').classList.add('active');
-      document.getElementById('bookings-flights-section').style.display = 'none';
-      document.getElementById('bookings-parking-section').style.display = 'block';
-      this.fetchParkingBookings();
+    const tabs = ['flights', 'food', 'parking'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-${t}-bookings`);
+      const sec = document.getElementById(`bookings-${t}-section`);
+      if (btn) btn.classList.toggle('active', t === tab);
+      if (sec) sec.style.display = t === tab ? 'block' : 'none';
+    });
+    if (tab === 'flights') this.fetchMyBookings();
+    else if (tab === 'food') this.fetchFoodOrderHistory();
+    else if (tab === 'parking') this.fetchParkingBookings();
+  }
+
+  async fetchFoodOrderHistory() {
+    const container = document.getElementById('my-food-list-container');
+    if (!container) return;
+    if (!this.currentUser || !this.currentUser.email) {
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">Please Sign In to view your food order history.</div>`;
+      return;
+    }
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading order history...</div>`;
+    try {
+      const res = await this.apiCall(`/orders?email=${encodeURIComponent(this.currentUser.email)}`);
+      const orders = (res && res.orders) ? res.orders : [];
+      if (!orders.length) {
+        container.innerHTML = `
+          <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
+            <div style="font-size:3rem; margin-bottom:16px;">🍔</div>
+            <h3 style="color:var(--text-primary); margin-bottom:8px;">No Food Orders Yet</h3>
+            <p style="margin-bottom:24px;">You haven't placed any food orders. Explore airport dining!</p>
+            <button class="btn-primary" onclick="app.showPage('dining')" style="padding:12px 28px; border-radius:12px;">Browse Restaurants</button>
+          </div>`;
+        return;
+      }
+      container.innerHTML = orders.map(o => {
+        const status = (o.status || o.order_status || 'Pending').toLowerCase();
+        const statusClass = ['delivered','completed'].includes(status) ? 'delivered' : ['accepted','preparing','ready'].includes(status) ? 'accepted' : 'pending';
+        const items = Array.isArray(o.items) ? o.items.map(i => `${i.quantity||i.qty||1}x ${i.name||i.product_name}`).join(', ') : (o.formatted_items || o.items || 'Items');
+        return `
+          <div class="glass-card" style="margin-bottom:16px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+              <h3 style="margin:0;">Order <span style="color:var(--accent-orange);">${o.booking_id || o.order_id || ('#'+o.id)}</span></h3>
+              <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px;">
+              <div>
+                <p style="margin:0; font-size:15px; font-weight:600;">${o.restaurant_name || o.vendor_name || 'Restaurant'}</p>
+                <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Items: ${items}</p>
+              </div>
+              <div>
+                <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${o.terminal || '-'}</strong> | Gate: <strong>${o.gate || '-'}</strong></p>
+                ${o.pickup_counter ? `<p style="margin:4px 0 0; font-size:13px; color:var(--accent-cyan);">🪧 Pickup Counter: <strong>${o.pickup_counter}</strong></p>` : ''}
+                <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Total: <strong style="color:var(--accent-orange);">₹${o.total_price || o.total_amount || 0}</strong></p>
+              </div>
+              <div>
+                ${o.created_at ? `<p style="margin:0; font-size:12px; color:var(--text-muted);">📅 ${new Date(o.created_at).toLocaleString()}</p>` : ''}
+                <p style="margin:4px 0 0; font-size:12px; color:var(--text-muted);">Payment: ${o.payment_method || 'COD'} — ${o.payment_status || 'Pending'}</p>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) {
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load food orders.</div>`;
     }
   }
 
-  fetchParkingBookings() {
+  async fetchParkingBookings() {
     const container = document.getElementById("my-parking-list-container");
     if (!container) return;
-    
     if (!this.currentUser || !this.currentUser.email) {
       container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-secondary);">Please Sign In to view parking reservations.</div>`;
       return;
     }
-
-    const key = `aero_parking_${this.currentUser.email.toLowerCase()}`;
-    const localBookings = JSON.parse(localStorage.getItem(key) || '[]');
-    
-    if (localBookings.length === 0) {
-      container.innerHTML = `
-        <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
-          <div style="font-size:3rem; margin-bottom:16px;">🅿️</div>
-          <h3 style="color:var(--text-primary); margin-bottom:8px;">No Parking Reservations</h3>
-          <p style="margin-bottom:24px;">You haven't reserved any parking slots yet.</p>
-          <button class="btn-primary" onclick="app.showPage('parking')" style="padding:12px 28px; border-radius:12px;">Reserve a Slot</button>
-        </div>
-      `;
-      return;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading parking bookings...</div>`;
+    try {
+      const res = await this.apiCall(`/parking-bookings?email=${encodeURIComponent(this.currentUser.email)}`);
+      const bookings = (res && res.bookings) ? res.bookings : [];
+      if (!bookings.length) {
+        container.innerHTML = `
+          <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
+            <div style="font-size:3rem; margin-bottom:16px;">🅿️</div>
+            <h3 style="color:var(--text-primary); margin-bottom:8px;">No Parking Reservations</h3>
+            <p style="margin-bottom:24px;">You haven't reserved any parking slots yet.</p>
+            <button class="btn-primary" onclick="app.showPage('parking')" style="padding:12px 28px; border-radius:12px;">Reserve a Slot</button>
+          </div>`;
+        return;
+      }
+      this.renderParkingBookings(bookings);
+    } catch(e) {
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load parking bookings.</div>`;
     }
-    
-    this.renderParkingBookings(localBookings);
   }
 
   renderParkingBookings(bookings) {
     const container = document.getElementById("my-parking-list-container");
     if (!container) return;
-    
-    container.innerHTML = bookings.map(b => `
-      <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-          <h3 style="margin:0;">Booking ID: <span style="color:var(--accent-cyan);">${b.id}</span></h3>
-          <span class="status-badge accepted">CONFIRMED</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; align-items:center;">
-          <div>
-            <p style="margin:0; font-size:18px; font-weight:700;">Slot: <span style="color:var(--accent-orange);">${b.slot}</span></p>
-            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Date: ${b.date} | Duration: ${b.hours} Hours</p>
-            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Vehicle Plate: ${b.plate} | Total: ₹${b.price}</p>
+    container.innerHTML = bookings.map(b => {
+      const bookingId = b.booking_id || b.id || 'PRK-XXXXXX';
+      const slot = b.slot_number || b.slot || 'Auto-Assigned';
+      const plate = b.plate_number || b.plate || b.vehicle_plate || '-';
+      const hours = b.duration_hours || b.hours || '-';
+      const price = b.total_price || b.price || '-';
+      const terminal = b.terminal || '-';
+      const entry = b.entry_time ? new Date(b.entry_time).toLocaleString() : (b.date || '-');
+      const status = (b.booking_status || b.status || 'Confirmed');
+      const statusClass = status.toLowerCase() === 'confirmed' ? 'accepted' : 'pending';
+      return `
+        <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin:0;">Booking ID: <span style="color:var(--accent-cyan);">${bookingId}</span></h3>
+            <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
           </div>
-          <div style="text-align:right;">
-            <i data-lucide="parking-circle" style="width:32px; height:32px; color:var(--text-secondary);"></i>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+            <div>
+              <p style="margin:0; font-size:18px; font-weight:700;">Slot: <span style="color:var(--accent-orange);">${slot}</span></p>
+              <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Vehicle: ${plate}</p>
+            </div>
+            <div>
+              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${terminal}</strong></p>
+              <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Duration: <strong>${hours} hrs</strong></p>
+            </div>
+            <div>
+              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Entry: ${entry}</p>
+              <p style="margin:4px 0 0; font-size:15px; color:var(--accent-orange); font-weight:700;">₹${price}</p>
+            </div>
           </div>
-        </div>
-      </div>
-    `).join("");
-    
-    if (window.lucide) window.lucide.createIcons();
+        </div>`;
+    }).join("");
   }
 
-  reserveParkingSlot() {
+  async reserveParkingSlot() {
     if (!this.currentUser) {
       alert("Please Sign In or Register to book a parking slot.");
       this.showPage("auth");
       return;
     }
-    
     const plate = document.getElementById('parking-plate').value.trim();
-    const hours = document.getElementById('parking-hours').value;
-    
-    if (!plate) {
-      alert("Please enter a valid vehicle license plate.");
-      return;
+    const hours = parseInt(document.getElementById('parking-hours').value || '4');
+    if (!plate) { alert("Please enter a valid vehicle license plate."); return; }
+
+    const btn = document.querySelector('#parking-checkout-view .btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Booking...'; }
+
+    try {
+      const totalPrice = hours * 100;
+      const res = await this.apiCall('/parking-bookings', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_email: this.currentUser.email,
+          plate_number: plate,
+          zone: 'Zone-A',
+          hours: hours,
+          payment_method: 'UPI',
+          total_price: totalPrice
+        })
+      });
+
+      if (res && res.status === 'success') {
+        const booking = res.booking || {};
+        alert(`🅿️ Parking Reserved!\n\nBooking ID: ${booking.booking_id || booking.id || 'PRK-XXXXXX'}\nSlot: ${booking.slot_number || 'Auto-Assigned'}\nVehicle: ${plate}\nDuration: ${hours} hrs\nAmount: ₹${totalPrice}\n\nView in My Bookings → Parking Slots.`);
+        document.getElementById('parking-plate').value = '';
+        document.getElementById('parking-checkout-view').style.display = 'none';
+        document.getElementById('parking-map-view').style.display = 'block';
+        this.showPage('my-bookings');
+        this.switchBookingTab('parking');
+      } else {
+        alert(res.message || 'Failed to reserve parking slot.');
+      }
+    } catch(e) {
+      alert('Network error. Please try again.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'CONFIRM BOOKING'; }
     }
-    
-    const slots = ['A-42', 'B-12', 'C-05', 'D-99', 'E-21', 'A-09'];
-    const slot = slots[Math.floor(Math.random() * slots.length)];
-    const price = hours * 100; // Base ₹100 per hour
-    
-    const b = {
-      id: 'PRK-' + Math.floor(100000 + Math.random() * 900000),
-      plate: plate,
-      hours: hours,
-      slot: slot,
-      date: new Date().toLocaleDateString(),
-      price: price
-    };
-    
-    const key = `aero_parking_${this.currentUser.email.toLowerCase()}`;
-    const list = JSON.parse(localStorage.getItem(key) || '[]');
-    list.unshift(b);
-    localStorage.setItem(key, JSON.stringify(list));
-    
-    alert(`Parking Reserved successfully!\n\nSlot: ${slot}\nAmount: ₹${price}\n\nYou can view this reservation in My Bookings.`);
-    
-    document.getElementById('parking-plate').value = '';
-    document.getElementById('parking-checkout-view').style.display='none'; 
-    document.getElementById('parking-map-view').style.display='block';
-    
-    this.showPage('my-bookings');
-    this.switchBookingTab('parking');
   }
 
   async viewETicket(pnr) {
@@ -3005,6 +3118,7 @@ class AeroAssistApp {
     const desc = document.getElementById("lost-item-desc").value.trim();
     const location = document.getElementById("lost-item-location").value.trim();
     const contact = document.getElementById("lost-item-contact").value.trim();
+    const category = document.getElementById("lost-item-category")?.value || 'General';
 
     if (!name || !location || !contact) {
       alert("Please provide the Item Name, Location, and Contact details.");
@@ -3014,10 +3128,13 @@ class AeroAssistApp {
     const payload = {
       type: type,
       name: name,
+      category: category,
       description: desc,
       location: location,
       contact: contact,
-      icon: type === 'Lost' ? '🔍' : '📦'
+      icon: type === 'Lost' ? '🔍' : '📦',
+      reporter_name: this.currentUser ? this.currentUser.name : 'Anonymous',
+      user_email: this.currentUser ? this.currentUser.email : null
     };
 
     const res = await this.apiCall("/lost-items", {
@@ -3026,16 +3143,13 @@ class AeroAssistApp {
     });
 
     if (res && res.status === "success") {
-      alert(`${type} item reported successfully to the community!`);
-      // Reset form
+      alert(`✅ ${type} item reported to the airport community!\n\nThis will be visible to all passengers on both Web and Android app.`);
       document.getElementById("lost-item-name").value = "";
       document.getElementById("lost-item-desc").value = "";
       document.getElementById("lost-item-location").value = "";
       document.getElementById("lost-item-contact").value = "";
-      // Switch back to registry view
-      document.getElementById('lost-found-report').style.display='none'; 
-      document.getElementById('lost-found-menu').style.display='block';
-      // Refresh list
+      document.getElementById('lost-found-report').style.display = 'none';
+      document.getElementById('lost-found-menu').style.display = 'block';
       this.fetchLostItems();
     } else {
       alert(res.message || "Failed to submit report.");

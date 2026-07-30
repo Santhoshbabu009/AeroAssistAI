@@ -88,7 +88,7 @@ public class LostFoundListActivity extends BaseActivity {
     }
 
     private void fetchLostItems() {
-        String url = Constants.BACKEND_BASE_URL + "/api/lost-items";
+        String url = Constants.LOST_ITEMS_ENDPOINT;
         Request request = new Request.Builder().url(url).build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -114,7 +114,9 @@ public class LostFoundListActivity extends BaseActivity {
                                     item.getString("icon"),
                                     item.optString("type", "Lost"),
                                     item.optString("contact", ""),
-                                    item.optString("image", "")
+                                    item.optString("image", ""),
+                                    item.optString("category", "General"),
+                                    item.optString("reporter_name", "Anonymous")
                             ));
                         }
 
@@ -331,15 +333,28 @@ public class LostFoundListActivity extends BaseActivity {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    String respStr = response.body() != null ? response.body().string() : "";
                     runOnUiThread(() -> {
-                        Toast.makeText(LostFoundListActivity.this, "Item successfully resolved and removed!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        fetchLostItems();
+                        try {
+                            JSONObject resObj = new JSONObject(respStr);
+                            if (response.isSuccessful() && "success".equals(resObj.optString("status"))) {
+                                Toast.makeText(LostFoundListActivity.this, "Item successfully resolved and removed!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                fetchLostItems();
+                            } else {
+                                String msg = resObj.optString("message", "Could not remove item.");
+                                Toast.makeText(LostFoundListActivity.this, "Error: " + msg, Toast.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(LostFoundListActivity.this, "Item removed!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            fetchLostItems();
+                        }
                     });
                 }
             });
         } catch (Exception e) {
-            Toast.makeText(this, "JSON Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -350,10 +365,10 @@ public class LostFoundListActivity extends BaseActivity {
 
     private static class LostItem {
         int id;
-        String name, desc, icon, type, contact, image;
-        LostItem(int id, String n, String d, String i, String t, String c, String img) {
+        String name, desc, icon, type, contact, image, category, reporterName;
+        LostItem(int id, String n, String d, String i, String t, String c, String img, String cat, String rep) {
             this.id = id;
-            name = n; desc = d; icon = i; type = t; contact = c; image = img;
+            name = n; desc = d; icon = i; type = t; contact = c; image = img; category = cat; reporterName = rep;
         }
     }
 

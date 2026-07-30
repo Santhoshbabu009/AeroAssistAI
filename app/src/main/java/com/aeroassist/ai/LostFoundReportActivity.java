@@ -27,9 +27,16 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 public class LostFoundReportActivity extends BaseActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 101;
+    private static final int PERMISSION_REQUEST_CAMERA = 102;
 
     private RadioGroup radioReportType;
     private RadioButton radioLost, radioFound;
@@ -62,16 +69,36 @@ public class LostFoundReportActivity extends BaseActivity {
 
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());
 
-        btnCapturePhoto.setOnClickListener(v -> capturePhoto());
+        btnCapturePhoto.setOnClickListener(v -> checkPermissionAndCapturePhoto());
         btnSubmitReport.setOnClickListener(v -> submitReport());
     }
 
-    private void capturePhoto() {
+    private void checkPermissionAndCapturePhoto() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+        } else {
+            launchCamera();
+        }
+    }
+
+    private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         } catch (Exception e) {
             Toast.makeText(this, "Failed to launch camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission granted is required to capture photos.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -116,6 +143,10 @@ public class LostFoundReportActivity extends BaseActivity {
 
         String icon = getEmojiForName(name);
 
+        android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
+        String userEmail = session.getString("email", session.getString("user_email", "guest@aeroassist.ai"));
+        String reporterName = session.getString("name", "AeroAssist User");
+
         try {
             JSONObject json = new JSONObject();
             json.put("name", name);
@@ -123,6 +154,9 @@ public class LostFoundReportActivity extends BaseActivity {
             json.put("location", location);
             json.put("contact", contact);
             json.put("type", type);
+            json.put("category", getCategoryForName(name));
+            json.put("reporter_name", reporterName);
+            json.put("user_email", userEmail);
             json.put("icon", icon);
             
             if (base64ImageString != null) {
@@ -132,7 +166,7 @@ public class LostFoundReportActivity extends BaseActivity {
             RequestBody body = RequestBody.create(
                     json.toString(), MediaType.get("application/json; charset=utf-8"));
 
-            String url = Constants.BACKEND_BASE_URL + "/api/lost-items";
+            String url = Constants.LOST_ITEMS_ENDPOINT;
             Request request = new Request.Builder().url(url).post(body).build();
 
             btnSubmitReport.setEnabled(false);
@@ -161,17 +195,26 @@ public class LostFoundReportActivity extends BaseActivity {
         }
     }
 
+    private String getCategoryForName(String name) {
+        String n = name.toLowerCase();
+        if (n.contains("phone") || n.contains("mobile") || n.contains("laptop") || n.contains("airpod") || n.contains("watch") || n.contains("headphone")) return "Electronics";
+        if (n.contains("wallet") || n.contains("passport") || n.contains("card") || n.contains("id") || n.contains("document")) return "Documents & Wallet";
+        if (n.contains("bag") || n.contains("luggage") || n.contains("backpack") || n.contains("suitcase")) return "Baggage";
+        if (n.contains("key")) return "Keys & Accessories";
+        return "Personal Items";
+    }
+
     private String getEmojiForName(String name) {
         String n = name.toLowerCase();
-        if (n.contains("phone") || n.contains("mobile") || n.contains("iphone")) return "ðŸ“±";
-        if (n.contains("wallet") || n.contains("purse") || n.contains("money") || n.contains("cash")) return "ðŸ‘›";
-        if (n.contains("macbook") || n.contains("laptop") || n.contains("computer") || n.contains("dell") || n.contains("hp")) return "ðŸ’»";
-        if (n.contains("glass") || n.contains("spectacles") || n.contains("sunglass") || n.contains("rayban")) return "ðŸ‘“";
-        if (n.contains("bag") || n.contains("luggage") || n.contains("suitcase") || n.contains("backpack")) return "ðŸŽ’";
-        if (n.contains("key")) return "ðŸ”‘";
-        if (n.contains("watch") || n.contains("smartwatch")) return "âŒš";
-        if (n.contains("headphone") || n.contains("earbud") || n.contains("airpod")) return "ðŸŽ§";
-        if (n.contains("book") || n.contains("novel") || n.contains("diary")) return "ðŸ“–";
-        return "ðŸ“¦";
+        if (n.contains("phone") || n.contains("mobile") || n.contains("iphone")) return "📱";
+        if (n.contains("wallet") || n.contains("purse") || n.contains("money") || n.contains("cash")) return "👛";
+        if (n.contains("macbook") || n.contains("laptop") || n.contains("computer") || n.contains("dell") || n.contains("hp")) return "💻";
+        if (n.contains("glass") || n.contains("spectacles") || n.contains("sunglass") || n.contains("rayban")) return "👓";
+        if (n.contains("bag") || n.contains("luggage") || n.contains("suitcase") || n.contains("backpack")) return "🎒";
+        if (n.contains("key")) return "🔑";
+        if (n.contains("watch") || n.contains("smartwatch")) return "⌚";
+        if (n.contains("headphone") || n.contains("earbud") || n.contains("airpod")) return "🎧";
+        if (n.contains("book") || n.contains("novel") || n.contains("diary")) return "📖";
+        return "📦";
     }
 }

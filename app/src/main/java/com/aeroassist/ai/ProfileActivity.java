@@ -39,8 +39,8 @@ public class ProfileActivity extends BaseActivity {
     Button signOutBtn;
     ImageView profileImage;
     Spinner languageSpinner;
-    String name, email, mobile;
-    EditText editName, editMobile;
+    String name, email, mobile, nationality, preferredLanguage, accountType;
+    EditText editName, editMobile, editNationality;
     Button saveProfileBtn, changePassBtn;
     ImageView btnEditName, btnEditMobile;
     boolean isEditing = false;
@@ -90,15 +90,14 @@ public class ProfileActivity extends BaseActivity {
         // Load from SharedPreferences first (overrides intent if user has previously saved)
         name = prefs.getString("profile_name_" + email, name);
         mobile = prefs.getString("profile_mobile_" + email, mobile);
+        nationality = prefs.getString("profile_nationality_" + email, "Indian");
+        preferredLanguage = prefs.getString("profile_lang_" + email, "en");
+        accountType = prefs.getString("profile_type_" + email, "Passenger");
 
-        if(name == null || name.isEmpty())
-            name = "AeroAssist User";
-
-        if(email == null || email.isEmpty())
-            email = "Not available";
-
-        if(mobile == null || mobile.isEmpty())
-            mobile = "Not available";
+        if(name == null || name.isEmpty())  name = "AeroAssist User";
+        if(email == null || email.isEmpty()) email = "Not available";
+        if(mobile == null || mobile.isEmpty()) mobile = "Not available";
+        if(nationality == null || nationality.isEmpty()) nationality = "Indian";
 
         GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (googleAccount != null) {
@@ -196,8 +195,11 @@ public class ProfileActivity extends BaseActivity {
                 try {
                     JSONObject json = new JSONObject(body);
                     if (!json.optString("status").equals("success")) return;
-                    String fetchedName = json.optString("name", "");
-                    String fetchedMobile = json.optString("mobile", "");
+                    final String fetchedName = json.optString("name", "");
+                    final String fetchedMobile = json.optString("mobile", "");
+                    final String fetchedNationality = json.optString("nationality", "Indian");
+                    final String fetchedLang = json.optString("preferred_language", "en");
+                    final String fetchedType = json.optString("account_type", "Passenger");
                     String photo = json.optString("profile_photo", "");
                     if (photo.equals("null")) photo = "";
                     final String finalPhoto = photo;
@@ -205,25 +207,31 @@ public class ProfileActivity extends BaseActivity {
                         if (!fetchedName.isEmpty()) {
                             name = fetchedName;
                             nameText.setText(name);
+                            prefs.edit().putString("profile_name_" + userEmail, name).apply();
                         }
                         if (!fetchedMobile.isEmpty()) {
                             mobile = fetchedMobile;
                             mobileText.setText(mobile);
+                            prefs.edit().putString("profile_mobile_" + userEmail, mobile).apply();
                         }
+                        nationality = fetchedNationality;
+                        preferredLanguage = fetchedLang;
+                        accountType = fetchedType;
+                        prefs.edit()
+                            .putString("profile_nationality_" + userEmail, nationality)
+                            .putString("profile_lang_" + userEmail, preferredLanguage)
+                            .putString("profile_type_" + userEmail, accountType)
+                            .apply();
                         if (!finalPhoto.isEmpty()) {
                             try {
-                                // Strip data URI prefix if present before decoding
                                 String base64Part = finalPhoto.contains(",") ? finalPhoto.split(",", 2)[1] : finalPhoto;
                                 byte[] imageBytes = android.util.Base64.decode(base64Part, android.util.Base64.DEFAULT);
-                                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                                 if (bitmap != null) {
                                     profileImage.setImageBitmap(bitmap);
-                                    // Cache it locally
                                     prefs.edit().putString("image_" + userEmail, base64Part).apply();
                                 }
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                            } catch (Exception ex) { ex.printStackTrace(); }
                         }
                     });
                 } catch (Exception e) { e.printStackTrace(); }
@@ -412,10 +420,17 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void saveProfile() {
-        String newName = editName.getText().toString();
-        String newMobile = editMobile.getText().toString();
-        
-        OkHttpClient client = new OkHttpClient();
+        String newName = editName.getText().toString().trim();
+        String newMobile = editMobile.getText().toString().trim();
+        if (newName.isEmpty()) {
+            Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
         String url = Constants.UPDATE_PROFILE_ENDPOINT;
 
         try {
@@ -423,6 +438,9 @@ public class ProfileActivity extends BaseActivity {
             json.put("email", email);
             json.put("name", newName);
             json.put("mobile", newMobile);
+            json.put("nationality", nationality != null ? nationality : "Indian");
+            json.put("preferred_language", preferredLanguage != null ? preferredLanguage : "en");
+            json.put("account_type", accountType != null ? accountType : "Passenger");
 
             RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json"));
             Request request = new Request.Builder().url(url).post(body).build();
@@ -430,26 +448,31 @@ public class ProfileActivity extends BaseActivity {
             client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, java.io.IOException e) {
-                    runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Network Error: Could not connect to API", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Network Error: Could not connect to server", Toast.LENGTH_SHORT).show());
                 }
 
                 @Override
                 public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
-                    if (response.isSuccessful()) {
-                        name = newName;
-                        mobile = newMobile;
-                        // ✅ Save locally so changes persist across sessions
-                        prefs.edit()
-                            .putString("profile_name_" + email, newName)
-                            .putString("profile_mobile_" + email, newMobile)
-                            .apply();
-                        runOnUiThread(() -> {
+                    okhttp3.ResponseBody rb = response.body();
+                    final String respBody = rb != null ? rb.string() : "{}";
+                    if (rb != null) rb.close();
+                    runOnUiThread(() -> {
+                        if (response.isSuccessful()) {
+                            name = newName;
+                            mobile = newMobile;
+                            // Persist all fields locally
+                            prefs.edit()
+                                .putString("profile_name_" + email, newName)
+                                .putString("profile_mobile_" + email, newMobile)
+                                .apply();
                             nameText.setText(name);
                             mobileText.setText(mobile);
                             toggleEdit();
-                            Toast.makeText(ProfileActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
-                        });
-                    }
+                            Toast.makeText(ProfileActivity.this, "✅ Profile synced across all devices!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(ProfileActivity.this, "Server error. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             });
         } catch (Exception e) { e.printStackTrace(); }

@@ -40,48 +40,16 @@ public class SeatPassengerActivity extends BaseActivity {
         GridLayout seatGrid = findViewById(R.id.seatGrid);
         TextView selectedSeatText = findViewById(R.id.selectedSeatText);
 
-        // Generate dummy seats (3x4 grid)
-        String[] rows = {"1", "2", "3", "4"};
-        String[] cols = {"A", "B", "C"};
-
-        for (int i = 0; i < rows.length; i++) {
-            for (int j = 0; j < cols.length; j++) {
-                Button seatBtn = new Button(this);
-                String seatId = rows[i] + cols[j];
-                seatBtn.setText(seatId);
-                seatBtn.setBackgroundColor(Color.parseColor("#1E293B"));
-                seatBtn.setTextColor(Color.WHITE);
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = 120;
-                params.height = 120;
-                params.setMargins(8, 8, 8, 8);
-                seatBtn.setLayoutParams(params);
-
-                // Dummy occupied logic
-                if (Math.random() > 0.7) {
-                    seatBtn.setBackgroundColor(Color.parseColor("#334155"));
-                    seatBtn.setTextColor(Color.GRAY);
-                    seatBtn.setEnabled(false);
-                } else {
-                    seatBtn.setOnClickListener(v -> {
-                        // Reset all to default color (unless disabled)
-                        for (int k = 0; k < seatGrid.getChildCount(); k++) {
-                            Button b = (Button) seatGrid.getChildAt(k);
-                            if (b.isEnabled()) {
-                                b.setBackgroundColor(Color.parseColor("#1E293B"));
-                                b.setTextColor(Color.WHITE);
-                            }
-                        }
-                        // Highlight selected
-                        seatBtn.setBackgroundColor(Color.parseColor("#00E5FF"));
-                        seatBtn.setTextColor(Color.BLACK);
-                        selectedSeat = seatId;
-                        selectedSeatText.setText("Selected Seat: " + selectedSeat);
-                    });
-                }
-                seatGrid.addView(seatBtn);
+        // Parse flight number
+        String flightNumber = "";
+        try {
+            if (flightJson != null) {
+                org.json.JSONObject flightObj = new org.json.JSONObject(flightJson);
+                flightNumber = flightObj.optString("flight_number", "");
             }
-        }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        fetchAndRenderSeats(flightNumber, date != null ? date : "", seatGrid, selectedSeatText);
 
         Button reviewBtn = findViewById(R.id.reviewBookingBtn);
         reviewBtn.setOnClickListener(v -> {
@@ -109,5 +77,76 @@ public class SeatPassengerActivity extends BaseActivity {
             intent.putExtra("SEAT", selectedSeat);
             startActivity(intent);
         });
+    private void fetchAndRenderSeats(String flightNumber, String flightDate, GridLayout seatGrid, TextView selectedSeatText) {
+        String url = Constants.FLIGHT_SEATS_ENDPOINT + "?flight_number=" + flightNumber + "&date=" + flightDate;
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(url).get().build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(@androidx.annotation.NonNull okhttp3.Call call, @androidx.annotation.NonNull java.io.IOException e) {
+                runOnUiThread(() -> renderSeatGrid(new java.util.HashSet<>(), seatGrid, selectedSeatText));
+            }
+
+            @Override
+            public void onResponse(@androidx.annotation.NonNull okhttp3.Call call, @androidx.annotation.NonNull okhttp3.Response response) throws java.io.IOException {
+                java.util.Set<String> occupied = new java.util.HashSet<>();
+                try {
+                    String body = response.body() != null ? response.body().string() : "{}";
+                    org.json.JSONObject json = new org.json.JSONObject(body);
+                    if (json.optString("status").equals("success")) {
+                        org.json.JSONArray arr = json.optJSONArray("occupied_seats");
+                        if (arr != null) {
+                            for (int i = 0; i < arr.length(); i++) {
+                                occupied.add(arr.getString(i));
+                            }
+                        }
+                    }
+                } catch (Exception e) { e.printStackTrace(); }
+                runOnUiThread(() -> renderSeatGrid(occupied, seatGrid, selectedSeatText));
+            }
+        });
+    }
+
+    private void renderSeatGrid(java.util.Set<String> occupiedSeats, GridLayout seatGrid, TextView selectedSeatText) {
+        seatGrid.removeAllViews();
+        String[] rows = {"1", "2", "3", "4", "5", "6"};
+        String[] cols = {"A", "B", "C", "D"};
+
+        for (int i = 0; i < rows.length; i++) {
+            for (int j = 0; j < cols.length; j++) {
+                Button seatBtn = new Button(this);
+                String seatId = rows[i] + cols[j];
+                seatBtn.setText(seatId);
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = 110;
+                params.height = 110;
+                params.setMargins(6, 6, 6, 6);
+                seatBtn.setLayoutParams(params);
+
+                if (occupiedSeats.contains(seatId)) {
+                    seatBtn.setBackgroundColor(Color.parseColor("#334155"));
+                    seatBtn.setTextColor(Color.parseColor("#64748B"));
+                    seatBtn.setEnabled(false);
+                } else {
+                    seatBtn.setBackgroundColor(Color.parseColor("#1E293B"));
+                    seatBtn.setTextColor(Color.WHITE);
+                    seatBtn.setOnClickListener(v -> {
+                        for (int k = 0; k < seatGrid.getChildCount(); k++) {
+                            Button b = (Button) seatGrid.getChildAt(k);
+                            if (b.isEnabled()) {
+                                b.setBackgroundColor(Color.parseColor("#1E293B"));
+                                b.setTextColor(Color.WHITE);
+                            }
+                        }
+                        seatBtn.setBackgroundColor(Color.parseColor("#00E5FF"));
+                        seatBtn.setTextColor(Color.BLACK);
+                        selectedSeat = seatId;
+                        selectedSeatText.setText("Selected Seat: " + selectedSeat);
+                    });
+                }
+                seatGrid.addView(seatBtn);
+            }
+        }
     }
 }

@@ -72,7 +72,7 @@ public class BookingHistoryActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         fetchBookings();
-        loadParkingFromPrefs();
+        fetchParkingFromApi();
     }
 
     private void switchTab(boolean flights) {
@@ -128,40 +128,40 @@ public class BookingHistoryActivity extends BaseActivity {
         return email;
     }
 
-    /** Load parking bookings stored by web/app when user reserves a slot */
-    private void loadParkingFromPrefs() {
-        parkingList.clear();
+    /** Fetch real parking bookings from backend API */
+    private void fetchParkingFromApi() {
         String email = getLoggedInEmail();
-        SharedPreferences prefs = getSharedPreferences("parking_" + email, MODE_PRIVATE);
-        String json = prefs.getString("slots", null);
-
-        if (json != null) {
-            try {
-                JSONArray arr = new JSONArray(json);
-                for (int i = 0; i < arr.length(); i++) {
-                    parkingList.add(arr.getJSONObject(i));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        String url = Constants.PARKING_BOOKINGS_ENDPOINT + "?email=" + email;
+        Request request = new Request.Builder().url(url).get().build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> {
+                    parkingList.clear();
+                    parkingRecyclerView.setAdapter(new ParkingAdapter(parkingList));
+                    if (!showingFlights) showParkingEmpty(true);
+                });
             }
-        }
 
-        // If no real data, show a demo entry so the tab always has content
-        if (parkingList.isEmpty()) {
-            try {
-                JSONObject demo = new JSONObject();
-                demo.put("booking_id", "PRK-DEMO-001");
-                demo.put("slot", "Zone A – Slot 12");
-                demo.put("plate", "TN 01 AB 1234");
-                demo.put("duration", "4 Hours");
-                demo.put("date", "2026-08-01");
-                demo.put("status", "Confirmed");
-                parkingList.add(demo);
-            } catch (Exception ignored) {}
-        }
-
-        parkingRecyclerView.setAdapter(new ParkingAdapter(parkingList));
-        if (!showingFlights) showParkingEmpty(parkingList.isEmpty());
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                final String body = response.body() != null ? response.body().string() : "{}";
+                runOnUiThread(() -> {
+                    parkingList.clear();
+                    try {
+                        JSONObject json = new JSONObject(body);
+                        if (json.optString("status").equals("success")) {
+                            JSONArray arr = json.getJSONArray("bookings");
+                            for (int i = 0; i < arr.length(); i++) {
+                                parkingList.add(arr.getJSONObject(i));
+                            }
+                        }
+                    } catch (Exception e) { e.printStackTrace(); }
+                    parkingRecyclerView.setAdapter(new ParkingAdapter(parkingList));
+                    if (!showingFlights) showParkingEmpty(parkingList.isEmpty());
+                });
+            }
+        });
     }
 
     private List<JSONObject> buildDemoFlightBookings() {
@@ -202,9 +202,9 @@ public class BookingHistoryActivity extends BaseActivity {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    flightList = buildDemoFlightBookings();
+                    flightList = new ArrayList<>();
                     bookingsRecyclerView.setAdapter(new FlightAdapter(flightList));
-                    if (showingFlights) showFlightEmpty(flightList.isEmpty());
+                    if (showingFlights) showFlightEmpty(true);
                 });
             }
 
@@ -213,23 +213,16 @@ public class BookingHistoryActivity extends BaseActivity {
                 final String respStr = response.body() != null ? response.body().string() : "{}";
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
+                    flightList = new ArrayList<>();
                     try {
                         JSONObject jsonObject = new JSONObject(respStr);
                         if (jsonObject.optString("status").equals("success")) {
                             JSONArray arr = jsonObject.getJSONArray("bookings");
-                            flightList = new ArrayList<>();
                             for (int i = 0; i < arr.length(); i++) {
                                 flightList.add(arr.getJSONObject(i));
                             }
-                            if (flightList.isEmpty()) {
-                                flightList = buildDemoFlightBookings();
-                            }
-                        } else {
-                            flightList = buildDemoFlightBookings();
                         }
-                    } catch (Exception e) {
-                        flightList = buildDemoFlightBookings();
-                    }
+                    } catch (Exception e) { e.printStackTrace(); }
                     bookingsRecyclerView.setAdapter(new FlightAdapter(flightList));
                     if (showingFlights) showFlightEmpty(flightList.isEmpty());
                 });
@@ -319,23 +312,26 @@ public class BookingHistoryActivity extends BaseActivity {
         public void onBindViewHolder(@NonNull ParkingVH h, int pos) {
             JSONObject b = list.get(pos);
             try {
-                String id = b.optString("booking_id", b.optString("pnr", "PRK-" + (pos + 1)));
-                String status = b.optString("status", "Confirmed").toUpperCase();
-                String slot   = b.optString("slot", "Zone A – Slot 12");
-                String plate  = b.optString("plate", "—");
-                String dur    = b.optString("duration", "—");
-                String date   = b.optString("date", "—");
+                // Support both backend field names (booking_id, slot_number) and legacy (id, slot)
+                String id      = b.optString("booking_id", b.optString("id", "PRK-" + (pos + 1)));
+                String status  = b.optString("booking_status", b.optString("status", "Confirmed")).toUpperCase();
+                String slot    = b.optString("slot_number", b.optString("slot", "Auto-Assigned"));
+                String plate   = b.optString("plate_number", b.optString("plate_number", b.optString("plate", "—")));
+                String dur     = b.optString("duration_hours", b.optString("hours", "—")) + " hrs";
+                String terminal = b.optString("terminal", "—");
+                String entry   = b.optString("entry_time", b.optString("date", "—"));
+                String price   = b.optString("total_price", b.optString("price", "—"));
 
-                h.id.setText("Booking ID: " + id);
+                h.id.setText("Booking: " + id);
                 h.status.setText(status);
                 if (status.equalsIgnoreCase("PENDING")) {
                     h.status.setBackgroundColor(Color.parseColor("#FF9800"));
                 } else {
                     h.status.setBackgroundColor(Color.parseColor("#059669"));
                 }
-                h.slot.setText("🅿  " + slot);
-                h.plate.setText("🚗  Vehicle: " + plate);
-                h.duration.setText("⏱  " + dur + "  |  📅  " + date);
+                h.slot.setText("🅿  Slot: " + slot + "  |  Terminal: " + terminal);
+                h.plate.setText("🚗  Vehicle: " + plate + "  |  ₹" + price);
+                h.duration.setText("⏱  " + dur + "  |  📅  " + entry);
             } catch (Exception e) { e.printStackTrace(); }
         }
 

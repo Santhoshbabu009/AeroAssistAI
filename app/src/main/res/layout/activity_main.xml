@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/app_bg">
+    android:background="@drawable/main_bg_gradient">
 
     <LinearLayout 
         android:layout_width="match_parent" 
@@ -84,10 +84,10 @@
             <!-- IMAGE SLIDER (CLEAN, PROPORTIONAL) -->
             <androidx.cardview.widget.CardView 
                 android:layout_width="match_parent" 
-                android:layout_height="150dp" 
+                android:layout_height="180dp" 
                 android:layout_marginBottom="24dp" 
                 app:cardCornerRadius="16dp" 
-                app:cardElevation="0dp" 
+                app:cardElevation="4dp" 
                 app:cardBackgroundColor="@android:color/transparent">
                 
                 <ViewFlipper 
@@ -95,11 +95,39 @@
                     android:layout_width="match_parent" 
                     android:layout_height="match_parent" 
                     android:autoStart="true" 
-                    android:flipInterval="1000" 
-                    android:inAnimation="@android:anim/fade_in" 
-                    android:outAnimation="@android:anim/fade_out">
-                    <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_chennai"/>
-                    <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:src="@drawable/airport_bengaluru"/>
+                    android:flipInterval="1500"
+                    android:inAnimation="@android:anim/slide_in_left" 
+                    android:outAnimation="@android:anim/slide_out_right">
+                    <ImageView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:scaleType="centerCrop" 
+                        android:contentDescription="Chennai International Airport"
+                        android:src="@drawable/airport_chennai"/>
+                    <ImageView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:scaleType="centerCrop" 
+                        android:contentDescription="Kempegowda Bengaluru Airport"
+                        android:src="@drawable/airport_bengaluru"/>
+                    <ImageView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:scaleType="centerCrop" 
+                        android:contentDescription="Bengaluru Airport Terminal 2"
+                        android:src="@drawable/airport_bengaluru2"/>
+                    <ImageView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:scaleType="centerCrop" 
+                        android:contentDescription="Chhatrapati Shivaji Mumbai Airport"
+                        android:src="@drawable/airport_bombay"/>
+                    <ImageView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:scaleType="centerCrop" 
+                        android:contentDescription="Indira Gandhi Delhi Airport"
+                        android:src="@drawable/airport_delhi"/>
                 </ViewFlipper>
             </androidx.cardview.widget.CardView>
 

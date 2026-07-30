@@ -2,220 +2,108 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/login_bg">
 
-    <!-- Header Bar -->
-    <LinearLayout
+    <TextView
+        android:text="@string/str_flight_status"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        android:background="#1E293B">
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#CCFFFFFF">
 
-        <ImageButton
-            android:id="@+id/backBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
-            android:tint="#FFFFFF" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Live Flight Status & Airport Screen"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <EditText
+                android:id="@+id/flightNumber"
+                android:hint="@string/str_enter_flight_number"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:textColorHint="#999999"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/checkBtn"
+                android:text="@string/str_check_status"
+                android:layout_marginTop="15dp"
+                android:backgroundTint="#6C4AB6"
+                android:textColor="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"/>
+            <Button
+                android:id="@+id/scanBtn"
+                android:text="@string/str_scan_boarding_pass"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:backgroundTint="#6C4AB6"
+                android:textColor="#FFFFFF"/>
+
+            <Button
+                android:id="@+id/historyBtn"
+                android:text="View Search History"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#453C67"
+                android:textColor="#FFFFFF"/>
+
+            <Button
+                android:id="@+id/aiInsightsBtn"
+                android:text="✨ Get AI Insights"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:backgroundTint="#1A237E"
+                android:textColor="#FFFFFF"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Search & Scan Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#CC1E293B">
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:text="🔍 Track Specific Flight"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <EditText
-                        android:id="@+id/flightNumber"
-                        android:hint="Enter Flight Number (e.g. AI-432, 6E-2051)"
-                        android:textSize="14sp"
-                        android:textColor="#FFFFFF"
-                        android:textColorHint="#94A3B8"
-                        android:background="@drawable/glass_card_bg"
-                        android:padding="12dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="12dp">
-
-                        <Button
-                            android:id="@+id/checkBtn"
-                            android:text="Check Status"
-                            android:backgroundTint="#00E5FF"
-                            android:textColor="#000000"
-                            android:textStyle="bold"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:layout_height="44dp"/>
-
-                        <Button
-                            android:id="@+id/scanBtn"
-                            android:text="📷 Scan Pass"
-                            android:backgroundTint="#334155"
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:layout_height="44dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-
-                        <Button
-                            android:id="@+id/historyBtn"
-                            android:text="History"
-                            android:backgroundTint="#1E293B"
-                            android:textColor="#94A3B8"
-                            android:textSize="12sp"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:layout_height="38dp"/>
-
-                        <Button
-                            android:id="@+id/aiInsightsBtn"
-                            android:text="✨ AI Insights"
-                            android:visibility="gone"
-                            android:backgroundTint="#6366F1"
-                            android:textColor="#FFFFFF"
-                            android:textSize="12sp"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:layout_height="38dp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- LIVE AIRPORT SCREEN (FIDS BOARD) -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#CC0F172A">
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:text="📺 LIVE AIRPORT SCREEN (FIDS)"
-                            android:textColor="#00E5FF"
-                            android:textSize="15sp"
-                            android:textStyle="bold"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"/>
-
-                        <TextView
-                            android:text="● LIVE FEED"
-                            android:textColor="#10B981"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:text="Real-Time Terminal Departure & Gate Schedule"
-                        android:textColor="#94A3B8"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="14dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <LinearLayout
-                        android:id="@+id/liveFidsContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Result Box -->
             <TextView
                 android:id="@+id/resultText"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
-            <!-- AI Insights Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/aiInsightsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
                 android:visibility="gone"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="15dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="#1E293B">
+                app:cardBackgroundColor="#E3F2FD">
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -226,7 +114,7 @@
                     <TextView
                         android:text="🤖 AI Flight Insight"
                         android:textStyle="bold"
-                        android:textColor="#00E5FF"
+                        android:textColor="#1565C0"
                         android:textSize="14sp"
                         android:layout_marginBottom="8dp"
                         android:layout_width="wrap_content"
@@ -235,30 +123,31 @@
                     <TextView
                         android:id="@+id/aiInsightsText"
                         android:text="Analyzing flight data..."
-                        android:textColor="#E2E8F0"
-                        android:textSize="14sp"
+                        android:textColor="#333333"
+                        android:textSize="15sp"
                         android:lineSpacingExtra="4dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-            <!-- Map Tracking Display -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/mapCard"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:visibility="gone"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="16dp">
-
-                <com.ola.mapsdk.view.OlaMapView
-                    android:id="@+id/flightMap"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </androidx.cardview.widget.CardView>
-
         </LinearLayout>
     </ScrollView>
+
+    <!-- Map Tracking Display -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mapCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        android:layout_marginTop="20dp">
+
+        <com.ola.mapsdk.view.OlaMapView
+            android:id="@+id/flightMap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.cardview.widget.CardView>
+
 </LinearLayout>

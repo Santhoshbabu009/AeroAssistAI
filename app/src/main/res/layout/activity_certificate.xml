@@ -86,7 +86,7 @@
                 android:layout_width="100dp"
                 android:layout_height="1dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/app_bg"
+                android:background="#1E293B"
                 app:layout_constraintTop_toBottomOf="@id/certSubtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
