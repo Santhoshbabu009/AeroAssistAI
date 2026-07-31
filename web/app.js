@@ -1365,19 +1365,49 @@ class AeroAssistApp {
 
   // --- AI CHATBOT COPILOT ---
   async fetchChatHistory() {
-    // Only fetch chat history for authenticated users
-    if (!this.currentUser || !this.currentUser.email) return;
+    // Generate new session ID for history fetch
+    this.chatSessionId = Math.floor(Math.random() * 100000);
+
+    // If unauthenticated or no email, reset to default visitor welcome message immediately
+    if (!this.currentUser || !this.currentUser.email) {
+      this.chatHistory = [
+        { isUser: false, text: "Welcome to AeroAssist AI Copilot! I am your smart airport companion. How can I help you today?" }
+      ];
+      this.renderChatHistory();
+      return;
+    }
+
     const email = this.currentUser.email;
+    const name = this.currentUser.name || "Traveler";
+
+    // Immediately clear previous user's messages from memory and UI to prevent cross-user leakage
+    this.chatHistory = [
+      { isUser: false, text: `Welcome to AeroAssist AI Copilot, ${name}! Loading your chat history...` }
+    ];
+    this.renderChatHistory();
+
     try {
       const res = await this.apiCall(`/chat-history?email=${encodeURIComponent(email)}`);
-      if (res && res.status === "success" && Array.isArray(res.history) && res.history.length > 0) {
-        this.chatHistory = res.history.map(item => ({
-          isUser: Boolean(item.is_user),
-          text: item.message
-        }));
+      if (res && res.status === "success" && Array.isArray(res.history)) {
+        if (res.history.length > 0) {
+          this.chatHistory = res.history.map(item => ({
+            isUser: Boolean(item.is_user),
+            text: item.message
+          }));
+        } else {
+          this.chatHistory = [
+            { isUser: false, text: `Welcome to AeroAssist AI Copilot, ${name}! I am your smart airport companion. How can I help you today?` }
+          ];
+        }
         this.renderChatHistory();
       }
-    } catch(e) { console.warn("[CHAT HISTORY] Fetch failed:", e); }
+    } catch(e) { 
+      console.warn("[CHAT HISTORY] Fetch failed:", e); 
+      this.chatHistory = [
+        { isUser: false, text: `Welcome to AeroAssist AI Copilot, ${name}! I am your smart airport companion. How can I help you today?` }
+      ];
+      this.renderChatHistory();
+    }
   }
 
   renderChatHistory() {
@@ -1415,7 +1445,6 @@ class AeroAssistApp {
 
     // Call Backend
     const email = this.currentUser ? this.currentUser.email : "visitor@aeroassist.com";
-    const name = this.currentUser ? this.currentUser.name : "Santhosh Babu";
     
     // Save user message to backend for cross-platform sync
     this.saveChatMessage(email, msgText, true);
@@ -1427,10 +1456,14 @@ class AeroAssistApp {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: msgText,
+          userQuery: msgText,
           email: email,
           user_type: "Passenger",
           session_id: this.chatSessionId,
-          lang: lang
+          lang: lang,
+          selectedLanguage: lang,
+          currentLocation: "Terminal 1 Main Entrance",
+          airport: "Chennai International Airport (MAA)"
         })
       });
       const data = await response.json();
