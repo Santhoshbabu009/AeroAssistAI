@@ -43,7 +43,13 @@ public class LocaleHelper {
             LocaleList localeList = new LocaleList(locale);
             LocaleList.setDefault(localeList);
             config.setLocales(localeList);
-            return context.createConfigurationContext(config);
+            Context localizedContext = context.createConfigurationContext(config);
+            try {
+                resources.updateConfiguration(config, resources.getDisplayMetrics());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return localizedContext;
         } else {
             config.locale = locale;
             resources.updateConfiguration(config, resources.getDisplayMetrics());

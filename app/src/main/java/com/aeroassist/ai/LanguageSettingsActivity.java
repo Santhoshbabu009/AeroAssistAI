@@ -40,7 +40,7 @@ public class LanguageSettingsActivity extends BaseActivity {
 
             LocaleHelper.updateLanguage(this, lang);
             
-            android.widget.Toast.makeText(this, "Language updated. Please restart app.", android.widget.Toast.LENGTH_LONG).show();
+            android.widget.Toast.makeText(this, "App language updated", android.widget.Toast.LENGTH_SHORT).show();
             
             // Retrieve session to preserve login
             android.content.SharedPreferences session = getSharedPreferences("Session", MODE_PRIVATE);
@@ -49,7 +49,7 @@ public class LanguageSettingsActivity extends BaseActivity {
             String mobile = session.getString("mobile", "");
             String userType = session.getString("user_type", "Visitor");
 
-            // Restart app automatically
+            // Restart app automatically to apply language universally across all screens
             Intent intent = new Intent(this, MainActivity.class);
             if (email != null) {
                 intent.putExtra("email", email);
@@ -59,6 +59,7 @@ public class LanguageSettingsActivity extends BaseActivity {
             }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
 
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());

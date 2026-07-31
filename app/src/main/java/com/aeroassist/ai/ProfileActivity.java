@@ -542,8 +542,8 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void setupLanguageSpinner() {
-        String[] languages = {"English", "Español", "हिन्दी (Hindi)", "தமிழ் (Tamil)", "తెలుగు (Telugu)", "മലയാളം (Malayalam)"};
-        final String[] langCodes = {"en", "es", "hi", "ta", "te", "ml"};
+        String[] languages = {"English", "Español", "हिन्दी (Hindi)", "தமிழ் (Tamil)", "తెలుగు (Telugu)", "മലയാളം (Malayalam)", "Français (French)", "Deutsch (German)"};
+        final String[] langCodes = {"en", "es", "hi", "ta", "te", "ml", "fr", "de"};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languages);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

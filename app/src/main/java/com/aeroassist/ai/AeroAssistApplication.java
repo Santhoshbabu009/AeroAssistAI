@@ -24,6 +24,7 @@ public class AeroAssistApplication extends Application implements Application.Ac
     public void onCreate() {
         super.onCreate();
         instance = this;
+        LocaleHelper.setLocale(this);
         handler = new Handler(Looper.getMainLooper());
         registerActivityLifecycleCallbacks(this);
 
