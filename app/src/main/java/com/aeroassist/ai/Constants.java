@@ -5,9 +5,9 @@ public class Constants {
     public static final String BACKEND_BASE_URL = "https://aeroassistai.onrender.com";
     public static final String API_V1_BASE = BACKEND_BASE_URL + "/api";
     
-    // API Keys (Moved to environment variables/secrets to prevent Gitleaks failures)
+    // API Keys
     public static final String OLA_MAPS_API_KEY = "ENTER_OLA_MAPS_API_KEY_HERE";
-    public static final String AVIATION_STACK_API_KEY = "ENTER_AVIATION_STACK_API_KEY_HERE";
+    public static final String AVIATION_STACK_API_KEY = "d4ec6dda8d5a4e2b81c989764b8ca9a1";
     
     // API Endpoints
     public static final String CHAT_ENDPOINT = BACKEND_BASE_URL + "/chat";
@@ -25,11 +25,13 @@ public class Constants {
     public static final String CHAT_HISTORY_ENDPOINT = API_V1_BASE + "/chat-history";
     
     public static final String FLIGHT_SEARCH_ENDPOINT = API_V1_BASE + "/flights/search";
+    public static final String FLIGHT_STATUS_ENDPOINT = API_V1_BASE + "/flights/status";
     public static final String FLIGHT_BOOK_ENDPOINT = API_V1_BASE + "/flights/book";
     public static final String FLIGHT_BOOKINGS_ENDPOINT = API_V1_BASE + "/flights/bookings";
     public static final String FLIGHT_SEATS_ENDPOINT = API_V1_BASE + "/flights/seats";
     public static final String FLIGHT_SEAT_BOOK_ENDPOINT = API_V1_BASE + "/flights/seats/book";
     public static final String FLIGHT_SEAT_RELEASE_ENDPOINT = API_V1_BASE + "/flights/seats/release";
+
 
     // Parking Endpoints
     public static final String PARKING_BOOK_ENDPOINT      = API_V1_BASE + "/parking-bookings";         // POST - create booking

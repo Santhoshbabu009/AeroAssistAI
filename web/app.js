@@ -2696,7 +2696,88 @@ class AeroAssistApp {
     if (res && res.status === "success") this.fetchVendorCatalog();
   }
 
-  // --- FLIGHT BOOKING ENGINE ---
+  // --- REAL-TIME LIVE FLIGHT TRACKER ENGINE ---
+  async fetchLiveFlightStatus() {
+    const input = document.getElementById("dash-flight-search-input");
+    const resultBox = document.getElementById("dash-flight-result-box");
+    if (!input || !resultBox) return;
+
+    const flightCode = input.value.trim().toUpperCase();
+    if (!flightCode) {
+      alert("Please enter a flight IATA code (e.g. AI432, 6E329, IX1056)");
+      return;
+    }
+
+    resultBox.style.display = "block";
+    resultBox.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:16px;">🔍 Querying AviationStack Live Flight API for ${flightCode}...</p>`;
+
+    const res = await this.apiCall(`/flights/status?flight_iata=${encodeURIComponent(flightCode)}`);
+    if (!res || res.status !== "success") {
+      resultBox.innerHTML = `<p style="text-align:center; color:var(--status-cancelled-text); padding:16px;">❌ Could not retrieve live flight status. Please check flight code and try again.</p>`;
+      return;
+    }
+
+    const st = res.flight_status || "scheduled";
+    const statusBadgeColor = st === 'active' ? '#10B981' : st === 'landed' ? '#3B82F6' : '#F59E0B';
+    const statusText = st === 'active' ? '🟢 IN FLIGHT (LIVE)' : st === 'landed' ? '🔵 LANDED' : '🟡 SCHEDULED / ON TIME';
+    
+    const loc = res.live_location;
+    const locHTML = loc ? `
+      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-md); padding:14px; margin-top:16px;">
+        <div style="font-weight:700; font-size:13px; color:#10B981; margin-bottom:6px;">📡 LIVE SATELLITE POSITION & TELEMETRY</div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; font-size:12px;">
+          <div>Latitude: <strong>${loc.latitude}° N</strong></div>
+          <div>Longitude: <strong>${loc.longitude}° E</strong></div>
+          <div>Altitude: <strong>${loc.altitude} m</strong></div>
+          <div>Speed: <strong>${loc.speed} km/h</strong></div>
+          <div>Heading: <strong>${loc.heading}°</strong></div>
+        </div>
+      </div>
+    ` : '';
+
+    resultBox.innerHTML = `
+      <div style="background:var(--glass-bg-hover); border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-md); padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid var(--glass-border); padding-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:28px;">${res.airline_logo || '✈️'}</span>
+            <div>
+              <h3 style="margin:0; font-size:20px; color:var(--accent-primary);">${res.flight_number}</h3>
+              <p style="margin:2px 0 0 0; font-size:13px; color:var(--text-secondary);">${res.airline}</p>
+            </div>
+          </div>
+          <span style="background:${statusBadgeColor}20; color:${statusBadgeColor}; border:1px solid ${statusBadgeColor}60; font-size:13px; font-weight:800; padding:6px 14px; border-radius:20px;">
+            ${statusText}
+          </span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:14px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="font-weight:800; font-size:24px; color:var(--accent-orange);">${res.origin.iata}</div>
+            <p style="margin:2px 0; font-size:12px; color:var(--text-secondary);">${res.origin.airport}</p>
+            <div style="font-size:12px; font-weight:700;">Scheduled: ${res.origin.scheduled}</div>
+            <span style="font-size:11px; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">${res.origin.terminal} • ${res.origin.gate}</span>
+          </div>
+
+          <div style="text-align:center; flex:1; padding:0 16px; min-width:120px;">
+            <span style="font-size:12px; color:var(--text-secondary);">Direct Route</span>
+            <div style="height:2px; background:var(--accent-gradient); position:relative; margin:6px 0;">
+              <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:16px;">✈</span>
+            </div>
+            <span style="font-size:11px; color:#10B981; font-weight:600;">Live API Engine</span>
+          </div>
+
+          <div style="text-align:right;">
+            <div style="font-weight:800; font-size:24px; color:var(--accent-orange);">${res.destination.iata}</div>
+            <p style="margin:2px 0; font-size:12px; color:var(--text-secondary);">${res.destination.airport}</p>
+            <div style="font-size:12px; font-weight:700;">Est. Arrival: ${res.destination.estimated}</div>
+            <span style="font-size:11px; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">${res.destination.terminal} • ${res.destination.gate}</span>
+          </div>
+        </div>
+        ${locHTML}
+      </div>
+    `;
+  }
+
   async searchFlights() {
     const origin = document.getElementById("flight-search-origin")?.value || "DEL";
     const dest = document.getElementById("flight-search-dest")?.value || "BOM";

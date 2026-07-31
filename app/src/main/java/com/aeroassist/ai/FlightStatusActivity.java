@@ -250,7 +250,7 @@ public class FlightStatusActivity extends BaseActivity implements OlaMapCallback
         resultText.setText("🔍 Searching for " + flight + "...");
         if (mapCard != null) mapCard.setVisibility(View.GONE);
 
-        String url = "https://api.aviationstack.com/v1/flights?access_key="
+        String url = "http://api.aviationstack.com/v1/flights?access_key="
                 + Constants.AVIATION_STACK_API_KEY + "&flight_iata=" + flight;
 
         Request request = new Request.Builder().url(url).build();
