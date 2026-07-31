@@ -2080,14 +2080,38 @@ class AeroAssistApp {
     this.showPage("user-type");
   }
 
+  openAdminRegisterFromLogin(e) {
+    if (e) e.preventDefault();
+    this.closeModal("vendor-login");
+    this.showPage("vendor");
+    this.switchVendorTab("admin");
+  }
+
   switchVendorTab(tabId) {
     this.vendorTab = tabId;
-    document.querySelectorAll(".tab-link").forEach(tab => tab.classList.remove("active"));
-    document.getElementById(`tab-${tabId}`).classList.add("active");
+    ["queue", "catalog", "admin"].forEach(t => {
+      const btn = document.getElementById(`tab-${t}`);
+      const sec = document.getElementById(`vendor-tab-${t}`);
+      if (btn) {
+        if (t === tabId) {
+          btn.className = "btn-primary";
+          btn.style.fontWeight = "700";
+        } else {
+          btn.className = "btn-secondary";
+          btn.style.fontWeight = "700";
+          if (t === "admin") {
+            btn.style.background = "rgba(255, 167, 38, 0.15)";
+            btn.style.color = "#FFA726";
+            btn.style.border = "1px solid rgba(255, 167, 38, 0.3)";
+          }
+        }
+      }
+      if (sec) sec.style.display = t === tabId ? "block" : "none";
+    });
 
     if (tabId === "queue") {
       this.fetchVendorQueue();
-    } else {
+    } else if (tabId === "catalog") {
       this.fetchVendorCatalog();
     }
   }
@@ -2096,60 +2120,117 @@ class AeroAssistApp {
     if (!this.currentVendor) return;
     const isRestaurant = this.currentVendor.type === "restaurant";
 
-    document.getElementById("vendor-portal-title").innerText = this.currentVendor.name;
-    document.getElementById("vendor-portal-location").innerText = `Terminal ${this.currentVendor.terminal} • ${this.currentVendor.gate}`;
+    const titleEl = document.getElementById("vendor-portal-title");
+    if (titleEl) titleEl.innerText = this.currentVendor.name;
+
+    const locEl = document.getElementById("vendor-portal-location");
+    if (locEl) locEl.innerText = `Terminal ${this.currentVendor.terminal || 1} • ${this.currentVendor.gate || 'Gate 1'} (${isRestaurant ? 'Restaurant Food Outlet' : 'Lounge Pass Service'})`;
 
     const queueTitleEl = document.getElementById("queue-title");
     if (queueTitleEl) {
-      queueTitleEl.innerText = isRestaurant ? "Food Orders Queue" : "Reservations Queue";
+      queueTitleEl.innerText = isRestaurant ? "Live Food Orders Queue" : "Lounge Slot Reservations Queue";
     }
 
     const container = document.getElementById("vendor-queue-list");
     if (!container) return;
 
+    // Fetch products catalog count for stats card
+    try {
+      const catRes = await this.apiCall(`/vendors/products?vendor_id=${this.currentVendor.id}`);
+      const catCount = (catRes && catRes.products) ? catRes.products.length : 0;
+      const elCat = document.getElementById("vstat-catalog");
+      if (elCat) elCat.innerText = catCount;
+    } catch(e) {}
+
     if (isRestaurant) {
       const ordRes = await this.apiCall(`/vendors/orders?vendor_id=${this.currentVendor.id}`);
       const orders = (ordRes && ordRes.orders) ? ordRes.orders : [];
+
+      // Compute stats metrics
+      let pendingCount = 0;
+      let acceptedCount = 0;
+      let totalRevenue = 0;
+
+      orders.forEach(o => {
+        const st = (o.status || 'Pending').toLowerCase();
+        if (st === 'pending') pendingCount++;
+        if (['accepted', 'preparing', 'ready', 'out for delivery'].includes(st)) acceptedCount++;
+        if (['delivered', 'accepted', 'preparing', 'ready', 'out for delivery'].includes(st)) {
+          totalRevenue += (o.total_price || 0);
+        }
+      });
+
+      const elPending = document.getElementById("vstat-pending");
+      const elAccepted = document.getElementById("vstat-accepted");
+      const elRevenue = document.getElementById("vstat-revenue");
+      if (elPending) elPending.innerText = pendingCount;
+      if (elAccepted) elAccepted.innerText = acceptedCount;
+      if (elRevenue) elRevenue.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
+
       if (!orders || orders.length === 0) {
-        container.innerHTML = `<p style="text-align:center; padding: 40px 0; color:var(--text-secondary);">No orders in queue.</p>`;
+        container.innerHTML = `<p style="text-align:center; padding: 50px 0; color:var(--text-secondary); font-size:15px;">No active orders in the vendor queue.</p>`;
         return;
       }
 
       container.innerHTML = orders.map(ord => {
-        const itemStr = (ord.items && ord.items.length > 0)
-          ? ord.items.map(i => `${i.product_name || i.name || 'Item'} x${i.quantity || i.qty || 1}`).join(", ")
-          : (ord.formatted_items || 'Meal Select');
+        const itemLines = (ord.items && ord.items.length > 0)
+          ? ord.items.map(i => `• ${i.product_name || i.name || 'Item'} x${i.quantity || i.qty || 1} (₹${(i.price || 0) * (i.quantity || i.qty || 1)})`).join("<br>")
+          : `• ${ord.formatted_items || 'Meal Order'}`;
+        
         const st = (ord.status || 'Pending').toLowerCase();
-        // Normalize status for filter matching
         const filterKey = st === 'pending' ? 'pending'
           : (st === 'accepted' || st === 'preparing' || st === 'ready' || st === 'out for delivery') ? 'accepted'
           : st === 'rejected' ? 'rejected'
           : st === 'delivered' ? 'delivered' : 'all';
+
+        const statusLabel = (ord.status || 'Pending').toUpperCase();
+
         return `
-        <div class="order-card" data-status="${filterKey}" style="margin-bottom:12px; padding:16px; background:var(--glass-bg); border:var(--glass-border); border-radius:var(--radius-md);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <h4 style="margin:0;">Order #${ord.id || ord.order_id} | Passenger: ${ord.user_email}</h4>
-            <span class="status-badge ${st}">${ord.status}</span>
+        <div class="mobile-order-card order-card" data-status="${filterKey}">
+          <div class="mobile-order-header">
+            <div class="mobile-order-title">
+              <span>🍔</span> Order #${ord.id || ord.order_id}
+            </div>
+            <span class="mobile-status-badge ${st}">${statusLabel}</span>
           </div>
-          <p style="font-size:13px; margin:0 0 4px 0; color:var(--accent-blue);">📍 Delivery: ${ord.terminal || 'Terminal 1'} • ${ord.gate || 'Gate 1'}</p>
-          <p style="font-size:13px; margin-bottom:12px;"><strong>Items:</strong> ${itemStr} | <strong>Total:</strong> ₹${(ord.total_price || 0).toFixed(2)} [${ord.payment_method || 'COD'}]</p>
-          <div style="display:flex; gap:10px;">
+
+          <div class="mobile-order-meta">
+            👤 Customer: <strong>${ord.user_email || 'Passenger'}</strong>
+          </div>
+
+          <div class="mobile-order-location">
+            📍 Delivery Target: ${ord.terminal || 'Terminal 1'} • ${ord.gate || 'Gate 1'}
+          </div>
+
+          <div class="mobile-order-divider"></div>
+
+          <div class="mobile-order-items">
+            <div style="font-weight:700; font-size:12px; color:var(--text-secondary); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">ORDER ITEMS LIST</div>
+            ${itemLines}
+          </div>
+
+          <div class="mobile-order-price">
+            <span style="font-size:13px; color:var(--text-secondary); font-weight:400;">Total Payable:</span>
+            <span>₹${(ord.total_price || 0).toLocaleString('en-IN')} <span style="font-size:11px; color:var(--text-secondary); font-weight:400;">[${ord.payment_method || 'COD'}]</span></span>
+          </div>
+
+          <div class="mobile-order-actions">
             ${st === 'pending' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Accepted')">✅ Accept</button>
-              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Rejected')">❌ Reject</button>
+              <button class="btn-reject-mobile" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Rejected')">❌ Reject</button>
+              <button class="btn-accept-mobile" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Accepted')">✅ Accept Order</button>
             ` : ''}
             ${st === 'accepted' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Preparing')">🍳 Start Cooking</button>
+              <button class="btn-primary" style="height:38px; width:auto; padding:0 16px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Preparing')">🍳 Start Cooking</button>
             ` : ''}
             ${st === 'preparing' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">✔ Mark Ready</button>
+              <button class="btn-primary" style="height:38px; width:auto; padding:0 16px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Ready')">✔ Mark Ready</button>
             ` : ''}
             ${st === 'ready' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">🛵 Send for Delivery</button>
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
+              <button class="btn-primary" style="height:38px; width:auto; padding:0 16px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Out for Delivery')">🛵 Send for Delivery</button>
+              <button class="btn-accept-mobile" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
             ` : ''}
             ${st === 'out for delivery' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
+              <button class="btn-accept-mobile" onclick="app.updateOrderStatus(${ord.id || ord.order_id}, 'Delivered')">📦 Deliver & Close</button>
             ` : ''}
           </div>
         </div>
@@ -2158,47 +2239,83 @@ class AeroAssistApp {
     } else {
       const bkRes = await this.apiCall(`/bookings?vendor_id=${this.currentVendor.id}`);
       const bookings = (bkRes && bkRes.bookings) ? bkRes.bookings : [];
+
+      let pendingCount = 0;
+      let acceptedCount = 0;
+      let totalRev = 0;
+      bookings.forEach(b => {
+        const st = (b.status || 'Pending').toLowerCase();
+        if (st === 'pending') pendingCount++;
+        if (st === 'confirmed') acceptedCount++;
+        if (st === 'confirmed' || st === 'used') totalRev += (b.guests || 1) * 1200;
+      });
+
+      const elPending = document.getElementById("vstat-pending");
+      const elAccepted = document.getElementById("vstat-accepted");
+      const elRevenue = document.getElementById("vstat-revenue");
+      if (elPending) elPending.innerText = pendingCount;
+      if (elAccepted) elAccepted.innerText = acceptedCount;
+      if (elRevenue) elRevenue.innerText = `₹${totalRev.toLocaleString('en-IN')}`;
+
       if (!bookings || bookings.length === 0) {
-        container.innerHTML = `<p style="text-align:center; padding: 40px 0; color:var(--text-secondary);">No active bookings.</p>`;
+        container.innerHTML = `<p style="text-align:center; padding: 50px 0; color:var(--text-secondary); font-size:15px;">No active lounge pass bookings.</p>`;
         return;
       }
 
-      container.innerHTML = bookings.map(b => `
-        <div class="order-card" data-status="${b.status.toLowerCase() === 'pending' ? 'pending' : b.status.toLowerCase() === 'cancelled' ? 'rejected' : b.status.toLowerCase() === 'confirmed' ? 'accepted' : 'all'}" style="margin-bottom:12px; padding:16px; background:var(--glass-bg); border:var(--glass-border); border-radius:var(--radius-md);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h4 style="margin:0;">Pass #${b.id} | Passenger: ${b.email}</h4>
-            <span class="status-badge ${b.status.toLowerCase()}">${b.status}</span>
+      container.innerHTML = bookings.map(b => {
+        const st = (b.status || 'Pending').toLowerCase();
+        const filterKey = st === 'pending' ? 'pending' : st === 'cancelled' ? 'rejected' : st === 'confirmed' ? 'accepted' : 'all';
+        return `
+        <div class="mobile-order-card order-card" data-status="${filterKey}">
+          <div class="mobile-order-header">
+            <div class="mobile-order-title">
+              <span>🛋️</span> Pass #${b.id}
+            </div>
+            <span class="mobile-status-badge ${st === 'pending' ? 'pending' : st === 'confirmed' ? 'accepted' : 'rejected'}">${(b.status || 'Pending').toUpperCase()}</span>
           </div>
-          <p style="font-size:13px; margin-bottom:12px;">Slot: ${b.date} at ${b.time} | Guests: ${b.guests}</p>
-          <div style="display:flex; gap:10px;">
-            ${b.status.toLowerCase() === 'pending' ? `
-              <button class="btn-primary" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">✅ Confirm Slot</button>
-              <button class="btn-danger" style="height:36px; width:auto; padding:0 12px; font-size:13px;" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">❌ Cancel Pass</button>
+
+          <div class="mobile-order-meta">
+            👤 Passenger Email: <strong>${b.email || 'Visitor'}</strong>
+          </div>
+
+          <div class="mobile-order-location">
+            📅 Reservation Slot: ${b.date || 'Today'} at ${b.time || '12:00 PM'} • ${b.guests || 1} Guest(s)
+          </div>
+
+          <div class="mobile-order-divider"></div>
+
+          <div class="mobile-order-price">
+            <span style="font-size:13px; color:var(--text-secondary); font-weight:400;">Pass Price Total:</span>
+            <span>₹${((b.guests || 1) * 1200).toLocaleString('en-IN')}</span>
+          </div>
+
+          <div class="mobile-order-actions">
+            ${st === 'pending' ? `
+              <button class="btn-reject-mobile" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">❌ Cancel Pass</button>
+              <button class="btn-accept-mobile" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">✅ Confirm Pass Slot</button>
             ` : ''}
           </div>
         </div>
-      `).join("");
+      `;
+      }).join("");
     }
   }
 
   // --- ORDER FILTER BY STATUS TAB ---
   filterOrders(status) {
-    // Update active tab button
     document.querySelectorAll('.order-filter-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`ofilter-${status}`);
     if (activeBtn) activeBtn.classList.add('active');
 
-    // Show/hide cards based on data-status
     const cards = document.querySelectorAll('.order-card');
     let visibleCount = 0;
     cards.forEach(card => {
       const cardStatus = card.getAttribute('data-status');
       const show = status === 'all' || cardStatus === status;
-      card.classList.toggle('hidden', !show);
+      card.style.display = show ? 'block' : 'none';
       if (show) visibleCount++;
     });
 
-    // Show empty state message if nothing visible
     const container = document.getElementById('vendor-queue-list');
     const existingMsg = document.getElementById('filter-empty-msg');
     if (existingMsg) existingMsg.remove();
@@ -2207,8 +2324,73 @@ class AeroAssistApp {
       const msg = document.createElement('p');
       msg.id = 'filter-empty-msg';
       msg.style.cssText = 'text-align:center; padding:40px 0; color:var(--text-secondary); font-size:14px;';
-      msg.innerText = `No ${labels[status] || ''} orders found.`;
+      msg.innerText = `No ${labels[status] || ''} orders found in queue.`;
       container.appendChild(msg);
+    }
+  }
+
+  // --- TAB BASED ADMIN REGISTRATION / DELETION HANDLERS ---
+  async submitTabAdminRegisterVendor() {
+    const adminKey = document.getElementById("tab-admin-reg-key")?.value.trim() || "admin_aeroassist_2026";
+    const name = document.getElementById("tab-admin-reg-name")?.value.trim();
+    const email = document.getElementById("tab-admin-reg-email")?.value.trim();
+    const password = document.getElementById("tab-admin-reg-password")?.value.trim();
+    const type = document.getElementById("tab-admin-reg-type")?.value || "restaurant";
+    const terminal = document.getElementById("tab-admin-reg-terminal")?.value || "Terminal 1";
+    const gate = document.getElementById("tab-admin-reg-gate")?.value.trim();
+
+    if (!name || !email || !password || !gate) {
+      alert("Please fill all properties (Vendor Name, Email, Password, and Gate Number)!");
+      return;
+    }
+
+    const payload = {
+      admin_key: adminKey,
+      name,
+      email,
+      password,
+      type,
+      terminal,
+      gate
+    };
+
+    const res = await this.apiCall("/vendors/register", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    if (res && res.status === "success") {
+      alert(`✅ Vendor "${name}" successfully registered!\n\nThe vendor account is ready for sign in with email: ${email}`);
+      document.getElementById("tab-admin-reg-name").value = "";
+      document.getElementById("tab-admin-reg-email").value = "";
+      document.getElementById("tab-admin-reg-password").value = "";
+      document.getElementById("tab-admin-reg-gate").value = "";
+    } else {
+      alert(res.message || "Failed to create vendor account.");
+    }
+  }
+
+  async submitTabAdminDeleteVendor() {
+    const email = document.getElementById("tab-admin-del-email")?.value.trim();
+    if (!email) {
+      alert("Please enter a vendor email to remove.");
+      return;
+    }
+    if (!confirm(`Are you absolutely sure you want to permanently delete vendor: ${email}?`)) return;
+
+    const res = await this.apiCall("/vendors/delete", {
+      method: "POST",
+      body: JSON.stringify({
+        admin_key: "admin_aeroassist_2026",
+        email: email
+      })
+    });
+
+    if (res && res.status === "success") {
+      alert(`✅ Vendor account "${email}" successfully removed!`);
+      document.getElementById("tab-admin-del-email").value = "";
+    } else {
+      alert(res.message || "Failed to remove vendor account.");
     }
   }
 
@@ -2233,22 +2415,33 @@ class AeroAssistApp {
     if (!this.currentVendor) return;
     const result = await this.apiCall(`/vendors/products?vendor_id=${this.currentVendor.id}`);
     const products = (result && result.products) ? result.products : [];
+
+    const elCat = document.getElementById("vstat-catalog");
+    if (elCat) elCat.innerText = products.length;
+
     const container = document.getElementById("vendor-catalog-grid");
     if (!container) return;
 
     if (!products || products.length === 0) {
-      container.innerHTML = `<p style="grid-column:1/-1; text-align:center;">No catalog products found. Add your first item above!</p>`;
+      container.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:50px 0; color:var(--text-secondary); font-size:15px;">No catalog products found. Add your first item using the button above!</p>`;
       return;
     }
 
     container.innerHTML = products.map(prod => `
-      <div class="glass-card" style="display:flex; gap:16px; align-items:center; padding:16px;">
-        <img style="width:60px; height:60px; border-radius:8px; object-fit:cover;" src="${this.getProductImage(prod)}" alt="${prod.name}">
-        <div style="flex:1;">
-          <h4 style="margin:0; font-size:15px;">${prod.name}</h4>
-          <strong style="color:var(--accent-orange);">₹${prod.price}</strong>
+      <div class="mobile-catalog-card">
+        <div style="display:flex; gap:14px; align-items:center; margin-bottom:12px;">
+          <img style="width:68px; height:68px; border-radius:12px; object-fit:cover; border:1px solid var(--glass-border);" src="${this.getProductImage(prod)}" alt="${prod.name}">
+          <div style="flex:1;">
+            <span style="font-size:11px; background:rgba(0,229,255,0.15); color:var(--accent-cyan); padding:2px 8px; border-radius:12px; font-weight:700;">${prod.category || 'General'}</span>
+            <h4 style="margin:4px 0 2px 0; font-size:16px; color:var(--text-primary);">${prod.name}</h4>
+            <strong style="color:#00E5FF; font-size:16px;">₹${(prod.price || 0).toFixed(2)}</strong>
+          </div>
         </div>
-        <button class="btn-danger" style="width:auto; height:32px; padding:0 12px; font-size:12px;" onclick="app.submitDeleteProduct(${prod.id})">Delete</button>
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; min-height:34px;">${prod.description || 'Freshly prepared menu item.'}</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--glass-border); padding-top:10px;">
+          <span style="font-size:11px; color:#10B981; font-weight:700;">✔ IN STOCK</span>
+          <button class="btn-danger" style="width:auto; height:32px; padding:0 14px; font-size:12px; font-weight:700;" onclick="app.submitDeleteProduct(${prod.id})">🗑️ Delete</button>
+        </div>
       </div>
     `).join("");
   }
