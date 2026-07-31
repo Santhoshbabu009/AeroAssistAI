@@ -2115,9 +2115,9 @@ class AeroAssistApp {
       return;
     }
 
-    const res = await this.apiCall("/admin/register-vendor", {
+    const res = await this.apiCall("/vendors/register", {
       method: "POST",
-      body: JSON.stringify({ adminKey: key, name, email, password, type, terminal, gate })
+      body: JSON.stringify({ admin_key: key, name, email, password, type, terminal, gate })
     });
 
     if (res && res.status === "success") {
@@ -2139,9 +2139,9 @@ class AeroAssistApp {
     }
     if (!confirm(`Are you sure you want to permanently remove vendor: ${email}?`)) return;
 
-    const res = await this.apiCall("/admin/delete-vendor", {
+    const res = await this.apiCall("/vendors/delete", {
       method: "POST",
-      body: JSON.stringify({ adminKey: "admin_aeroassist_2026", email })
+      body: JSON.stringify({ admin_key: "admin_aeroassist_2026", email })
     });
 
     if (res && res.status === "success") {
