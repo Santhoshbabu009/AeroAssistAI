@@ -13,6 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+.env
+*.env
 backend/.env
 node_modules/
 .pytest_cache/
