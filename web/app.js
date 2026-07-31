@@ -2984,8 +2984,9 @@ class AeroAssistApp {
     container.style.display = "block";
 
     const f = this.bookingDraft.flight;
-    const taxes = 850 * this.bookingDraft.passengers;
-    const totalFare = (f.base_fare * this.bookingDraft.passengers) + taxes;
+    const paxCount = this.bookingDraft.passengers || 1;
+    const perPaxPrice = f.base_fare || f.price_per_pax || 4500;
+    const totalFare = f.total_fare || (perPaxPrice * paxCount);
     this.bookingDraft.totalFare = totalFare;
 
     container.innerHTML = `
@@ -3014,18 +3015,19 @@ class AeroAssistApp {
         <h4 style="margin-bottom:12px;">Fare Breakdown</h4>
         <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:var(--radius-md);">
           <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span>Base Fare (${this.bookingDraft.passengers} x ₹${f.base_fare.toLocaleString('en-IN')})</span>
-            <span>₹${(f.base_fare * this.bookingDraft.passengers).toLocaleString('en-IN')}</span>
+            <span>Flight Fare (${paxCount} passenger${paxCount > 1 ? 's' : ''} x ₹${perPaxPrice.toLocaleString('en-IN')})</span>
+            <span>₹${totalFare.toLocaleString('en-IN')}</span>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
-            <span>Taxes & Fees</span>
-            <span>₹${taxes.toLocaleString('en-IN')}</span>
+            <span>Airport Taxes & GST</span>
+            <span style="color:#10B981; font-weight:600;">Included</span>
           </div>
           <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
-            <strong style="font-size:18px;">Total Amount</strong>
+            <strong style="font-size:18px;">Total Amount Payable</strong>
             <strong style="font-size:18px; color:var(--accent-orange);">₹${totalFare.toLocaleString('en-IN')}</strong>
           </div>
         </div>
+
 
         <div style="text-align:right; margin-top:24px;">
           <button class="btn-primary" onclick="app.openPaymentModal()">PROCEED TO PAYMENT</button>
