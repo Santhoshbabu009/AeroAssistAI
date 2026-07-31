@@ -1808,48 +1808,93 @@ class AeroAssistApp {
       return;
     }
 
-    // Fetch a fresh token if session doesn't have one (e.g. old cached session)
+    // Refresh token if session doesn't have one
     if (!this.currentUser.token) {
       const refreshRes = await this.apiCall("/token-refresh", {
         method: "POST",
         body: JSON.stringify({ email: this.currentUser.email })
       });
       if (!refreshRes || !refreshRes.token) {
-        alert("Your session has expired. Please sign out and log in again to place orders.");
+        alert("Your session has expired. Please sign out and log in again.");
         return;
       }
       this.currentUser.token = refreshRes.token;
       localStorage.setItem("user_session", JSON.stringify(this.currentUser));
     }
 
-    const payload = {
-      user_email: this.currentUser.email,
-      vendor_id: this.cart.restaurant.id,
-      items: this.cart.items.map(item => ({
-        product_id: item.id,
-        name: item.name,
-        product_name: item.name,
-        qty: item.qty,
-        quantity: item.qty,
-        price: item.price
-      })),
-      terminal: terminal,
-      gate: gate,
-      payment_method: document.getElementById("checkout-payment")?.value || "COD",
-      total_price: this.cart.items.reduce((sum, item) => sum + (item.price * item.qty), 0)
-    };
+    const totalPrice = this.cart.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-    const res = await this.apiCall("/orders", {
+    // Create Razorpay payment order
+    const orderRes = await this.apiCall("/payments/create-order", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ amount: totalPrice, receipt: `fd_${Date.now()}` })
     });
 
-    if (res && res.status === "success") {
-      alert("Order submitted successfully!");
-      this.clearCart();
-      this.toggleCart(false);
+    const finalizeOrder = async (payId = "PAY_ONLINE", payMethod = "Razorpay Live UPI/Card") => {
+      const payload = {
+        user_email: this.currentUser.email,
+        vendor_id: this.cart.restaurant.id,
+        items: this.cart.items.map(item => ({
+          product_id: item.id,
+          name: item.name,
+          product_name: item.name,
+          qty: item.qty,
+          quantity: item.qty,
+          price: item.price
+        })),
+        terminal: terminal,
+        gate: gate,
+        payment_method: payMethod,
+        payment_id: payId,
+        total_price: totalPrice
+      };
+
+      const res = await this.apiCall("/orders", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      if (res && res.status === "success") {
+        this.clearCart();
+        this.toggleCart(false);
+        alert(`🎉 Food Order Confirmed!\n\nDelivering to Terminal ${terminal}, ${gate}.\nPayment ID: ${payId}`);
+      } else {
+        alert(res.message || "Failed to place order.");
+      }
+    };
+
+    // Open Razorpay Live Checkout SDK if configured
+    if (window.Razorpay && orderRes && orderRes.key_id && !orderRes.key_id.includes("mock")) {
+      const options = {
+        key: orderRes.key_id,
+        amount: orderRes.amount,
+        currency: orderRes.currency || "INR",
+        name: "AeroAssist AI - Food Outlet",
+        description: `Food Pre-Order (${this.cart.restaurant.name})`,
+        order_id: orderRes.order_id,
+        handler: async (response) => {
+          this._showToast("Verifying food order payment...");
+          const verifyRes = await this.apiCall("/payments/verify-signature", {
+            method: "POST",
+            body: JSON.stringify(response)
+          });
+          if (verifyRes && verifyRes.status === "success") {
+            await finalizeOrder(response.razorpay_payment_id, "Razorpay Live UPI/Card");
+          } else {
+            alert("❌ Payment verification failed.");
+          }
+        },
+        prefill: {
+          name: this.currentUser.name || "Passenger",
+          email: this.currentUser.email,
+          contact: this.currentUser.mobile || "9876543210"
+        },
+        theme: { color: "#1D80E4" }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } else {
-      alert(res.message || "Failed to place order.");
+      await finalizeOrder(`PAY_ONLINE_${Date.now()}`, "Online Payment");
     }
   }
 
@@ -1913,25 +1958,71 @@ class AeroAssistApp {
       return;
     }
 
-    const payload = {
-      email: this.currentUser.email,
-      vendor_id: this.activeLounge.id,
-      date: date,
-      time: time,
-      guests: this.bookingGuests,
-      price: 1200 * this.bookingGuests
-    };
+    const totalPrice = 1200 * this.bookingGuests;
 
-    const res = await this.apiCall("/bookings", {
+    // Create Razorpay payment order
+    const orderRes = await this.apiCall("/payments/create-order", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ amount: totalPrice, receipt: `lng_${Date.now()}` })
     });
 
-    if (res && res.status === "success") {
-      alert("Lounge booking successfully reserved!");
-      this.closeModal("lounge-booking");
+    const finalizeLoungeBooking = async (payId = "PAY_LOUNGE", payMethod = "Razorpay Live UPI/Card") => {
+      const payload = {
+        email: this.currentUser.email,
+        vendor_id: this.activeLounge.id,
+        date: date,
+        time: time,
+        guests: this.bookingGuests,
+        price: totalPrice,
+        payment_id: payId,
+        payment_method: payMethod
+      };
+
+      const res = await this.apiCall("/bookings", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      if (res && res.status === "success") {
+        this.closeModal("lounge-booking");
+        alert(`🎉 Lounge Pass Reserved!\n\nLounge: ${this.activeLounge.name}\nGuests: ${this.bookingGuests}\nPayment ID: ${payId}`);
+      } else {
+        alert(res.message || "Failed to book slot.");
+      }
+    };
+
+    // Open Razorpay Live Checkout SDK if configured
+    if (window.Razorpay && orderRes && orderRes.key_id && !orderRes.key_id.includes("mock")) {
+      const options = {
+        key: orderRes.key_id,
+        amount: orderRes.amount,
+        currency: orderRes.currency || "INR",
+        name: "AeroAssist AI - Lounge Pass",
+        description: `Lounge Reservation (${this.activeLounge.name})`,
+        order_id: orderRes.order_id,
+        handler: async (response) => {
+          this._showToast("Verifying lounge pass payment...");
+          const verifyRes = await this.apiCall("/payments/verify-signature", {
+            method: "POST",
+            body: JSON.stringify(response)
+          });
+          if (verifyRes && verifyRes.status === "success") {
+            await finalizeLoungeBooking(response.razorpay_payment_id, "Razorpay Live UPI/Card");
+          } else {
+            alert("❌ Payment verification failed.");
+          }
+        },
+        prefill: {
+          name: this.currentUser.name || "Passenger",
+          email: this.currentUser.email,
+          contact: this.currentUser.mobile || "9876543210"
+        },
+        theme: { color: "#1D80E4" }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } else {
-      alert(res.message || "Failed to book slot.");
+      await finalizeLoungeBooking(`PAY_LNG_${Date.now()}`, "Online Payment");
     }
   }
 
