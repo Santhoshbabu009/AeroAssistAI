@@ -1404,33 +1404,52 @@
   <div id="modal-add-product" class="modal-overlay" onclick="if(event.target===this) app.closeModal('add-product')">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Add Menu Catalog Item</h3>
+        <h3>Add Menu / Catalog Item</h3>
         <button class="close-modal" onclick="app.closeModal('add-product')">&times;</button>
       </div>
       <div class="form-group">
-        <label>Food Item Title</label>
+        <label>Item / Food Name *</label>
         <input type="text" id="product-name" placeholder="e.g. Double Cheeseburger">
       </div>
       <div class="form-group">
-        <label>Slot Price (₹)</label>
-        <input type="number" id="product-price" placeholder="e.g. 249">
+        <label>Price (₹) *</label>
+        <input type="number" id="product-price" placeholder="e.g. 249" min="1">
       </div>
       <div class="form-group">
-        <label>Catalog Category</label>
+        <label>Category</label>
         <select id="product-category">
           <option>Burgers</option>
+          <option>Pizza</option>
+          <option>Biryani &amp; Rice</option>
+          <option>Wraps &amp; Rolls</option>
+          <option>Sandwiches</option>
+          <option>Starters &amp; Snacks</option>
+          <option>Main Course</option>
+          <option>Noodles &amp; Pasta</option>
+          <option>Salads</option>
+          <option>Desserts &amp; Sweets</option>
+          <option>Bakery &amp; Breads</option>
+          <option>Beverages &amp; Drinks</option>
+          <option>Coffee &amp; Tea</option>
+          <option>Juices &amp; Smoothies</option>
+          <option>Combos &amp; Meals</option>
           <option>Sides</option>
-          <option>Drinks</option>
-          <option>Bakery</option>
+          <option>Lounge Snacks</option>
+          <option>Other</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Product Description</label>
-        <textarea id="product-description" placeholder="Describe the food ingredients..."></textarea>
+        <label>Description</label>
+        <textarea id="product-description" rows="2" placeholder="Briefly describe the item..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Image URL <span style="color:var(--text-secondary); font-weight:400;">(optional)</span></label>
+        <input type="url" id="product-image-url" placeholder="https://images.unsplash.com/...">
       </div>
       <button class="btn-primary" onclick="app.submitAddProduct()">SAVE PRODUCT ITEM</button>
     </div>
   </div>
+
 
   <!-- Modal 5: Live Order Tracker Dialog -->
   <div id="modal-order-tracker" class="modal-overlay" onclick="if(event.target===this) app.closeModal('order-tracker')">

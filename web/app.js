@@ -822,6 +822,27 @@ class AeroAssistApp {
     }
   }
 
+  // --- TOAST NOTIFICATION HELPER ---
+  _showToast(message, duration = 3000) {
+    let toast = document.getElementById("app-toast-notification");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "app-toast-notification";
+      toast.style.cssText = `
+        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+        background: rgba(16, 185, 129, 0.95); color: #fff;
+        padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 700;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.35); z-index: 99999;
+        transition: opacity 0.3s ease; white-space: nowrap;
+      `;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = "1";
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => { toast.style.opacity = "0"; }, duration);
+  }
+
   // --- PASSENGER AUTHENTICATION SYSTEM ---
   switchAuthMode(mode) {
     this.authMode = mode;
@@ -2521,8 +2542,23 @@ class AeroAssistApp {
     const price = parseFloat(document.getElementById("product-price").value);
     const category = document.getElementById("product-category").value;
     const desc = document.getElementById("product-description").value.trim();
+    const image_url = document.getElementById("product-image-url")?.value.trim() || "";
 
-    if (!name || isNaN(price)) return;
+    if (!name) {
+      alert("Please enter a product name.");
+      return;
+    }
+    if (isNaN(price) || price <= 0) {
+      alert("Please enter a valid price.");
+      return;
+    }
+    if (!this.currentVendor) {
+      alert("Vendor session expired. Please log in again.");
+      return;
+    }
+
+    const btn = document.querySelector("#modal-add-product .btn-primary");
+    if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
 
     const payload = {
       vendor_id: this.currentVendor.id,
@@ -2530,7 +2566,7 @@ class AeroAssistApp {
       price,
       category,
       description: desc,
-      image_url: ""
+      image_url
     };
 
     const res = await this.apiCall("/vendors/products", {
@@ -2538,15 +2574,25 @@ class AeroAssistApp {
       body: JSON.stringify(payload)
     });
 
+    if (btn) { btn.disabled = false; btn.textContent = "SAVE PRODUCT ITEM"; }
+
     if (res && res.status === "success") {
-      alert("Product successfully added!");
       this.closeModal("add-product");
-      
+
+      // Clear form fields
       document.getElementById("product-name").value = "";
       document.getElementById("product-price").value = "";
       document.getElementById("product-description").value = "";
-      
-      this.fetchVendorCatalog();
+      if (document.getElementById("product-image-url")) document.getElementById("product-image-url").value = "";
+
+      // Switch to catalog tab and refresh
+      this.switchVendorTab("catalog");
+      await this.fetchVendorCatalog();
+
+      // Show brief success toast
+      this._showToast(`✅ "${name}" added to catalog!`);
+    } else {
+      alert("❌ Failed to add product: " + (res?.message || "Server error. Please try again."));
     }
   }
 
