@@ -341,10 +341,16 @@ public class ChatbotActivity extends BaseActivity {
         try {
             JSONObject json = new JSONObject();
             json.put("message", message);
+            json.put("userQuery", message);
             json.put("email", currentUserEmail);
             json.put("user_type", currentUserType);
             json.put("session_id", currentSessionId);
-            json.put("lang", LocaleHelper.getLanguage(this));
+            
+            String currentLang = LocaleHelper.getLanguage(this);
+            json.put("lang", currentLang);
+            json.put("selectedLanguage", currentLang);
+            json.put("currentLocation", "Terminal 1 Main Entrance");
+            json.put("airport", "Chennai International Airport (MAA)");
 
             RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
             Request request = new Request.Builder()
