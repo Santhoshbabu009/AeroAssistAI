@@ -3856,7 +3856,7 @@ import hashlib
 
 @app.route('/api/payments/config', methods=['GET'])
 def get_payment_config():
-    key_id = os.environ.get("RAZORPAY_KEY_ID", "").strip()
+    key_id = os.environ.get("RAZORPAY_KEY_ID", "rzp_live_TK1Mox8LvichT1").strip()
     return jsonify({
         "status": "success",
         "razorpay_key_id": key_id,
@@ -3874,8 +3874,8 @@ def create_payment_order():
         return jsonify({"status": "error", "message": "Amount must be greater than 0"}), 400
 
     amount_in_paise = int(amount * 100)
-    key_id = os.environ.get("RAZORPAY_KEY_ID", "").strip()
-    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "").strip()
+    key_id = os.environ.get("RAZORPAY_KEY_ID", "rzp_live_TK1Mox8LvichT1").strip()
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "KR34OgZT2KrGzhCRRTRpQImZ").strip()
 
     if key_id and key_secret:
         try:
@@ -3916,7 +3916,7 @@ def create_payment_order():
         "order_id": mock_order_id,
         "amount": amount_in_paise,
         "currency": currency,
-        "key_id": key_id or "rzp_test_mockkey123"
+        "key_id": key_id or "rzp_live_TK1Mox8LvichT1"
     })
 
 @app.route('/api/payments/verify-signature', methods=['POST'])
@@ -3929,7 +3929,7 @@ def verify_payment_signature():
     if not order_id or not payment_id:
         return jsonify({"status": "error", "message": "order_id and payment_id are required"}), 400
 
-    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "").strip()
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "KR34OgZT2KrGzhCRRTRpQImZ").strip()
 
     if key_secret and signature:
         message = f"{order_id}|{payment_id}".encode('utf-8')
@@ -3951,6 +3951,7 @@ def verify_payment_signature():
         "message": "Test mode payment verified",
         "payment_id": payment_id or f"pay_{''.join(random.choices('0123456789abcdef', k=14))}"
     })
+
 
     rnd_suffix = "".join(random.choices("0123456789", k=6))
     booking_id = f"BK-{rnd_suffix}"
