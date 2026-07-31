@@ -2049,7 +2049,7 @@ class AeroAssistApp {
     if (type === "admin") {
       if (password === "admin_aeroassist_2026") {
         this.closeModal("vendor-login");
-        this.openModal("admin-panel");
+        this.showPage("admin");
       } else {
         alert("Unauthorized Admin Secret Key!");
       }
@@ -2080,16 +2080,74 @@ class AeroAssistApp {
     this.showPage("user-type");
   }
 
+  logoutAdmin() {
+    this.showPage("dashboard");
+  }
+
+  async submitPageAdminRegisterVendor() {
+    const key      = document.getElementById("admin-page-reg-key")?.value.trim();
+    const name     = document.getElementById("admin-page-reg-name")?.value.trim();
+    const email    = document.getElementById("admin-page-reg-email")?.value.trim();
+    const password = document.getElementById("admin-page-reg-password")?.value.trim();
+    const type     = document.getElementById("admin-page-reg-type")?.value;
+    const terminal = document.getElementById("admin-page-reg-terminal")?.value;
+    const gate     = document.getElementById("admin-page-reg-gate")?.value.trim();
+
+    if (!name || !email || !password) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+    if (key !== "admin_aeroassist_2026") {
+      alert("Invalid Admin Secret Key!");
+      return;
+    }
+
+    const res = await this.apiCall("/admin/register-vendor", {
+      method: "POST",
+      body: JSON.stringify({ adminKey: key, name, email, password, type, terminal, gate })
+    });
+
+    if (res && res.status === "success") {
+      alert(`✅ Vendor "${name}" registered successfully!`);
+      document.getElementById("admin-page-reg-name").value = "";
+      document.getElementById("admin-page-reg-email").value = "";
+      document.getElementById("admin-page-reg-password").value = "";
+      document.getElementById("admin-page-reg-gate").value = "";
+    } else {
+      alert("❌ Registration failed: " + (res?.message || "Unknown error."));
+    }
+  }
+
+  async submitPageAdminDeleteVendor() {
+    const email = document.getElementById("admin-page-del-email")?.value.trim();
+    if (!email) {
+      alert("Please enter the vendor email to remove.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to permanently remove vendor: ${email}?`)) return;
+
+    const res = await this.apiCall("/admin/delete-vendor", {
+      method: "POST",
+      body: JSON.stringify({ adminKey: "admin_aeroassist_2026", email })
+    });
+
+    if (res && res.status === "success") {
+      alert(`✅ Vendor "${email}" removed successfully.`);
+      document.getElementById("admin-page-del-email").value = "";
+    } else {
+      alert("❌ Failed to remove vendor: " + (res?.message || "Unknown error."));
+    }
+  }
+
   openAdminRegisterFromLogin(e) {
     if (e) e.preventDefault();
     this.closeModal("vendor-login");
-    this.showPage("vendor");
-    this.switchVendorTab("admin");
+    this.showPage("admin");
   }
 
   switchVendorTab(tabId) {
     this.vendorTab = tabId;
-    ["queue", "catalog", "admin"].forEach(t => {
+    ["queue", "catalog"].forEach(t => {
       const btn = document.getElementById(`tab-${t}`);
       const sec = document.getElementById(`vendor-tab-${t}`);
       if (btn) {
@@ -2099,11 +2157,6 @@ class AeroAssistApp {
         } else {
           btn.className = "btn-secondary";
           btn.style.fontWeight = "700";
-          if (t === "admin") {
-            btn.style.background = "rgba(255, 167, 38, 0.15)";
-            btn.style.color = "#FFA726";
-            btn.style.border = "1px solid rgba(255, 167, 38, 0.3)";
-          }
         }
       }
       if (sec) sec.style.display = t === tabId ? "block" : "none";

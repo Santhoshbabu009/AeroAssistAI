@@ -1067,9 +1067,6 @@
           <button id="tab-catalog" class="btn-secondary" style="width:auto; padding:0 22px; height:42px; font-weight:700;" onclick="app.switchVendorTab('catalog')">
             🍔 Menu & Product Catalog
           </button>
-          <button id="tab-admin" class="btn-secondary" style="width:auto; padding:0 22px; height:42px; font-weight:700; background:rgba(255, 167, 38, 0.15); color:#FFA726; border:1px solid rgba(255, 167, 38, 0.3);" onclick="app.switchVendorTab('admin')">
-            🛡️ Admin Console (Vendor Management)
-          </button>
         </div>
 
         <!-- Tab Content 1: Queue -->
@@ -1111,55 +1108,67 @@
           </div>
         </div>
 
-        <!-- Tab Content 3: Admin Console (Exact Match to Mobile App Screenshot) -->
-        <div id="vendor-tab-admin" class="tab-content" style="display:none;">
-          <div class="mobile-admin-portal-header">
+      </section>
+
+      <!-- View 10: Airport Administrator Portal (Dedicated page, shown on admin login) -->
+      <section id="view-admin" class="page-view">
+        <div style="padding: 24px 0;">
+
+          <!-- Admin Portal Branding Header -->
+          <div class="mobile-admin-portal-header" style="margin-bottom: 28px;">
             <h1 class="mobile-admin-portal-logo">AeroAssist AI</h1>
             <div class="mobile-admin-portal-divider"></div>
             <span class="mobile-admin-portal-badge">ADMIN PORTAL</span>
           </div>
 
+          <!-- Admin Actions Row: logout button -->
+          <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+            <button onclick="app.logoutAdmin()" style="background:rgba(229,57,53,0.18); color:#FF8A80; border:1px solid rgba(229,57,53,0.4); border-radius:12px; padding:8px 22px; font-weight:700; font-size:13px; cursor:pointer; transition:opacity 0.2s;">🚪 Exit Admin Portal</button>
+          </div>
+
+          <!-- Main Admin Glass Card -->
           <div class="mobile-admin-portal-container">
+
             <h2 class="mobile-admin-card-title">Create Vendor Account</h2>
 
             <!-- Admin Secret Key -->
             <div class="form-group" style="margin-bottom: 16px;">
               <label class="mobile-admin-label gold">Admin Secret Key</label>
-              <input type="password" id="tab-admin-reg-key" class="mobile-admin-input" value="admin_aeroassist_2026" placeholder="Required for verification">
+              <input type="password" id="admin-page-reg-key" class="mobile-admin-input" value="admin_aeroassist_2026" placeholder="Required for verification">
             </div>
 
             <!-- Vendor Business Name -->
             <div class="form-group" style="margin-bottom: 16px;">
               <label class="mobile-admin-label">Vendor Business Name</label>
-              <input type="text" id="tab-admin-reg-name" class="mobile-admin-input" placeholder="e.g. KFC Express">
+              <input type="text" id="admin-page-reg-name" class="mobile-admin-input" placeholder="e.g. KFC Express">
             </div>
 
             <!-- Vendor Email Address -->
             <div class="form-group" style="margin-bottom: 16px;">
               <label class="mobile-admin-label">Vendor Email Address</label>
-              <input type="email" id="tab-admin-reg-email" class="mobile-admin-input" placeholder="kfc@airport.com">
+              <input type="email" id="admin-page-reg-email" class="mobile-admin-input" placeholder="kfc@airport.com">
             </div>
 
             <!-- Vendor Password -->
             <div class="form-group" style="margin-bottom: 16px;">
               <label class="mobile-admin-label">Vendor Password</label>
-              <input type="password" id="tab-admin-reg-password" class="mobile-admin-input" placeholder="Minimum 6 characters">
+              <input type="password" id="admin-page-reg-password" class="mobile-admin-input" placeholder="Minimum 6 characters">
             </div>
 
             <!-- Vendor Type -->
             <div class="form-group" style="margin-bottom: 16px;">
               <label class="mobile-admin-label">Vendor Type</label>
-              <select id="tab-admin-reg-type" class="mobile-admin-select">
+              <select id="admin-page-reg-type" class="mobile-admin-select">
                 <option value="restaurant">restaurant</option>
                 <option value="lounge">lounge</option>
               </select>
             </div>
 
-            <!-- Location Grid Row -->
+            <!-- Location Row: Terminal & Gate Number -->
             <div style="display: flex; gap: 14px; margin-bottom: 20px;">
               <div style="flex: 1.2;">
                 <label class="mobile-admin-label">Terminal</label>
-                <select id="tab-admin-reg-terminal" class="mobile-admin-select">
+                <select id="admin-page-reg-terminal" class="mobile-admin-select">
                   <option value="Terminal 1">Terminal 1</option>
                   <option value="Terminal 2">Terminal 2</option>
                   <option value="Terminal 3">Terminal 3</option>
@@ -1167,27 +1176,26 @@
               </div>
               <div style="flex: 1;">
                 <label class="mobile-admin-label">Gate Number</label>
-                <input type="text" id="tab-admin-reg-gate" class="mobile-admin-input" placeholder="Gate 14">
+                <input type="text" id="admin-page-reg-gate" class="mobile-admin-input" placeholder="Gate 14">
               </div>
             </div>
 
             <!-- Register Button -->
-            <button class="btn-register-vendor" onclick="app.submitTabAdminRegisterVendor()">REGISTER VENDOR</button>
+            <button class="btn-register-vendor" onclick="app.submitPageAdminRegisterVendor()">REGISTER VENDOR</button>
 
             <!-- Divider Line -->
             <div style="height: 1px; background: rgba(255, 255, 255, 0.2); margin: 28px 0 24px 0;"></div>
 
-            <!-- Remove Vendor Title -->
+            <!-- Remove Vendor Section -->
             <h2 style="text-align: center; color: #FF8A80; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Remove Vendor Account</h2>
 
-            <!-- Vendor Email to Remove -->
             <div class="form-group" style="margin-bottom: 20px;">
               <label class="mobile-admin-label">Vendor Email to Remove</label>
-              <input type="email" id="tab-admin-del-email" class="mobile-admin-input" placeholder="e.g. kfc@airport.com">
+              <input type="email" id="admin-page-del-email" class="mobile-admin-input" placeholder="e.g. kfc@airport.com">
             </div>
 
-            <!-- Remove Button -->
-            <button class="btn-remove-vendor" onclick="app.submitTabAdminDeleteVendor()">REMOVE VENDOR ACCOUNT</button>
+            <button class="btn-remove-vendor" onclick="app.submitPageAdminDeleteVendor()">REMOVE VENDOR ACCOUNT</button>
+
           </div>
         </div>
       </section>
