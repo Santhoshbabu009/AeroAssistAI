@@ -2950,39 +2950,95 @@ class AeroAssistApp {
         const items = Array.isArray(o.items) ? o.items.map(i => `${i.quantity||i.qty||1}x ${i.name||i.product_name}`).join(', ') : (o.formatted_items || o.items || 'Items');
         return `
           <div class="glass-card" style="margin-bottom:16px; padding:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <h4 style="margin:0;">${o.restaurant_name || 'Airport Restaurant'}</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+              <h3 style="margin:0;">Order <span style="color:var(--accent-orange);">${o.booking_id || o.order_id || ('#'+o.id)}</span></h3>
               <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
             </div>
-            <p style="margin:4px 0; font-size:14px; color:var(--text-secondary);">${items}</p>
-            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:13px;">
-              <span>Order ID: <strong>${o.order_id || o.id || 'ORD'}</strong></span>
-              <span style="color:var(--accent-orange); font-weight:700;">₹${(o.total_amount || 0).toLocaleString('en-IN')}</span>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px;">
+              <div>
+                <p style="margin:0; font-size:15px; font-weight:600;">${o.restaurant_name || o.vendor_name || 'Restaurant'}</p>
+                <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Items: ${items}</p>
+              </div>
+              <div>
+                <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${o.terminal || '-'}</strong> | Gate: <strong>${o.gate || '-'}</strong></p>
+                ${o.pickup_counter ? `<p style="margin:4px 0 0; font-size:13px; color:var(--accent-cyan);">🪧 Pickup Counter: <strong>${o.pickup_counter}</strong></p>` : ''}
+                <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Total: <strong style="color:var(--accent-orange);">₹${o.total_price || o.total_amount || 0}</strong></p>
+              </div>
+              <div>
+                ${o.created_at ? `<p style="margin:0; font-size:12px; color:var(--text-muted);">📅 ${new Date(o.created_at).toLocaleString()}</p>` : ''}
+                <p style="margin:4px 0 0; font-size:12px; color:var(--text-muted);">Payment: ${o.payment_method || 'COD'} — ${o.payment_status || 'Pending'}</p>
+              </div>
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
     } catch(e) {
-      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load food order history.</div>`;
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load food orders.</div>`;
     }
   }
 
   async fetchParkingBookings() {
-    const container = document.getElementById('my-parking-list-container');
+    const container = document.getElementById("my-parking-list-container");
     if (!container) return;
     if (!this.currentUser || !this.currentUser.email) {
-      container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">Please Sign In to view your parking reservations.</div>`;
+      container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-secondary);">Please Sign In to view parking reservations.</div>`;
       return;
     }
-    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading parking history...</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading parking bookings...</div>`;
     try {
-      const res = await this.apiCall(`/parking-bookings/history?email=${encodeURIComponent(this.currentUser.email)}`);
+      const res = await this.apiCall(`/parking-bookings?email=${encodeURIComponent(this.currentUser.email)}`);
       const bookings = (res && res.bookings) ? res.bookings : [];
       if (!bookings.length) {
         container.innerHTML = `
           <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
             <div style="font-size:3rem; margin-bottom:16px;">🅿️</div>
             <h3 style="color:var(--text-primary); margin-bottom:8px;">No Parking Reservations</h3>
+            <p style="margin-bottom:24px;">You haven't reserved any parking slots yet.</p>
+            <button class="btn-primary" onclick="app.showPage('parking')" style="padding:12px 28px; border-radius:12px;">Reserve a Slot</button>
+          </div>`;
+        return;
+      }
+      this.renderParkingBookings(bookings);
+    } catch(e) {
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load parking bookings.</div>`;
+    }
+  }
+
+  renderParkingBookings(bookings) {
+    const container = document.getElementById("my-parking-list-container");
+    if (!container) return;
+    container.innerHTML = bookings.map(b => {
+      const bookingId = b.booking_id || b.id || 'PRK-XXXXXX';
+      const slot = b.slot_number || b.slot || 'Auto-Assigned';
+      const plate = b.plate_number || b.plate || b.vehicle_plate || '-';
+      const hours = b.duration_hours || b.hours || '-';
+      const price = b.total_price || b.price || '-';
+      const terminal = b.terminal || '-';
+      const entry = b.entry_time ? new Date(b.entry_time).toLocaleString() : (b.date || '-');
+      const status = (b.booking_status || b.status || 'Confirmed');
+      const statusClass = status.toLowerCase() === 'confirmed' ? 'accepted' : 'pending';
+      return `
+        <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin:0;">Booking ID: <span style="color:var(--accent-cyan);">${bookingId}</span></h3>
+            <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+            <div>
+              <p style="margin:0; font-size:18px; font-weight:700;">Slot: <span style="color:var(--accent-orange);">${slot}</span></p>
+              <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Vehicle: ${plate}</p>
+            </div>
+            <div>
+              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${terminal}</strong></p>
+              <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Duration: <strong>${hours} hrs</strong></p>
+            </div>
+            <div>
+              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Entry: ${entry}</p>
+              <p style="margin:4px 0 0; font-size:15px; color:var(--accent-orange); font-weight:700;">₹${price}</p>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+  }
 
   async reserveParkingSlot() {
     if (!this.currentUser) {
@@ -3050,37 +3106,75 @@ class AeroAssistApp {
 
     const f = b.flight_details || {};
     const paxList = Array.isArray(b.passenger_details) ? b.passenger_details : [];
-    const p1 = paxList[0] || {};
+    const paxCount = paxList.length || 1;
+    const allNames = paxList.map(p => p.name).filter(Boolean).join(", ") || (this.currentUser ? this.currentUser.name : 'Santhosh Babu');
+    const allSeats = paxList.map(p => p.seat).filter(Boolean).join(", ") || '12A';
     
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val || '-'; };
 
-    set('tkt-airline-name',  f.airline || 'AeroAssist Partner Airline');
-    set('tkt-aircraft',      `${f.aircraft || 'Airbus A320neo'} · ${f.cabinClass || f.cabin_class || 'Economy'}`);
-    set('tkt-pnr',           b.pnr || pnr);
-    set('tkt-status',        (b.booking_status || b.status || 'CONFIRMED').toUpperCase());
+    set('tkt-airline-name',     f.airline || 'AeroAssist Partner Airline');
+    set('tkt-aircraft',         `${f.aircraft || 'Airbus A320neo'} · ${f.cabinClass || f.cabin_class || 'Economy'}`);
+    set('tkt-pnr',              b.pnr || pnr);
+    set('tkt-status',           (b.booking_status || b.status || 'CONFIRMED').toUpperCase());
 
-    set('tkt-origin-code',   f.origin || 'MAA');
-    set('tkt-origin-name',   f.origin_name || f.origin || 'Chennai');
-    set('tkt-dep-time',      f.departure_time || '06:00 AM');
-    set('tkt-dep-date',      f.date || b.departure_date || '2026-08-01');
+    set('tkt-origin-code',      f.origin || 'MAA');
+    set('tkt-origin-name',      f.origin_name || f.origin || 'Chennai');
+    set('tkt-dep-time',         f.departure_time || '06:00 AM');
+    set('tkt-dep-date',         f.date || b.departure_date || '2026-08-01');
 
-    set('tkt-dest-code',     f.destination || 'DEL');
-    set('tkt-dest-name',     f.destination_name || f.destination || 'New Delhi');
-    set('tkt-arr-time',      f.arrival_time || '08:15 AM');
+    set('tkt-dest-code',        f.destination || 'DEL');
+    set('tkt-dest-name',        f.destination_name || f.destination || 'New Delhi');
+    set('tkt-arr-time',         f.arrival_time || '08:15 AM');
 
-    set('tkt-duration',      f.duration || '2h 15m');
-    set('tkt-stops',         f.stops || 'Non-stop');
+    set('tkt-duration',         f.duration || '2h 15m');
+    set('tkt-stops',            f.stops || 'Non-stop');
 
-    set('tkt-passenger-name', p1.name || (this.currentUser ? this.currentUser.name : 'Santhosh Babu'));
-    set('tkt-flight-number',  f.flight_number || 'AI-432');
-    set('tkt-seat-no',        p1.seat || '12A');
-    set('tkt-terminal-gate',  f.terminal ? `${f.terminal} / Gate 9` : 'Terminal 1 / Gate 9');
-    set('tkt-baggage',        f.baggage || '25 kg Check-in + 7 kg Hand Bag');
+    set('tkt-passengers-count', `${paxCount} Passenger${paxCount > 1 ? 's' : ''}`);
+    set('tkt-passenger-name',   allNames);
+    set('tkt-flight-number',    f.flight_number || 'AI-432');
+    set('tkt-seat-no',          allSeats);
+    set('tkt-terminal-gate',    f.terminal ? `${f.terminal} / Gate 9` : 'Terminal 1 / Gate 9');
+    set('tkt-baggage',          f.baggage || '25 kg Check-in + 7 kg Hand Bag');
 
-    set('tkt-booking-id',    b.booking_id || b.id || 'BK-892102');
-    set('tkt-ticket-num',    b.ticket_number || 'TKT-9920192');
-    set('tkt-payment-id',    b.payment_id || 'PAY-8810239');
-    set('tkt-txn-id',        b.transaction_id || 'TXN-7781920192');
+    set('tkt-booking-id',       b.booking_id || b.id || 'BK-892102');
+    set('tkt-ticket-num',       b.ticket_number || 'TKT-9920192');
+    set('tkt-payment-id',       b.payment_id || 'PAY-8810239');
+    set('tkt-txn-id',           b.transaction_id || 'TXN-7781920192');
+
+    // Populate full Passenger Manifest list
+    const paxContainer = document.getElementById('tkt-passengers-list');
+    if (paxContainer) {
+      if (paxList.length > 0) {
+        paxContainer.innerHTML = paxList.map((p, idx) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:var(--radius-md); border:var(--glass-border);">
+            <div>
+              <span style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">PASSENGER ${idx + 1}</span>
+              <div style="font-size:15px; font-weight:700; color:#fff; margin-top:2px;">
+                ${p.name || 'Passenger'} 
+                <span style="font-size:12px; font-weight:400; color:var(--text-secondary); margin-left:6px;">(${p.gender || 'N/A'}, ${p.age || 'N/A'} yrs)</span>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">SEAT ASSIGNED</span>
+              <div style="font-size:18px; font-weight:800; color:var(--accent-primary); margin-top:2px;">${p.seat || 'Assigned'}</div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        paxContainer.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:var(--radius-md); border:var(--glass-border);">
+            <div>
+              <span style="font-size:11px; color:var(--text-secondary);">PASSENGER 1</span>
+              <div style="font-size:15px; font-weight:700; color:#fff; margin-top:2px;">${allNames}</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:11px; color:var(--text-secondary);">SEAT ASSIGNED</span>
+              <div style="font-size:18px; font-weight:800; color:var(--accent-primary); margin-top:2px;">${allSeats}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
 
     this.openModal("eticket");
   }
