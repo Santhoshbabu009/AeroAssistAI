@@ -2943,7 +2943,51 @@ class AeroAssistApp {
     `;
   }
 
-  openPaymentModal() {
+  async openPaymentModal() {
+    const amount = this.bookingDraft?.totalFare || 4500;
+    const userEmail = this.currentUser ? this.currentUser.email : (document.getElementById("booking-contact-email")?.value || "guest@aeroassist.ai");
+    const userPhone = this.currentUser ? (this.currentUser.mobile || "9876543210") : "9876543210";
+    
+    // Create payment order from backend
+    const orderRes = await this.apiCall("/payments/create-order", {
+      method: "POST",
+      body: JSON.stringify({ amount, receipt: `fl_${Date.now()}` })
+    });
+
+    // Check if Razorpay SDK is available & key is configured
+    if (window.Razorpay && orderRes && orderRes.key_id && !orderRes.key_id.includes("mock") && orderRes.mode === "razorpay_live") {
+      const options = {
+        key: orderRes.key_id,
+        amount: orderRes.amount,
+        currency: orderRes.currency || "INR",
+        name: "AeroAssist AI",
+        description: `Flight Booking (${this.bookingDraft?.flight?.flight_number || 'AI-432'})`,
+        order_id: orderRes.order_id,
+        handler: async (response) => {
+          this._showToast("Verifying payment with bank...");
+          const verifyRes = await this.apiCall("/payments/verify-signature", {
+            method: "POST",
+            body: JSON.stringify(response)
+          });
+          if (verifyRes && verifyRes.status === "success") {
+            await this.completeFlightBooking(response.razorpay_payment_id, response.razorpay_order_id, "Razorpay UPI/Card");
+          } else {
+            alert("❌ Payment verification failed.");
+          }
+        },
+        prefill: {
+          name: this.currentUser ? this.currentUser.name : "Passenger",
+          email: userEmail,
+          contact: userPhone
+        },
+        theme: { color: "#1D80E4" }
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+      return;
+    }
+
+    // Modal Payment Dialog Fallback
     const totalEl = document.getElementById("payment-total-amt");
     if (totalEl) totalEl.innerText = `₹${this.bookingDraft.totalFare.toLocaleString('en-IN')}`;
     this.openModal("flight-payment");
@@ -2973,16 +3017,25 @@ class AeroAssistApp {
     btn.innerHTML = `<span class="spinner" style="display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation:spin 1s linear infinite;"></span> Processing...`;
     btn.disabled = true;
 
-    const userEmail = this.currentUser ? this.currentUser.email : (document.getElementById("booking-contact-email")?.value || "demo@aeroassist.ai");
+    const rzpPayId = `pay_${Date.now()}`;
+    const rzpOrderId = `order_${Date.now()}`;
+    await this.completeFlightBooking(rzpPayId, rzpOrderId, this.selectedPaymentMethod || "card");
+  }
+
+  async completeFlightBooking(paymentId, orderId, payMethod = "UPI") {
+    const userEmail = this.currentUser ? this.currentUser.email : (document.getElementById("booking-contact-email")?.value || "guest@aeroassist.ai");
     const payload = {
       email: userEmail,
+      payment_id: paymentId,
+      razorpay_payment_id: paymentId,
+      razorpay_order_id: orderId,
       flight_details: {
         ...this.bookingDraft.flight,
         date: this.bookingDraft.date,
         cabinClass: this.bookingDraft.cabinClass
       },
       passenger_details: this.bookingDraft.passengerDetails,
-      payment_method: this.selectedPaymentMethod || "card",
+      payment_method: payMethod,
       total_fare: this.bookingDraft.totalFare
     };
 
@@ -3003,33 +3056,29 @@ class AeroAssistApp {
           user_email: userEmail,
           booking_id: "BK-" + Math.floor(100000 + Math.random() * 900000),
           ticket_number: "TKT-" + Math.floor(10000000 + Math.random() * 90000000),
-          payment_id: "PAY-" + Math.floor(1000000 + Math.random() * 9000000),
-          transaction_id: "TXN-" + Math.floor(100000000 + Math.random() * 900000000),
+          payment_id: paymentId,
+          transaction_id: orderId,
           flight_details: payload.flight_details,
           passenger_details: payload.passenger_details,
           amount: payload.total_fare,
-          payment_method: payload.payment_method,
+          payment_method: payMethod,
           booking_status: "Confirmed"
         };
       }
 
-      // Save to local cache for instant offline rendering (scoped by user email)
+      // Save to local cache for instant rendering
       const localKey = `aero_local_bookings_${userEmail.toLowerCase()}`;
       const existing = JSON.parse(localStorage.getItem(localKey) || "[]");
       existing.unshift(newBooking);
       localStorage.setItem(localKey, JSON.stringify(existing));
 
-      setTimeout(() => {
-        this.closeModal("flight-payment");
-        alert("✅ Payment Successful! Your flight ticket is confirmed.");
-        
-        this.resetFlightSearchUI();
-        this.showPage('my-bookings');
-      }, 1500);
+      this.closeModal("flight-payment");
+      alert("🎉 Flight Ticket Confirmed!\n\nPNR: " + (newBooking.pnr || newBooking.id) + "\nPayment ID: " + paymentId);
+      
+      this.resetFlightSearchUI();
+      this.showPage('my-bookings');
     } catch(err) {
-      alert("Payment processing error.");
-      btn.innerHTML = originalText;
-      btn.disabled = false;
+      alert("Error confirming booking.");
     }
   }
 
