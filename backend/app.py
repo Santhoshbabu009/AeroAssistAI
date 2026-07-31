@@ -3291,6 +3291,166 @@ def manage_vendor_products():
             return jsonify({"status": "success", "message": "Product deleted successfully"})
 
 # --- IN-APP FLIGHT BOOKING & PAYMENT ENGINE ENDPOINTS ---
+import urllib.request
+import urllib.parse
+import json
+
+class AmadeusFlightClient:
+    def __init__ (self):
+        self.client_id = os.environ.get("AMADEUS_CLIENT_ID", "").strip()
+        self.client_secret = os.environ.get("AMADEUS_CLIENT_SECRET", "").strip()
+        self.env = os.environ.get("AMADEUS_ENV", "test").strip().lower()
+        self.base_url = "https://api.amadeus.com" if self.env == "production" else "https://test.api.amadeus.com"
+        self._access_token = None
+        self._token_expires_at = 0
+
+    def is_configured(self):
+        return bool(self.client_id and self.client_secret)
+
+    def _get_access_token(self):
+        if not self.is_configured():
+            return None
+        now = time.time()
+        if self._access_token and now < self._token_expires_at - 30:
+            return self._access_token
+
+        url = f"{self.base_url}/v1/security/oauth2/token"
+        data = urllib.parse.urlencode({
+            'grant_type': 'client_credentials',
+            'client_id': self.client_id,
+            'client_secret': self.client_secret
+        }).encode('utf-8')
+
+        req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                res_data = json.loads(resp.read().decode('utf-8'))
+                self._access_token = res_data.get('access_token')
+                expires_in = res_data.get('expires_in', 1799)
+                self._token_expires_at = now + expires_in
+                return self._access_token
+        except Exception as e:
+            print("[AMADEUS AUTH ERROR]:", str(e))
+            return None
+
+    def search_flights(self, origin, destination, date_str, passengers=1, cabin_class="Economy"):
+        token = self._get_access_token()
+        if not token:
+            return None
+
+        class_map = {
+            "Economy": "ECONOMY",
+            "Premium Economy": "PREMIUM_ECONOMY",
+            "Business": "BUSINESS",
+            "First": "FIRST"
+        }
+        travel_class = class_map.get(cabin_class, "ECONOMY")
+
+        params = {
+            "originLocationCode": origin,
+            "destinationLocationCode": destination,
+            "departureDate": date_str,
+            "adults": str(passengers),
+            "travelClass": travel_class,
+            "currencyCode": "INR",
+            "max": "10"
+        }
+
+        query_str = urllib.parse.urlencode(params)
+        url = f"{self.base_url}/v2/shopping/flight-offers?{query_str}"
+
+        req = urllib.request.Request(url, headers={
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/json'
+        })
+
+        try:
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                res_data = json.loads(resp.read().decode('utf-8'))
+                raw_offers = res_data.get('data', [])
+                dictionaries = res_data.get('dictionaries', {})
+
+                parsed_flights = []
+                carrier_names = dictionaries.get('carriers', {})
+
+                for offer in raw_offers:
+                    offer_id = offer.get('id')
+                    price_info = offer.get('price', {})
+                    grand_total = float(price_info.get('grandTotal', price_info.get('total', 4500)))
+                    price_per_pax = int(grand_total / max(1, passengers))
+
+                    itineraries = offer.get('itineraries', [])
+                    if not itineraries:
+                        continue
+
+                    segments = itineraries[0].get('segments', [])
+                    if not segments:
+                        continue
+
+                    first_seg = segments[0]
+                    last_seg = segments[-1]
+
+                    carrier_code = first_seg.get('carrierCode', 'AI')
+                    number = first_seg.get('number', '101')
+                    flight_num = f"{carrier_code}-{number}"
+                    airline_name = carrier_names.get(carrier_code, CARRIER_NAME_MAP.get(carrier_code, f"Airline {carrier_code}"))
+
+                    dep_time = first_seg.get('departure', {}).get('at', '').split('T')[-1][:5] or "08:00"
+                    arr_time = last_seg.get('arrival', {}).get('at', '').split('T')[-1][:5] or "10:15"
+                    duration_raw = itineraries[0].get('duration', 'PT2H15M').replace('PT', '').lower()
+                    duration = duration_raw.replace('h', 'h ').replace('m', 'm').strip()
+
+                    num_stops = len(segments) - 1
+                    stops_str = "Non-stop" if num_stops == 0 else f"{num_stops} Stop{'s' if num_stops > 1 else ''}"
+
+                    aircraft_code = first_seg.get('aircraft', {}).get('code', '32N')
+
+                    parsed_flights.append({
+                        "id": f"AMAD-{offer_id}-{flight_num}",
+                        "flight_number": flight_num,
+                        "airline": airline_name,
+                        "airline_code": carrier_code,
+                        "airline_logo": CARRIER_LOGO_MAP.get(carrier_code, "✈️"),
+                        "airline_color": CARRIER_COLOR_MAP.get(carrier_code, "#1E3A8A"),
+                        "origin": origin,
+                        "origin_name": AIRPORTS_MAPPING.get(origin, f"Airport ({origin})"),
+                        "destination": destination,
+                        "destination_name": AIRPORTS_MAPPING.get(destination, f"Airport ({destination})"),
+                        "departure_date": date_str,
+                        "departure_time": dep_time,
+                        "arrival_time": arr_time,
+                        "duration": duration,
+                        "stops": stops_str,
+                        "cabin_class": cabin_class,
+                        "passengers": passengers,
+                        "price_per_pax": price_per_pax,
+                        "total_fare": int(grand_total),
+                        "baggage": "25 kg Check-in + 7 kg Hand Bag",
+                        "aircraft": f"Aircraft {aircraft_code}",
+                        "terminal": f"Terminal {first_seg.get('departure', {}).get('terminal', '1')}",
+                        "gate": f"Gate {random.randint(1, 30)}",
+                        "raw_amadeus_offer": offer
+                    })
+
+                return parsed_flights
+        except Exception as e:
+            print("[AMADEUS FLIGHT SEARCH ERROR]:", str(e))
+            return None
+
+amadeus_client = AmadeusFlightClient()
+
+CARRIER_NAME_MAP = {
+    "AI": "Air India", "6E": "IndiGo", "UK": "Vistara", "SG": "SpiceJet",
+    "EK": "Emirates", "SQ": "Singapore Airlines", "QR": "Qatar Airways",
+    "BA": "British Airways", "AA": "American Airlines", "LH": "Lufthansa", "G8": "Go First"
+}
+CARRIER_LOGO_MAP = {
+    "AI": "✈️", "6E": "💙", "UK": "✨", "SG": "🌶️", "EK": "👑", "SQ": "🌟", "QR": "🇶🇦"
+}
+CARRIER_COLOR_MAP = {
+    "AI": "#E11B22", "6E": "#002B7F", "UK": "#4A154B", "SG": "#FF6F00", "EK": "#D71921"
+}
+
 AIRLINES_DATA = [
     {"name": "Air India", "code": "AI", "logo": "✈️", "color": "#E11B22"},
     {"name": "IndiGo", "code": "6E", "logo": "💙", "color": "#002B7F"},
@@ -3321,7 +3481,25 @@ def search_flights():
     passengers = int(request.args.get('passengers') or 1)
     cabin_class = request.args.get('cabin_class') or 'Economy'
     
-    # Generate realistic dynamic demo flight schedule based on origin-destination hash seed
+    # Try fetching real-time flight offers from Amadeus API first
+    real_time_flights = None
+    if amadeus_client.is_configured():
+        real_time_flights = amadeus_client.search_flights(origin, destination, date_str, passengers, cabin_class)
+
+    if real_time_flights and len(real_time_flights) > 0:
+        return jsonify({
+            "status": "success",
+            "source": "amadeus_realtime_api",
+            "origin": origin,
+            "destination": destination,
+            "date": date_str,
+            "passengers": passengers,
+            "cabin_class": cabin_class,
+            "count": len(real_time_flights),
+            "flights": real_time_flights
+        })
+
+    # Smooth Fallback: Generate realistic dynamic flight schedule based on origin-destination hash seed
     flights = []
     base_seed = sum(ord(c) for c in origin + destination + date_str)
     
@@ -3369,6 +3547,7 @@ def search_flights():
 
     return jsonify({
         "status": "success",
+        "source": "dynamic_schedule_generator",
         "origin": origin,
         "destination": destination,
         "date": date_str,
@@ -3377,6 +3556,7 @@ def search_flights():
         "count": len(flights),
         "flights": flights
     })
+
 
 @app.route('/api/flights/seats', methods=['GET'])
 def get_flight_seats():
