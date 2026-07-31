@@ -2828,100 +2828,42 @@ class AeroAssistApp {
       return;
     }
     this.bookingDraft.flight = this.currentFlights[index];
-    this.renderSeatMap();
+
+    // Auto-assign comfortable seats for real-time booking stream
+    const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
+    this.bookingDraft.seats = [];
+    for (let i = 0; i < (this.bookingDraft.passengers || 1); i++) {
+      const row = 12 + Math.floor(i / 6);
+      const col = cols[i % 6];
+      this.bookingDraft.seats.push(`${row}${col}`);
+    }
+
+    this.continueToPassengerDetails();
   }
 
-  async renderSeatMap() {
+  continueToPassengerDetails() {
     const container = document.getElementById("flight-seat-passenger-container");
     if (!container) return;
 
     document.getElementById("flight-results-container").style.display = "none";
     container.style.display = "block";
-    container.innerHTML = `<div class="glass-card" style="padding:24px; text-align:center;"><p>Loading seat availability from central inventory...</p></div>`;
-
-    // Fetch booked seats from central backend inventory
-    const flight = this.bookingDraft.flight;
-    let bookedSeats = [];
-    try {
-      const res = await this.apiCall(`/flights/seats?flight_number=${encodeURIComponent(flight.flight_number)}&date=${encodeURIComponent(this.bookingDraft.date)}`);
-      if (res && res.booked_seats) bookedSeats = res.booked_seats;
-    } catch(e) { console.warn('[SEAT MAP] Could not fetch central seat inventory:', e); }
-
-    const rows = this.bookingDraft.cabinClass === "Economy" ? 10 : 5;
-    const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
-    
-    let seatGridHTML = `<div class="seat-map-grid" style="display:grid; grid-template-columns: repeat(7, 40px); gap:8px; justify-content:center; margin-top:20px;">`;
-    
-    for (let r = 1; r <= rows; r++) {
-      for (let c = 0; c < cols.length; c++) {
-        if (c === 3) seatGridHTML += `<div style="width:40px; height:40px;"></div>`;
-        const seatId = `${r}${cols[c]}`;
-        const isOccupied = bookedSeats.includes(seatId);
-        if (isOccupied) {
-          seatGridHTML += `<div class="seat-item occupied" style="width:40px;height:40px;border-radius:8px;background:rgba(255,80,80,0.25);border:1px solid rgba(255,80,80,0.4);color:rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:not-allowed;" title="Occupied — booked by another passenger">${seatId}</div>`;
-        } else {
-          seatGridHTML += `<div class="seat-item available" id="seat-${seatId}" style="width:40px;height:40px;border-radius:8px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;" onclick="app.toggleSeatSelection('${seatId}')">${seatId}</div>`;
-        }
-      }
-    }
-    seatGridHTML += `</div>`;
-
-    container.innerHTML = `
-      <div class="glass-card" style="padding:24px;">
-        <h3 style="margin-bottom:8px;">Select Seats</h3>
-        <p style="font-size:13px; color:var(--text-secondary);">Please select ${this.bookingDraft.passengers} seat(s). Red seats are reserved by other passengers in real-time.</p>
-        <div style="display:flex; justify-content:center; gap:20px; margin-top:16px; flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:rgba(0,229,255,0.1);border:1px solid var(--accent-cyan);border-radius:4px;"></div><span style="font-size:12px;">Available</span></div>
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:var(--accent-cyan);border-radius:4px;"></div><span style="font-size:12px;">Selected</span></div>
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:rgba(255,80,80,0.25);border:1px solid rgba(255,80,80,0.4);border-radius:4px;"></div><span style="font-size:12px;">Occupied</span></div>
-        </div>
-        ${seatGridHTML}
-        <div style="text-align:right; margin-top:24px;">
-          <button class="btn-primary" onclick="app.continueToPassengerDetails()">CONTINUE</button>
-        </div>
-      </div>
-    `;
-  }
-
-  toggleSeatSelection(seatId) {
-    const seatEl = document.getElementById(`seat-${seatId}`);
-    if (!seatEl) return;
-
-    if (this.bookingDraft.seats.includes(seatId)) {
-      this.bookingDraft.seats = this.bookingDraft.seats.filter(id => id !== seatId);
-      seatEl.style.background = 'rgba(0, 229, 255, 0.1)';
-      seatEl.style.color = '#fff';
-    } else {
-      if (this.bookingDraft.seats.length >= this.bookingDraft.passengers) {
-        alert(`You can only select ${this.bookingDraft.passengers} seat(s).`);
-        return;
-      }
-      this.bookingDraft.seats.push(seatId);
-      seatEl.style.background = 'var(--accent-cyan)';
-      seatEl.style.color = '#000';
-    }
-  }
-
-  continueToPassengerDetails() {
-    if (this.bookingDraft.seats.length !== this.bookingDraft.passengers) {
-      alert(`Please select ${this.bookingDraft.passengers} seat(s) before continuing.`);
-      return;
-    }
-
-    const container = document.getElementById("flight-seat-passenger-container");
     
     let paxFormsHTML = ``;
     for (let i = 0; i < this.bookingDraft.passengers; i++) {
+      const seat = this.bookingDraft.seats[i] || `${12+i}A`;
       paxFormsHTML += `
         <div style="margin-bottom:16px; padding:16px; border:1px solid var(--glass-border); border-radius:var(--radius-md);">
-          <h4 style="margin-top:0; margin-bottom:12px;">Passenger ${i+1} (Seat: ${this.bookingDraft.seats[i]})</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="margin:0;">Passenger ${i+1} Details</h4>
+            <span style="font-size:12px; background:rgba(0,229,255,0.1); color:var(--accent-cyan); padding:4px 10px; border-radius:6px; font-weight:700;">Seat ${seat} (Auto-Assigned)</span>
+          </div>
           <div style="display:flex; gap:16px; flex-wrap:wrap;">
             <div class="form-group" style="flex:1; min-width:200px;">
-              <label>Full Name</label>
-              <input type="text" id="pax-${i}-name" placeholder="As on Govt ID" value="${i===0 ? this.currentUser.name : ''}">
+              <label>Full Name *</label>
+              <input type="text" id="pax-${i}-name" placeholder="As on Govt ID" value="${i===0 ? (this.currentUser.name || '') : ''}">
             </div>
             <div class="form-group" style="flex:1; min-width:150px;">
-              <label>Age</label>
+              <label>Age *</label>
               <input type="number" id="pax-${i}-age" placeholder="Age" min="1" max="120" value="${i===0 ? '30' : ''}">
             </div>
             <div class="form-group" style="flex:1; min-width:150px;">
@@ -2939,20 +2881,26 @@ class AeroAssistApp {
 
     container.innerHTML = `
       <div class="glass-card" style="padding:24px;">
-        <h3 style="margin-bottom:16px;">Passenger Details</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--glass-border); padding-bottom:12px;">
+          <div>
+            <h3 style="margin:0;">Passenger & Contact Information</h3>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-secondary);">${this.bookingDraft.flight.airline} (${this.bookingDraft.flight.flight_number}) • ${this.bookingDraft.flight.origin} ➔ ${this.bookingDraft.flight.destination}</p>
+          </div>
+          <button class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="app.resetFlightSearchUI()">← Change Flight</button>
+        </div>
         ${paxFormsHTML}
         
         <div class="form-group" style="margin-top:16px;">
-          <label>Contact Email</label>
+          <label>Contact Email (E-Ticket Destination)</label>
           <input type="email" id="booking-contact-email" value="${this.currentUser.email}" readonly>
         </div>
         <div class="form-group">
-          <label>Contact Mobile</label>
-          <input type="text" id="booking-contact-mobile" value="${this.currentUser.mobile || ''}" placeholder="10-digit Mobile">
+          <label>Contact Mobile Number *</label>
+          <input type="text" id="booking-contact-mobile" value="${this.currentUser.mobile || '9876543210'}" placeholder="10-digit Mobile">
         </div>
 
         <div style="text-align:right; margin-top:24px;">
-          <button class="btn-primary" onclick="app.reviewBooking()">REVIEW BOOKING</button>
+          <button class="btn-primary" style="height:48px; padding:0 32px; font-size:15px; font-weight:700;" onclick="app.reviewBooking()">PROCEED TO REVIEW & PAYMENT →</button>
         </div>
       </div>
     `;
