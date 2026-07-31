@@ -3437,6 +3437,116 @@ class AmadeusFlightClient:
             print("[AMADEUS FLIGHT SEARCH ERROR]:", str(e))
             return None
 
+class DuffelFlightClient:
+    def __init__(self):
+        self.api_key = os.environ.get("DUFFEL_API_KEY", "").strip()
+        self.base_url = "https://api.duffel.com"
+
+    def is_configured(self):
+        return bool(self.api_key)
+
+    def search_flights(self, origin, destination, date_str, passengers=1, cabin_class="Economy"):
+        if not self.is_configured():
+            return None
+
+        class_map = {
+            "Economy": "economy",
+            "Premium Economy": "premium_economy",
+            "Business": "business",
+            "First": "first"
+        }
+        cabin = class_map.get(cabin_class, "economy")
+
+        pax_list = [{"type": "adult"} for _ in range(passengers)]
+        payload = {
+            "data": {
+                "slices": [{
+                    "origin": origin,
+                    "destination": destination,
+                    "departure_date": date_str
+                }],
+                "passengers": pax_list,
+                "cabin_class": cabin
+            }
+        }
+
+        url = f"{self.base_url}/air/offer_requests?return_offers=true"
+        req_data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(url, data=req_data, headers={
+            "Authorization": f"Bearer {self.api_key}",
+            "Duffel-Version": "v2",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        })
+
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                res_data = json.loads(resp.read().decode('utf-8'))
+                raw_offers = res_data.get('data', {}).get('offers', [])
+
+                parsed_flights = []
+                for offer in raw_offers[:10]:
+                    offer_id = offer.get('id')
+                    total_amount = float(offer.get('total_amount', 4500))
+                    price_per_pax = int(total_amount / max(1, passengers))
+                    owner = offer.get('owner', {})
+                    airline_name = owner.get('name', 'Airline')
+                    carrier_code = owner.get('iata_code', 'FL')
+                    logo_url = owner.get('logo_symbol_url') or CARRIER_LOGO_MAP.get(carrier_code, '✈️')
+
+                    slices = offer.get('slices', [])
+                    if not slices:
+                        continue
+                    segments = slices[0].get('segments', [])
+                    if not segments:
+                        continue
+
+                    first_seg = segments[0]
+                    last_seg = segments[-1]
+                    flight_num = f"{carrier_code}-{first_seg.get('operating_carrier_flight_number') or first_seg.get('marketing_carrier_flight_number') or '101'}"
+
+                    dep_at = first_seg.get('departing_at', '')
+                    arr_at = last_seg.get('arriving_at', '')
+                    dep_time = dep_at.split('T')[-1][:5] if 'T' in dep_at else "08:00"
+                    arr_time = arr_at.split('T')[-1][:5] if 'T' in arr_at else "10:15"
+
+                    duration_raw = slices[0].get('duration', 'PT2H15M').replace('PT', '').lower()
+                    duration = duration_raw.replace('h', 'h ').replace('m', 'm').strip()
+                    num_stops = len(segments) - 1
+                    stops_str = "Non-stop" if num_stops == 0 else f"{num_stops} Stop{'s' if num_stops > 1 else ''}"
+
+                    parsed_flights.append({
+                        "id": f"DUFF-{offer_id}-{flight_num}",
+                        "flight_number": flight_num,
+                        "airline": airline_name,
+                        "airline_code": carrier_code,
+                        "airline_logo": logo_url if isinstance(logo_url, str) and logo_url.startswith("http") else CARRIER_LOGO_MAP.get(carrier_code, "✈️"),
+                        "airline_color": CARRIER_COLOR_MAP.get(carrier_code, "#1E3A8A"),
+                        "origin": origin,
+                        "origin_name": AIRPORTS_MAPPING.get(origin, f"Airport ({origin})"),
+                        "destination": destination,
+                        "destination_name": AIRPORTS_MAPPING.get(destination, f"Airport ({destination})"),
+                        "departure_date": date_str,
+                        "departure_time": dep_time,
+                        "arrival_time": arr_time,
+                        "duration": duration,
+                        "stops": stops_str,
+                        "cabin_class": cabin_class,
+                        "passengers": passengers,
+                        "price_per_pax": price_per_pax,
+                        "total_fare": int(total_amount),
+                        "baggage": "25 kg Check-in + 7 kg Hand Bag",
+                        "aircraft": first_seg.get('aircraft', {}).get('name', 'Airbus A320'),
+                        "terminal": f"Terminal {first_seg.get('origin_terminal', '1') or '1'}",
+                        "gate": f"Gate {random.randint(1, 30)}",
+                        "raw_duffel_offer": offer
+                    })
+                return parsed_flights
+        except Exception as e:
+            print("[DUFFEL FLIGHT SEARCH ERROR]:", str(e))
+            return None
+
+duffel_client = DuffelFlightClient()
 amadeus_client = AmadeusFlightClient()
 
 CARRIER_NAME_MAP = {
@@ -3481,23 +3591,38 @@ def search_flights():
     passengers = int(request.args.get('passengers') or 1)
     cabin_class = request.args.get('cabin_class') or 'Economy'
     
-    # Try fetching real-time flight offers from Amadeus API first
-    real_time_flights = None
-    if amadeus_client.is_configured():
-        real_time_flights = amadeus_client.search_flights(origin, destination, date_str, passengers, cabin_class)
+    # 1. Try Duffel API first (Recommended for developers)
+    if duffel_client.is_configured():
+        duffel_flights = duffel_client.search_flights(origin, destination, date_str, passengers, cabin_class)
+        if duffel_flights and len(duffel_flights) > 0:
+            return jsonify({
+                "status": "success",
+                "source": "duffel_realtime_api",
+                "origin": origin,
+                "destination": destination,
+                "date": date_str,
+                "passengers": passengers,
+                "cabin_class": cabin_class,
+                "count": len(duffel_flights),
+                "flights": duffel_flights
+            })
 
-    if real_time_flights and len(real_time_flights) > 0:
-        return jsonify({
-            "status": "success",
-            "source": "amadeus_realtime_api",
-            "origin": origin,
-            "destination": destination,
-            "date": date_str,
-            "passengers": passengers,
-            "cabin_class": cabin_class,
-            "count": len(real_time_flights),
-            "flights": real_time_flights
-        })
+    # 2. Try Amadeus Enterprise API
+    if amadeus_client.is_configured():
+        amadeus_flights = amadeus_client.search_flights(origin, destination, date_str, passengers, cabin_class)
+        if amadeus_flights and len(amadeus_flights) > 0:
+            return jsonify({
+                "status": "success",
+                "source": "amadeus_realtime_api",
+                "origin": origin,
+                "destination": destination,
+                "date": date_str,
+                "passengers": passengers,
+                "cabin_class": cabin_class,
+                "count": len(amadeus_flights),
+                "flights": amadeus_flights
+            })
+
 
     # Smooth Fallback: Generate realistic dynamic flight schedule based on origin-destination hash seed
     flights = []
