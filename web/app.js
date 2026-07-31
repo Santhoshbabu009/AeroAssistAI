@@ -1233,43 +1233,52 @@ class AeroAssistApp {
 
   // --- ROLE-BASED SIDEBAR ACCESS CONTROL (RBAC) ---
   updateSidebarRBAC() {
-    const navVendor = document.getElementById("nav-vendor");
-    const navDashboard = document.getElementById("nav-dashboard");
-    const navChat = document.getElementById("nav-chat");
-    const navDining = document.getElementById("nav-dining");
-    const navLounges = document.getElementById("nav-lounges");
-    const navWallet = document.getElementById("nav-wallet");
-    const navUtilities = document.getElementById("nav-utilities");
-    const navQuiz = document.getElementById("nav-quiz");
+    // All passenger-only nav items
+    const passengerNavIds = [
+      "nav-dashboard", "nav-flights", "nav-my-bookings", "nav-chat",
+      "nav-dining", "nav-lounges", "nav-wallet", "nav-utilities",
+      "nav-lost-found", "nav-parking", "nav-community", "nav-quiz",
+      "nav-profile"
+    ];
 
-    const role = this.currentUserType || localStorage.getItem("user_type") || "Visitor";
-    const isVendorRole = (role === "Vendor" || role === "Admin") && !!this.currentVendor;
+    const navVendor  = document.getElementById("nav-vendor");
+    const navAdmin   = document.getElementById("nav-admin");
 
-    if (navVendor) {
-      if (role === "Employee" || role === "Visitor" || !isVendorRole) {
-        navVendor.style.setProperty("display", "none", "important");
-      } else {
+    const isVendorLoggedIn = !!this.currentVendor;
+    const isAdminLoggedIn  = !!this.isAdminSession;
+
+    if (isVendorLoggedIn || isAdminLoggedIn) {
+      // Hide ALL passenger nav items
+      passengerNavIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.setProperty("display", "none", "important");
+      });
+
+      // Show the correct portal nav button
+      if (isVendorLoggedIn && navVendor) {
         navVendor.style.setProperty("display", "flex", "important");
+      } else if (navVendor) {
+        navVendor.style.setProperty("display", "none", "important");
       }
-    }
 
-    if (isVendorRole && !this.currentUser) {
-      if (navDashboard) navDashboard.style.display = "none";
-      if (navChat) navChat.style.display = "none";
-      if (navLounges) navLounges.style.display = "none";
-      if (navWallet) navWallet.style.display = "none";
-      if (navUtilities) navUtilities.style.display = "none";
-      if (navQuiz) navQuiz.style.display = "none";
+      if (isAdminLoggedIn && navAdmin) {
+        navAdmin.style.setProperty("display", "flex", "important");
+      } else if (navAdmin) {
+        navAdmin.style.setProperty("display", "none", "important");
+      }
     } else {
-      if (navDashboard) navDashboard.style.display = "flex";
-      if (navChat) navChat.style.display = "flex";
-      if (navDining) navDining.style.display = "flex";
-      if (navLounges) navLounges.style.display = "flex";
-      if (navWallet) navWallet.style.display = "flex";
-      if (navUtilities) navUtilities.style.display = "flex";
-      if (navQuiz) navQuiz.style.display = "flex";
+      // Regular passenger/visitor — show all passenger nav items
+      passengerNavIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.removeProperty("display");
+      });
+
+      // Hide portal-only nav items
+      if (navVendor) navVendor.style.setProperty("display", "none", "important");
+      if (navAdmin)  navAdmin.style.setProperty("display", "none", "important");
     }
   }
+
 
   openProfileModal() {
     const loggedIn = document.getElementById("profile-logged-in-views");
@@ -2048,7 +2057,9 @@ class AeroAssistApp {
 
     if (type === "admin") {
       if (password === "admin_aeroassist_2026") {
+        this.isAdminSession = true;
         this.closeModal("vendor-login");
+        this.updateSidebarRBAC();
         this.showPage("admin");
       } else {
         alert("Unauthorized Admin Secret Key!");
@@ -2081,6 +2092,8 @@ class AeroAssistApp {
   }
 
   logoutAdmin() {
+    this.isAdminSession = false;
+    this.updateSidebarRBAC();
     this.showPage("dashboard");
   }
 

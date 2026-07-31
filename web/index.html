@@ -66,8 +66,11 @@
         <button id="nav-profile" class="nav-link-btn" onclick="app.showPage('profile')">
           <i data-lucide="user" class="nav-icon"></i> <span>User Profile</span>
         </button>
-        <button id="nav-vendor" class="nav-link-btn" style="margin-top:auto;" onclick="app.showPage('vendor')">
+        <button id="nav-vendor" class="nav-link-btn" style="margin-top:auto; display:none;" onclick="app.showPage('vendor')">
           <i data-lucide="shield" class="nav-icon"></i> <span data-i18n="nav_vendor">Vendor Portal</span>
+        </button>
+        <button id="nav-admin" class="nav-link-btn" style="margin-top:auto; display:none; color:#FFA726;" onclick="app.showPage('admin')">
+          <i data-lucide="shield-alert" class="nav-icon"></i> <span>Admin Portal</span>
         </button>
       </nav>
 
