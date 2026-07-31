@@ -66,31 +66,28 @@ public class ETicketActivity extends BaseActivity {
             JSONObject flight = booking.optJSONObject("flight_details");
             if (flight == null) flight = new JSONObject();
 
-            JSONArray paxArray = booking.optJSONArray("passenger_details");
-            JSONObject pax = (paxArray != null && paxArray.length() > 0) ? paxArray.getJSONObject(0) : new JSONObject();
+            StringBuilder namesSb = new StringBuilder();
+            StringBuilder seatsSb = new StringBuilder();
+            if (paxArray != null && paxArray.length() > 0) {
+                for (int i = 0; i < paxArray.length(); i++) {
+                    JSONObject pObj = paxArray.optJSONObject(i);
+                    if (pObj != null) {
+                        if (namesSb.length() > 0) {
+                            namesSb.append(", ");
+                            seatsSb.append(", ");
+                        }
+                        namesSb.append(pObj.optString("name", "Passenger " + (i + 1)));
+                        seatsSb.append(pObj.optString("seat", "Seat " + (i + 1)));
+                    }
+                }
+            } else {
+                namesSb.append("Santhosh Babu");
+                seatsSb.append("12A");
+            }
 
-            String displayPnr = booking.optString("pnr", pnr);
-            String status = booking.optString("booking_status", booking.optString("status", "Confirmed")).toUpperCase();
-
-            setTextSafe(R.id.tktAirlineName, flight.optString("airline", "Air India"));
-            setTextSafe(R.id.tktAircraft, flight.optString("aircraft", "Airbus A320neo") + " • " + flight.optString("cabinClass", "Economy"));
-            setTextSafe(R.id.tktPnr, "PNR: " + displayPnr);
-            setTextSafe(R.id.tktStatus, status);
-
-            setTextSafe(R.id.tktOrigCode, flight.optString("origin", "MAA"));
-            setTextSafe(R.id.tktOrigName, flight.optString("origin_name", flight.optString("origin", "Chennai")));
-            setTextSafe(R.id.tktDepTime, flight.optString("departure_time", "06:00 AM"));
-
-            setTextSafe(R.id.tktDuration, flight.optString("duration", "2h 15m"));
-            setTextSafe(R.id.tktStops, flight.optString("stops", "Non-stop"));
-
-            setTextSafe(R.id.tktDestCode, flight.optString("destination", "DEL"));
-            setTextSafe(R.id.tktDestName, flight.optString("destination_name", flight.optString("destination", "New Delhi")));
-            setTextSafe(R.id.tktArrTime, flight.optString("arrival_time", "08:15 AM"));
-
-            setTextSafe(R.id.tktPaxName, pax.optString("name", "Santhosh Babu"));
+            setTextSafe(R.id.tktPaxName, namesSb.toString());
             setTextSafe(R.id.tktFlightNum, flight.optString("flight_number", "AI-432"));
-            setTextSafe(R.id.tktSeatNo, pax.optString("seat", "12A"));
+            setTextSafe(R.id.tktSeatNo, seatsSb.toString());
 
             String term = flight.optString("terminal", "Terminal 1");
             setTextSafe(R.id.tktTerminalGate, term + " / Gate 9");

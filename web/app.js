@@ -2846,7 +2846,9 @@ class AeroAssistApp {
       const statusClass = rawStatus === 'confirmed' ? 'accepted' : rawStatus === 'completed' ? 'delivered' : 'pending';
       const pnr = b.pnr || b.booking_id || b.id;
       const paxList = Array.isArray(b.passenger_details) ? b.passenger_details : [];
-      const pax1 = paxList[0] || {};
+      const paxCount = paxList.length || 1;
+      const allNames = paxList.map(p => p.name).filter(Boolean).join(", ") || (b.passenger_name || 'Passenger');
+      const allSeats = paxList.map(p => p.seat).filter(Boolean).join(", ") || '-';
       return `
         <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
@@ -2858,8 +2860,8 @@ class AeroAssistApp {
             <div>
               <p style="margin:0; font-size:18px; font-weight:700;">${f.origin || '?'} ➔ ${f.destination || '?'}</p>
               <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.date || b.departure_date || ''} | ${f.airline || ''} (${f.flight_number || ''})</p>
-              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.departure_time || ''} - ${f.arrival_time || ''} &nbsp;|&nbsp; Seat: <strong style="color:var(--accent-cyan);">${pax1.seat || '-'}</strong></p>
-              ${pax1.name ? `<p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Passenger: ${pax1.name}</p>` : ''}
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">${f.departure_time || ''} - ${f.arrival_time || ''} &nbsp;|&nbsp; Passengers: <strong>${paxCount}</strong> &nbsp;|&nbsp; Seats: <strong style="color:var(--accent-cyan);">${allSeats}</strong></p>
+              <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:13px;">Passenger(s): <strong>${allNames}</strong></p>
             </div>
             
             <div style="text-align:right;">
@@ -2948,95 +2950,39 @@ class AeroAssistApp {
         const items = Array.isArray(o.items) ? o.items.map(i => `${i.quantity||i.qty||1}x ${i.name||i.product_name}`).join(', ') : (o.formatted_items || o.items || 'Items');
         return `
           <div class="glass-card" style="margin-bottom:16px; padding:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-              <h3 style="margin:0;">Order <span style="color:var(--accent-orange);">${o.booking_id || o.order_id || ('#'+o.id)}</span></h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h4 style="margin:0;">${o.restaurant_name || 'Airport Restaurant'}</h4>
               <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px;">
-              <div>
-                <p style="margin:0; font-size:15px; font-weight:600;">${o.restaurant_name || o.vendor_name || 'Restaurant'}</p>
-                <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Items: ${items}</p>
-              </div>
-              <div>
-                <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${o.terminal || '-'}</strong> | Gate: <strong>${o.gate || '-'}</strong></p>
-                ${o.pickup_counter ? `<p style="margin:4px 0 0; font-size:13px; color:var(--accent-cyan);">🪧 Pickup Counter: <strong>${o.pickup_counter}</strong></p>` : ''}
-                <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Total: <strong style="color:var(--accent-orange);">₹${o.total_price || o.total_amount || 0}</strong></p>
-              </div>
-              <div>
-                ${o.created_at ? `<p style="margin:0; font-size:12px; color:var(--text-muted);">📅 ${new Date(o.created_at).toLocaleString()}</p>` : ''}
-                <p style="margin:4px 0 0; font-size:12px; color:var(--text-muted);">Payment: ${o.payment_method || 'COD'} — ${o.payment_status || 'Pending'}</p>
-              </div>
+            <p style="margin:4px 0; font-size:14px; color:var(--text-secondary);">${items}</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:13px;">
+              <span>Order ID: <strong>${o.order_id || o.id || 'ORD'}</strong></span>
+              <span style="color:var(--accent-orange); font-weight:700;">₹${(o.total_amount || 0).toLocaleString('en-IN')}</span>
             </div>
-          </div>`;
+          </div>
+        `;
       }).join('');
     } catch(e) {
-      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load food orders.</div>`;
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load food order history.</div>`;
     }
   }
 
   async fetchParkingBookings() {
-    const container = document.getElementById("my-parking-list-container");
+    const container = document.getElementById('my-parking-list-container');
     if (!container) return;
     if (!this.currentUser || !this.currentUser.email) {
-      container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-secondary);">Please Sign In to view parking reservations.</div>`;
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">Please Sign In to view your parking reservations.</div>`;
       return;
     }
-    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading parking bookings...</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Loading parking history...</div>`;
     try {
-      const res = await this.apiCall(`/parking-bookings?email=${encodeURIComponent(this.currentUser.email)}`);
+      const res = await this.apiCall(`/parking-bookings/history?email=${encodeURIComponent(this.currentUser.email)}`);
       const bookings = (res && res.bookings) ? res.bookings : [];
       if (!bookings.length) {
         container.innerHTML = `
           <div style="text-align:center; padding: 60px 20px; color: var(--text-secondary);">
             <div style="font-size:3rem; margin-bottom:16px;">🅿️</div>
             <h3 style="color:var(--text-primary); margin-bottom:8px;">No Parking Reservations</h3>
-            <p style="margin-bottom:24px;">You haven't reserved any parking slots yet.</p>
-            <button class="btn-primary" onclick="app.showPage('parking')" style="padding:12px 28px; border-radius:12px;">Reserve a Slot</button>
-          </div>`;
-        return;
-      }
-      this.renderParkingBookings(bookings);
-    } catch(e) {
-      container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary);">Failed to load parking bookings.</div>`;
-    }
-  }
-
-  renderParkingBookings(bookings) {
-    const container = document.getElementById("my-parking-list-container");
-    if (!container) return;
-    container.innerHTML = bookings.map(b => {
-      const bookingId = b.booking_id || b.id || 'PRK-XXXXXX';
-      const slot = b.slot_number || b.slot || 'Auto-Assigned';
-      const plate = b.plate_number || b.plate || b.vehicle_plate || '-';
-      const hours = b.duration_hours || b.hours || '-';
-      const price = b.total_price || b.price || '-';
-      const terminal = b.terminal || '-';
-      const entry = b.entry_time ? new Date(b.entry_time).toLocaleString() : (b.date || '-');
-      const status = (b.booking_status || b.status || 'Confirmed');
-      const statusClass = status.toLowerCase() === 'confirmed' ? 'accepted' : 'pending';
-      return `
-        <div class="glass-card booking-card" style="margin-bottom:16px; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-            <h3 style="margin:0;">Booking ID: <span style="color:var(--accent-cyan);">${bookingId}</span></h3>
-            <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
-          </div>
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
-            <div>
-              <p style="margin:0; font-size:18px; font-weight:700;">Slot: <span style="color:var(--accent-orange);">${slot}</span></p>
-              <p style="margin:4px 0 0; color:var(--text-secondary); font-size:13px;">Vehicle: ${plate}</p>
-            </div>
-            <div>
-              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Terminal: <strong>${terminal}</strong></p>
-              <p style="margin:4px 0 0; font-size:13px; color:var(--text-secondary);">Duration: <strong>${hours} hrs</strong></p>
-            </div>
-            <div>
-              <p style="margin:0; font-size:13px; color:var(--text-secondary);">Entry: ${entry}</p>
-              <p style="margin:4px 0 0; font-size:15px; color:var(--accent-orange); font-weight:700;">₹${price}</p>
-            </div>
-          </div>
-        </div>`;
-    }).join("");
-  }
 
   async reserveParkingSlot() {
     if (!this.currentUser) {
